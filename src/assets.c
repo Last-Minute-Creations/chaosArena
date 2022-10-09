@@ -5,14 +5,14 @@
 #include <ace/utils/bitmap.h>
 
 tBitMap *g_pWarriorFrames;
-tBitMap *g_pWarriorMask;
+tBitMap *g_pWarriorMasks;
 
 void assetsGlobalCreate(void) {
 	g_pWarriorFrames = bitmapCreateFromFile("data/warrior.bm", 0);
-	g_pWarriorMask = bitmapCreateFromFile("data/warrior_mask.bm", 0);
+	g_pWarriorMasks = bitmapCreateFromFile("data/warrior_mask.bm", 0);
 }
 
 void assetsGlobalDestroy(void) {
 	bitmapDestroy(g_pWarriorFrames);
-	bitmapDestroy(g_pWarriorMask);
+	bitmapDestroy(g_pWarriorMasks);
 }

@@ -6,7 +6,6 @@
 #include <ace/managers/viewport/simplebuffer.h>
 #include <ace/utils/palette.h>
 
-#define GAME_BPP 4
 #define GAME_COLORS (1 << GAME_BPP)
 
 static tView *s_pView;

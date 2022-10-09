@@ -10,7 +10,6 @@ void assetsGlobalCreate(void);
 void assetsGlobalDestroy(void);
 
 extern tBitMap *g_pWarriorFrames;
-extern tBitMap *g_pWarriorMask;
+extern tBitMap *g_pWarriorMasks;
 
 #endif // INCLUDE_ASSETS_H
-

@@ -7,6 +7,8 @@
 
 #include <ace/managers/viewport/simplebuffer.h>
 
+#define GAME_BPP 4
+
 void displayCreate(void);
 
 void displayDestroy(void);
