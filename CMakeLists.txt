@@ -95,6 +95,13 @@ convertBitmaps(
 	MASKS ${DATA_DIR}/warrior_mask.bm
 )
 
+convertBitmaps(
+	TARGET ${GAME_EXECUTABLE}
+	PALETTE ${RES_DIR}/chaos_arena.gpl
+	INTERLEAVED SOURCES ${RES_DIR}/tiles.png
+	DESTINATIONS ${DATA_DIR}/tiles.bm
+)
+
 convertPalette(
 	${GAME_EXECUTABLE} ${RES_DIR}/chaos_arena.gpl ${DATA_DIR}/palette.plt
 )
