@@ -8,6 +8,9 @@
 #include <ace/managers/joy.h>
 #include <ace/managers/state.h>
 #include <ace/managers/ptplayer.h>
+#include "display.h"
+#include "assets.h"
+#include "game.h"
 
 tStateManager *g_pStateMachineGame;
 
@@ -16,21 +19,38 @@ void genericCreate(void) {
 	keyCreate();
 	joyOpen();
 	ptplayerCreate(1);
-	// assetsGlobalCreate();
-	// statePush(g_pStateMachineGame, &g_sStateLogo);
+
+	assetsGlobalCreate();
+	displayCreate();
+	systemUnuse();
+
+	displayOn();
+	statePush(g_pStateMachineGame, &g_sStateGame);
 }
 
 void genericProcess(void) {
 	ptplayerProcess();
 	keyProcess();
 	joyProcess();
-	// stateProcess(g_pStateMachineGame);
+
+	if (keyUse(KEY_ESCAPE)) {
+		gameExit();
+	}
+
+	stateProcess(g_pStateMachineGame);
+	displayProcess();
 }
 
 void genericDestroy(void) {
+	displayOff();
+	ptplayerStop();
+
+	systemUse();
+	displayDestroy();
+	assetsGlobalDestroy();
+
 	ptplayerDestroy();
-	// assetsGlobalDestroy();
 	keyDestroy();
 	joyClose();
-	// stateManagerDestroy(g_pStateMachineGame);
+	stateManagerDestroy(g_pStateMachineGame);
 }

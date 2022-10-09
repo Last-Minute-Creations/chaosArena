@@ -56,7 +56,48 @@ endif()
 set(RES_DIR ${CMAKE_CURRENT_LIST_DIR}/res)
 set(DATA_DIR ${CMAKE_CURRENT_BINARY_DIR}/data)
 set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
-file(MAKE_DIRECTORY ${DATA_DIR} ${GEN_DIR})
+set(WARRIOR_DIR ${GEN_DIR}/warrior)
+file(MAKE_DIRECTORY ${DATA_DIR} ${GEN_DIR} ${WARRIOR_DIR})
+
+# Assets
+SET(X_SPACING 16)
+SET(Y_SPACING 13)
+SET(FRAME_WIDTH 16)
+SET(FRAME_HEIGHT 19)
+foreach(direction RANGE 7)
+	SET(warriorFrames "")
+	file(MAKE_DIRECTORY ${WARRIOR_DIR})
+	foreach(anim RANGE 11)
+		MATH(EXPR posX "8 + ${anim} * (${FRAME_WIDTH} + ${X_SPACING})")
+		MATH(EXPR posY "5 + ${direction} * (${FRAME_HEIGHT} + ${Y_SPACING})")
+		MATH(EXPR frameIndex "12 * ${direction} + ${anim}")
+		extractBitmaps(
+			TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/warrior.png
+			DESTINATIONS
+				${WARRIOR_DIR}/${frameIndex}.png ${posX} ${posY} ${FRAME_WIDTH} ${FRAME_HEIGHT}
+			GENERATED_FILE_LIST warriorFrame
+		)
+		SET(warriorFrames "${warriorFrames};${warriorFrame}")
+	endforeach()
+endforeach()
+
+convertTileset(
+	TARGET ${GAME_EXECUTABLE} SIZE 16 HEIGHT 19
+	SOURCE ${WARRIOR_DIR} DESTINATION ${GEN_DIR}/warrior.png
+	TILE_PATHS ${warriorFrames}
+)
+convertBitmaps(
+	TARGET ${GAME_EXECUTABLE}
+	PALETTE ${RES_DIR}/chaos_arena.gpl
+	MASK_COLOR "#FF00FF"
+	INTERLEAVED SOURCES ${GEN_DIR}/warrior.png
+	DESTINATIONS ${DATA_DIR}/warrior.bm
+	MASKS ${DATA_DIR}/warrior_mask.bm
+)
+
+convertPalette(
+	${GAME_EXECUTABLE} ${RES_DIR}/chaos_arena.gpl ${DATA_DIR}/palette.plt
+)
 
 # Generating ZIP
 set(GAME_ZIP_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")

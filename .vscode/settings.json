@@ -1,0 +1,13 @@
+{
+	"files.associations": {
+		"*.make": "makefile",
+		"*.cmake": "cmake",
+		"*.nsi.in": "bridlensis",
+		"*.ld.in": "linkerscript",
+		"*.uxml": "xml",
+		"simplebuffer.h": "c",
+		"main.h": "c",
+		"display.h": "c"
+	},
+	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+}
