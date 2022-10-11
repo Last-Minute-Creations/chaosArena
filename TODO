@@ -1,0 +1,27 @@
+Game:
+	☐ Move warrior coord to bottom center of sprite
+	☐ collision with enemies
+	☐ pushing enemies with attacks
+	☐ falling out of map
+	☐ win conditions
+	☐ different offsets of frames, move to 16x16 blits
+	☐ crumbling of map
+	☐ sfx
+	☐ thunders?
+
+Menu:
+	☐ player selection (P1-P6, fire enables/disables, left-right switches config)
+	☐ start game
+	☐ exit to workbench
+	☐ credits
+	☐ how to play
+
+Logo screens:
+	☐ ACE from germz
+	☐ LMC from germz
+
+Final assets:
+	☐ sfx
+	☐ music
+	☐ proper palette
+	☐ proper graphics

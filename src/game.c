@@ -68,8 +68,8 @@ static void gameGsCreate(void) {
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		warriorAdd(
 			&s_pWarriors[i],
-			16 + 32 * (i % WARRIORS_PER_ROW),
-			16 + 32 * (i / WARRIORS_PER_ROW),
+			100 + 32 * (i % WARRIORS_PER_ROW),
+			100 + 32 * (i / WARRIORS_PER_ROW),
 			i == 0 ? steerInitKey(KEYMAP_WSAD) : steerInitIdle()
 		);
 	}
@@ -115,6 +115,7 @@ static void gameGsLoop(void) {
 
 	bobNewEnd();
 	debugReset();
+	// warriorDrawLookup(s_pVpManager->pBack);
 }
 
 static void gameGsDestroy(void) {

@@ -56,4 +56,6 @@ void warriorAdd(tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sStee
 
 void warriorProcess(tWarrior *pWarrior);
 
+void warriorDrawLookup(tBitMap *pBuffer);
+
 #endif // INCLUDE_WARRIOR_H
