@@ -1,6 +1,7 @@
 Game:
 	✔ collision with enemies @done(22-10-12 21:09)
-	☐ Move warrior coord to bottom center of sprite
+	✔ Move warrior coord to bottom center of sprite @done(22-10-12 21:24)
+	☐ sorting warrior bobs
 	☐ pushing enemies with attacks
 	☐ falling out of map
 	☐ win conditions

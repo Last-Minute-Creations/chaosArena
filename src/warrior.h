@@ -40,6 +40,7 @@ typedef enum tControl {
 } tControl;
 
 typedef struct tWarrior {
+	tUwCoordYX sPos;
 	tBobNew sBob;
 	UBYTE ubStunCooldown;
 	UBYTE ubAnimFrame;

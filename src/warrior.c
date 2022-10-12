@@ -12,6 +12,8 @@
 #define MAX_ANIM_FRAMES 4
 #define FRAME_COOLDOWN 5
 #define DIR_ID(dX, dY) ((dX + 1) | ((dY + 1) << 2))
+#define BOB_OFFSET_X (WARRIOR_FRAME_WIDTH / 2)
+#define BOB_OFFSET_Y (WARRIOR_FRAME_HEIGHT)
 
 // Must be power of 2!
 #define LOOKUP_TILE_SIZE 8
@@ -73,14 +75,14 @@ static UBYTE areWarriorsColliding(
 	const tWarrior *pWarrior1, const tWarrior *pWarrior2
 ) {
 	return (
-		pWarrior1->sBob.sPos.uwX < pWarrior2->sBob.sPos.uwX + LOOKUP_TILE_SIZE &&
-		pWarrior1->sBob.sPos.uwX + LOOKUP_TILE_SIZE > pWarrior2->sBob.sPos.uwX &&
-		pWarrior1->sBob.sPos.uwY < pWarrior2->sBob.sPos.uwY + LOOKUP_TILE_SIZE &&
-		pWarrior1->sBob.sPos.uwY + LOOKUP_TILE_SIZE > pWarrior2->sBob.sPos.uwY
+		pWarrior1->sPos.uwX < pWarrior2->sPos.uwX + LOOKUP_TILE_SIZE &&
+		pWarrior1->sPos.uwX + LOOKUP_TILE_SIZE > pWarrior2->sPos.uwX &&
+		pWarrior1->sPos.uwY < pWarrior2->sPos.uwY + LOOKUP_TILE_SIZE &&
+		pWarrior1->sPos.uwY + LOOKUP_TILE_SIZE > pWarrior2->sPos.uwY
 	);
 }
 
-static inline tWarrior *getWarriorFromPos(
+static inline tWarrior *warriorGetAtPos(
 	UWORD uwPosX, BYTE bLookupAddX, UWORD uwPosY, BYTE bLookupAddY
 ) {
 	UWORD uwLookupX = uwPosX / LOOKUP_TILE_SIZE + bLookupAddX;
@@ -90,65 +92,70 @@ static inline tWarrior *getWarriorFromPos(
 
 static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 	// TODO: this assumes that deltas are -1/1, it might not always be the case
-	UBYTE ubOldLookupX = pWarrior->sBob.sPos.uwX / LOOKUP_TILE_SIZE;
-	UBYTE ubOldLookupY = pWarrior->sBob.sPos.uwY / LOOKUP_TILE_SIZE;
-	UBYTE isUpdateLookup = 0;
+	UBYTE ubOldLookupX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
+	UBYTE ubOldLookupY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
+	UBYTE isMoved = 0;
 
 	if (bDeltaX) {
 		UBYTE isColliding = 0;
-		tUwCoordYX sOldPos = {.ulYX = pWarrior->sBob.sPos.ulYX};
-		pWarrior->sBob.sPos.uwX += bDeltaX;
+		tUwCoordYX sOldPos = {.ulYX = pWarrior->sPos.ulYX};
+		pWarrior->sPos.uwX += bDeltaX;
 
 		// collision with upper corner
-		tWarrior *pUp = getWarriorFromPos(sOldPos.uwX, bDeltaX, sOldPos.uwY, 0);
+		tWarrior *pUp = warriorGetAtPos(sOldPos.uwX, bDeltaX, sOldPos.uwY, 0);
 		if(pUp && pUp != pWarrior) {
 			isColliding = areWarriorsColliding(pWarrior, pUp);
 		}
 
 		// collision with lower corner
 		if (!isColliding && (sOldPos.uwY & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pDown = getWarriorFromPos(sOldPos.uwX, bDeltaX, sOldPos.uwY, +1);
+			tWarrior *pDown = warriorGetAtPos(sOldPos.uwX, bDeltaX, sOldPos.uwY, +1);
 			if(pDown && pDown != pWarrior) {
 				isColliding = areWarriorsColliding(pWarrior, pDown);
 			}
 		}
 
 		if(!isColliding) {
-			isUpdateLookup = 1;
+			isMoved = 1;
 		}
 		else {
-			pWarrior->sBob.sPos.ulYX = sOldPos.ulYX;
+			pWarrior->sPos.ulYX = sOldPos.ulYX;
 		}
 	}
 
 	if (bDeltaY) {
 		UBYTE isColliding = 0;
-		tUwCoordYX sOldPos = {.ulYX = pWarrior->sBob.sPos.ulYX};
-		pWarrior->sBob.sPos.uwY += bDeltaY;
+		tUwCoordYX sOldPos = {.ulYX = pWarrior->sPos.ulYX};
+		pWarrior->sPos.uwY += bDeltaY;
 
 		// collision with left corner
-		tWarrior *pLeft = getWarriorFromPos(sOldPos.uwX, 0, sOldPos.uwY, bDeltaY);
+		tWarrior *pLeft = warriorGetAtPos(sOldPos.uwX, 0, sOldPos.uwY, bDeltaY);
 		if(pLeft && pLeft != pWarrior) {
 			isColliding = areWarriorsColliding(pWarrior, pLeft);
 		}
 
 		// collision with right corner
 		if (!isColliding && (sOldPos.uwX & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pRight = getWarriorFromPos(sOldPos.uwX, +1, sOldPos.uwY, bDeltaY);
+			tWarrior *pRight = warriorGetAtPos(sOldPos.uwX, +1, sOldPos.uwY, bDeltaY);
 			if(pRight && pRight != pWarrior) {
 				isColliding = areWarriorsColliding(pWarrior, pRight);
 			}
 		}
 
 		if(!isColliding) {
-			isUpdateLookup = 1;
+			isMoved = 1;
 		}
 		else {
-			pWarrior->sBob.sPos.ulYX = sOldPos.ulYX;
+			pWarrior->sPos.ulYX = sOldPos.ulYX;
 		}
 	}
 
-	if(isUpdateLookup) {
+	if(isMoved) {
+		// Update bob position
+		pWarrior->sBob.sPos.uwX = pWarrior->sPos.uwX - BOB_OFFSET_X;
+		pWarrior->sBob.sPos.uwY = pWarrior->sPos.uwY - BOB_OFFSET_Y;
+
+		// Update lookup
 		if(
 			s_pWarriorLookup[ubOldLookupX][ubOldLookupY] &&
 			s_pWarriorLookup[ubOldLookupX][ubOldLookupY] != pWarrior
@@ -160,8 +167,8 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 		}
 		s_pWarriorLookup[ubOldLookupX][ubOldLookupY] = 0;
 
-		UBYTE ubNewLookupX = pWarrior->sBob.sPos.uwX / LOOKUP_TILE_SIZE;
-		UBYTE ubNewLookupY = pWarrior->sBob.sPos.uwY / LOOKUP_TILE_SIZE;
+		UBYTE ubNewLookupX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
+		UBYTE ubNewLookupY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
 		if(s_pWarriorLookup[ubNewLookupX][ubNewLookupY]) {
 			logWrite(
 				"ERR: Overwriting other warrior %p in lookup with %p\n",
@@ -191,10 +198,11 @@ void warriorInit(void) {
 }
 
 void warriorAdd(tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sSteer) {
+	pWarrior->sPos = (tUwCoordYX){.uwX = uwSpawnX, .uwY = uwSpawnY};
 	bobNewInit(
 		&pWarrior->sBob, WARRIOR_FRAME_WIDTH, WARRIOR_FRAME_HEIGHT, 1,
 		g_pWarriorFrames->Planes[0], g_pWarriorMasks->Planes[0],
-		uwSpawnX, uwSpawnY
+		pWarrior->sPos.uwX - BOB_OFFSET_X, pWarrior->sPos.uwY - BOB_OFFSET_Y
 	);
 	pWarrior->ubStunCooldown = 0;
 	pWarrior->ubFrameCooldown = FRAME_COOLDOWN;
