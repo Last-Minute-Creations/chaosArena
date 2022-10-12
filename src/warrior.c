@@ -69,6 +69,25 @@ static void resetWarriorLookup(void) {
 	}
 }
 
+static UBYTE areWarriorsColliding(
+	const tWarrior *pWarrior1, const tWarrior *pWarrior2
+) {
+	return (
+		pWarrior1->sBob.sPos.uwX < pWarrior2->sBob.sPos.uwX + LOOKUP_TILE_SIZE &&
+		pWarrior1->sBob.sPos.uwX + LOOKUP_TILE_SIZE > pWarrior2->sBob.sPos.uwX &&
+		pWarrior1->sBob.sPos.uwY < pWarrior2->sBob.sPos.uwY + LOOKUP_TILE_SIZE &&
+		pWarrior1->sBob.sPos.uwY + LOOKUP_TILE_SIZE > pWarrior2->sBob.sPos.uwY
+	);
+}
+
+static inline tWarrior *getWarriorFromPos(
+	UWORD uwPosX, BYTE bLookupAddX, UWORD uwPosY, BYTE bLookupAddY
+) {
+	UWORD uwLookupX = uwPosX / LOOKUP_TILE_SIZE + bLookupAddX;
+	UWORD uwLookupY = uwPosY / LOOKUP_TILE_SIZE + bLookupAddY;
+	return s_pWarriorLookup[uwLookupX][uwLookupY];
+}
+
 static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 	// TODO: this assumes that deltas are -1/1, it might not always be the case
 	UBYTE ubOldLookupX = pWarrior->sBob.sPos.uwX / LOOKUP_TILE_SIZE;
@@ -77,80 +96,75 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 
 	if (bDeltaX) {
 		UBYTE isColliding = 0;
-		UWORD uwNewX = pWarrior->sBob.sPos.uwX + bDeltaX;
+		tUwCoordYX sOldPos = {.ulYX = pWarrior->sBob.sPos.ulYX};
+		pWarrior->sBob.sPos.uwX += bDeltaX;
 
 		// collision with upper corner
-		tWarrior *pUp = s_pWarriorLookup[ubOldLookupX + bDeltaX][ubOldLookupY];
+		tWarrior *pUp = getWarriorFromPos(sOldPos.uwX, bDeltaX, sOldPos.uwY, 0);
 		if(pUp && pUp != pWarrior) {
-			isColliding = (
-				bDeltaX < 0 ?
-				(pUp->sBob.sPos.uwX + LOOKUP_TILE_SIZE >= uwNewX) :
-				(uwNewX + LOOKUP_TILE_SIZE >= pUp->sBob.sPos.uwX)
-			);
+			isColliding = areWarriorsColliding(pWarrior, pUp);
 		}
 
 		// collision with lower corner
-		if (!isColliding && (pWarrior->sBob.sPos.uwY & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pUp = s_pWarriorLookup[ubOldLookupX + bDeltaX][ubOldLookupY + 1];
-			if(pUp && pUp != pWarrior) {
-				isColliding = (
-					bDeltaX < 0 ?
-					(pUp->sBob.sPos.uwX + LOOKUP_TILE_SIZE >= uwNewX) :
-					(uwNewX + LOOKUP_TILE_SIZE >= pUp->sBob.sPos.uwX)
-				);
+		if (!isColliding && (sOldPos.uwY & (LOOKUP_TILE_SIZE - 1))) {
+			tWarrior *pDown = getWarriorFromPos(sOldPos.uwX, bDeltaX, sOldPos.uwY, +1);
+			if(pDown && pDown != pWarrior) {
+				isColliding = areWarriorsColliding(pWarrior, pDown);
 			}
 		}
 
 		if(!isColliding) {
-			pWarrior->sBob.sPos.uwX = uwNewX;
 			isUpdateLookup = 1;
+		}
+		else {
+			pWarrior->sBob.sPos.ulYX = sOldPos.ulYX;
 		}
 	}
 
 	if (bDeltaY) {
 		UBYTE isColliding = 0;
-		UWORD uwNewY = pWarrior->sBob.sPos.uwY + bDeltaY;
+		tUwCoordYX sOldPos = {.ulYX = pWarrior->sBob.sPos.ulYX};
+		pWarrior->sBob.sPos.uwY += bDeltaY;
 
 		// collision with left corner
-		tWarrior *pLeft = s_pWarriorLookup[ubOldLookupX][ubOldLookupY + bDeltaY];
+		tWarrior *pLeft = getWarriorFromPos(sOldPos.uwX, 0, sOldPos.uwY, bDeltaY);
 		if(pLeft && pLeft != pWarrior) {
-			isColliding = (
-				bDeltaY < 0 ?
-				(pLeft->sBob.sPos.uwY + LOOKUP_TILE_SIZE >= uwNewY) :
-				(uwNewY + LOOKUP_TILE_SIZE >= pLeft->sBob.sPos.uwY)
-			);
+			isColliding = areWarriorsColliding(pWarrior, pLeft);
 		}
 
 		// collision with right corner
-		if (!isColliding && (pWarrior->sBob.sPos.uwX & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pRight = s_pWarriorLookup[ubOldLookupX + 1][ubOldLookupY + bDeltaY];
+		if (!isColliding && (sOldPos.uwX & (LOOKUP_TILE_SIZE - 1))) {
+			tWarrior *pRight = getWarriorFromPos(sOldPos.uwX, +1, sOldPos.uwY, bDeltaY);
 			if(pRight && pRight != pWarrior) {
-				isColliding = (
-					bDeltaY < 0 ?
-					(pRight->sBob.sPos.uwY + LOOKUP_TILE_SIZE >= uwNewY) :
-					(uwNewY + LOOKUP_TILE_SIZE >= pRight->sBob.sPos.uwY)
-				);
+				isColliding = areWarriorsColliding(pWarrior, pRight);
 			}
 		}
 
 		if(!isColliding) {
-			pWarrior->sBob.sPos.uwY = uwNewY;
 			isUpdateLookup = 1;
+		}
+		else {
+			pWarrior->sBob.sPos.ulYX = sOldPos.ulYX;
 		}
 	}
 
 	if(isUpdateLookup) {
-		UBYTE ubNewLookupX = pWarrior->sBob.sPos.uwX / LOOKUP_TILE_SIZE;
-		UBYTE ubNewLookupY = pWarrior->sBob.sPos.uwY / LOOKUP_TILE_SIZE;
-
-		if(s_pWarriorLookup[ubOldLookupX][ubOldLookupY] != pWarrior) {
-
+		if(
+			s_pWarriorLookup[ubOldLookupX][ubOldLookupY] &&
+			s_pWarriorLookup[ubOldLookupX][ubOldLookupY] != pWarrior
+		) {
+			logWrite(
+				"ERR: Erasing other warrior %p\n",
+				s_pWarriorLookup[ubOldLookupX][ubOldLookupY]
+			);
 		}
 		s_pWarriorLookup[ubOldLookupX][ubOldLookupY] = 0;
 
+		UBYTE ubNewLookupX = pWarrior->sBob.sPos.uwX / LOOKUP_TILE_SIZE;
+		UBYTE ubNewLookupY = pWarrior->sBob.sPos.uwY / LOOKUP_TILE_SIZE;
 		if(s_pWarriorLookup[ubNewLookupX][ubNewLookupY]) {
 			logWrite(
-				"ERR: Overwriting other warrior %p in lookup with %p",
+				"ERR: Overwriting other warrior %p in lookup with %p\n",
 				s_pWarriorLookup[ubNewLookupX][ubNewLookupY], pWarrior
 			);
 		}
@@ -220,7 +234,6 @@ void warriorProcess(tWarrior *pWarrior) {
 			pWarrior->eDirection = s_pDirIdToAnimDir[ubDirId];
 			pWarrior->eAnim = ANIM_WALK;
 			warriorTryMoveBy(pWarrior, bDeltaX, bDeltaY);
-			logWrite("delta: %hhd,%hhd, dir: %d\n", bDeltaX, bDeltaY, pWarrior->eDirection);
 		}
 		else {
 			pWarrior->eAnim = ANIM_IDLE;
