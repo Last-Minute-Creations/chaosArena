@@ -1,8 +1,8 @@
 Game:
 	✔ collision with enemies @done(22-10-12 21:09)
 	✔ Move warrior coord to bottom center of sprite @done(22-10-12 21:24)
-	☐ sorting warrior bobs
-	☐ pushing enemies with attacks
+	✔ sorting warrior bobs @done(22-10-13 18:30)
+	☐ pushing enemies with attacks and stopping on other enemies/edge of screen
 	☐ falling out of map
 	☐ win conditions
 	☐ different offsets of frames, move to 16x16 blits

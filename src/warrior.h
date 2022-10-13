@@ -51,12 +51,12 @@ typedef struct tWarrior {
 	tSteer sSteer;
 } tWarrior;
 
-void warriorInit(void);
+void warriorsCreate(void);
 
-void warriorAdd(tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sSteer);
+void warriorsProcess(void);
 
-void warriorProcess(tWarrior *pWarrior);
+void warriorsDestroy(void);
 
-void warriorDrawLookup(tBitMap *pBuffer);
+void warriorsDrawLookup(tBitMap *pBuffer);
 
 #endif // INCLUDE_WARRIOR_H

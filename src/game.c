@@ -9,11 +9,8 @@
 #include "warrior.h"
 #include "assets.h"
 
-#define WARRIOR_COUNT 3
-#define WARRIORS_PER_ROW 8
 #define TILE_WIDTH 20
 #define TILE_HEIGHT 16
-#define T(c) (c == '#' ? TILE_FLOOR : TILE_VOID)
 
 typedef enum tTile {
 	TILE_VOID,
@@ -23,7 +20,6 @@ typedef enum tTile {
 } tTile;
 
 static tSimpleBufferManager *s_pVpManager;
-static tWarrior s_pWarriors[WARRIOR_COUNT];
 static UBYTE s_isDebug;
 
 static const char s_pMapPattern[TILE_HEIGHT][TILE_WIDTH + 1] = {
@@ -58,22 +54,13 @@ static void debugReset(void) {
 }
 
 static void gameGsCreate(void) {
-	warriorInit();
 	s_pVpManager = displayGetManager();
 	bobNewManagerCreate(
 		s_pVpManager->pFront, s_pVpManager->pBack,
 		s_pVpManager->sCommon.pVPort->uwHeight
 	);
 
-	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
-		warriorAdd(
-			&s_pWarriors[i],
-			100 + 32 * (i % WARRIORS_PER_ROW),
-			100 + 32 * (i / WARRIORS_PER_ROW),
-			i == 0 ? steerInitKey(KEYMAP_WSAD) : steerInitIdle()
-		);
-	}
-
+	warriorsCreate();
 	bobNewReallocateBgBuffers();
 
 	// Tiles
@@ -106,9 +93,7 @@ static void gameGsLoop(void) {
 	bobNewBegin(s_pVpManager->pBack);
 
 	debugColor(0x0f0);
-	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
-		warriorProcess(&s_pWarriors[i]);
-	}
+	warriorsProcess();
 
 	debugColor(0x00f);
 	bobNewPushingDone();
@@ -120,6 +105,7 @@ static void gameGsLoop(void) {
 
 static void gameGsDestroy(void) {
 	bobNewManagerDestroy();
+	warriorsDestroy();
 }
 
 tState g_sStateGame = {

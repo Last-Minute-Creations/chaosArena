@@ -6,6 +6,10 @@
 #include "assets.h"
 #include "display.h"
 
+//---------------------------------------------------------------------- DEFINES
+
+#define WARRIOR_COUNT 3
+#define WARRIORS_PER_ROW 8
 #define WARRIOR_FRAME_WIDTH 16
 #define WARRIOR_FRAME_HEIGHT 19
 #define BYTES_PER_FRAME ((WARRIOR_FRAME_WIDTH / 8) * WARRIOR_FRAME_HEIGHT * GAME_BPP)
@@ -21,10 +25,16 @@
 #define LOOKUP_TILE_WIDTH (320 / LOOKUP_TILE_SIZE)
 #define LOOKUP_TILE_HEIGHT (256 / LOOKUP_TILE_SIZE)
 
+//------------------------------------------------------------------------ TYPES
+
 typedef struct tFrameOffsets {
 	UBYTE *pBitmap;
 	UBYTE *pMask;
 } tFrameOffsets;
+
+//-------------------------------------------------------------- PRIVATE GLOBALS
+
+static tWarrior *s_pWarriors[WARRIOR_COUNT];
 
 static tWarrior *s_pWarriorLookup[LOOKUP_TILE_WIDTH][LOOKUP_TILE_HEIGHT];
 
@@ -41,6 +51,8 @@ static const tAnimDirection s_pDirIdToAnimDir[] = {
 	[DIR_ID( 1,  0)] = ANIM_DIRECTION_E,
 	[DIR_ID( 1,  1)] = ANIM_DIRECTION_SE,
 };
+
+//------------------------------------------------------------------ PRIVATE FNS
 
 static inline UBYTE getFrameCountForAnim(tAnim eAnim) {
 	UBYTE ubCount = ((eAnim == ANIM_HURT || eAnim == ANIM_ATTACK) ? 4 : 2);
@@ -179,25 +191,7 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 	}
 }
 
-void warriorDrawLookup(tBitMap *pBuffer) {
-	for(UBYTE ubY = 0; ubY < LOOKUP_TILE_HEIGHT; ++ubY) {
-		for(UBYTE ubX = 0; ubX < LOOKUP_TILE_WIDTH; ++ubX) {
-			if (s_pWarriorLookup[ubX][ubY]) {
-				blitRect(
-					pBuffer, ubX * LOOKUP_TILE_SIZE, ubY * LOOKUP_TILE_SIZE,
-					LOOKUP_TILE_SIZE, LOOKUP_TILE_SIZE, 6
-				);
-			}
-		}
-	}
-}
-
-void warriorInit(void) {
-	initFrameOffsets();
-	resetWarriorLookup();
-}
-
-void warriorAdd(tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sSteer) {
+static void warriorAdd(tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sSteer) {
 	pWarrior->sPos = (tUwCoordYX){.uwX = uwSpawnX, .uwY = uwSpawnY};
 	bobNewInit(
 		&pWarrior->sBob, WARRIOR_FRAME_WIDTH, WARRIOR_FRAME_HEIGHT, 1,
@@ -212,13 +206,13 @@ void warriorAdd(tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sStee
 	s_pWarriorLookup[uwSpawnX / LOOKUP_TILE_SIZE][uwSpawnY / LOOKUP_TILE_SIZE] = pWarrior;
 }
 
-void warriorSetAnim(tWarrior *pWarrior, tAnim eAnim) {
+static void warriorSetAnim(tWarrior *pWarrior, tAnim eAnim) {
 	pWarrior->eAnim = eAnim;
 	pWarrior->ubAnimFrame = 0;
 	pWarrior->ubFrameCooldown = FRAME_COOLDOWN;
 }
 
-void warriorProcess(tWarrior *pWarrior) {
+static void warriorProcess(tWarrior *pWarrior) {
 	steerProcess(&pWarrior->sSteer);
 	BYTE bDeltaX = 0, bDeltaY = 0;
 	if (steerDirCheck(&pWarrior->sSteer, DIRECTION_FIRE)) {
@@ -261,4 +255,58 @@ void warriorProcess(tWarrior *pWarrior) {
 	}
 
 	bobNewPush(&pWarrior->sBob);
+}
+
+//------------------------------------------------------------------- PUBLIC FNS
+
+void warriorsDrawLookup(tBitMap *pBuffer) {
+	for(UBYTE ubY = 0; ubY < LOOKUP_TILE_HEIGHT; ++ubY) {
+		for(UBYTE ubX = 0; ubX < LOOKUP_TILE_WIDTH; ++ubX) {
+			if (s_pWarriorLookup[ubX][ubY]) {
+				blitRect(
+					pBuffer, ubX * LOOKUP_TILE_SIZE, ubY * LOOKUP_TILE_SIZE,
+					LOOKUP_TILE_SIZE, LOOKUP_TILE_SIZE, 6
+				);
+			}
+		}
+	}
+}
+
+void warriorsCreate(void) {
+	initFrameOffsets();
+	resetWarriorLookup();
+
+	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
+		s_pWarriors[i] = memAllocFast(sizeof(*s_pWarriors[i]));
+		warriorAdd(
+			s_pWarriors[i],
+			100 + 32 * (i % WARRIORS_PER_ROW),
+			100 + 32 * (i / WARRIORS_PER_ROW),
+			i == 0 ? steerInitKey(KEYMAP_WSAD) : (
+				i == 1 ? steerInitKey(KEYMAP_ARROWS) : steerInitIdle()
+			)
+		);
+	}
+}
+
+void warriorsProcess(void) {
+	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
+		warriorProcess(s_pWarriors[i]);
+	}
+
+	tWarrior **pPrev = &s_pWarriors[0];
+	for(UBYTE i = 1; i < WARRIOR_COUNT; ++i) {
+		if(s_pWarriors[i]->sPos.ulYX < (*pPrev)->sPos.ulYX) {
+			tWarrior *pTemp = *pPrev;
+			*pPrev = s_pWarriors[i];
+			s_pWarriors[i] = pTemp;
+		}
+		pPrev = &s_pWarriors[i];
+	}
+}
+
+void warriorsDestroy(void) {
+	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
+		memFree(s_pWarriors[i], sizeof(*s_pWarriors[i]));
+	}
 }
