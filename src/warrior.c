@@ -18,6 +18,7 @@
 #define DIR_ID(dX, dY) ((dX + 1) | ((dY + 1) << 2))
 #define BOB_OFFSET_X (WARRIOR_FRAME_WIDTH / 2)
 #define BOB_OFFSET_Y (WARRIOR_FRAME_HEIGHT)
+#define WARRIOR_PUSH_DELTA 2
 
 // Must be power of 2!
 #define LOOKUP_TILE_SIZE 8
@@ -52,6 +53,28 @@ static const tAnimDirection s_pDirIdToAnimDir[] = {
 	[DIR_ID( 1,  1)] = ANIM_DIRECTION_SE,
 };
 
+static const tBCoordYX s_pAnimDirToAttackDelta[ANIM_DIRECTION_COUNT] = {
+	[ANIM_DIRECTION_S] =  {.bX =                 0, .bY =  LOOKUP_TILE_SIZE},
+	[ANIM_DIRECTION_SE] = {.bX =  LOOKUP_TILE_SIZE, .bY =  LOOKUP_TILE_SIZE},
+	[ANIM_DIRECTION_E] =  {.bX =  LOOKUP_TILE_SIZE, .bY =                 0},
+	[ANIM_DIRECTION_NE] = {.bX =  LOOKUP_TILE_SIZE, .bY = -LOOKUP_TILE_SIZE},
+	[ANIM_DIRECTION_N] =  {.bX =                 0, .bY = -LOOKUP_TILE_SIZE},
+	[ANIM_DIRECTION_NW] = {.bX = -LOOKUP_TILE_SIZE, .bY = -LOOKUP_TILE_SIZE},
+	[ANIM_DIRECTION_W] =  {.bX = -LOOKUP_TILE_SIZE, .bY =                 0},
+	[ANIM_DIRECTION_SW] = {.bX = -LOOKUP_TILE_SIZE, .bY = LOOKUP_TILE_SIZE},
+};
+
+static const tBCoordYX s_pAnimDirToPushDelta[ANIM_DIRECTION_COUNT] = {
+	[ANIM_DIRECTION_S] =  {.bX =                   0, .bY =  WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_SE] = {.bX =  WARRIOR_PUSH_DELTA, .bY =  WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_E] =  {.bX =  WARRIOR_PUSH_DELTA, .bY =                   0},
+	[ANIM_DIRECTION_NE] = {.bX =  WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_N] =  {.bX =                   0, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_NW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_W] =  {.bX = -WARRIOR_PUSH_DELTA, .bY =                  0},
+	[ANIM_DIRECTION_SW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = WARRIOR_PUSH_DELTA},
+};
+
 //------------------------------------------------------------------ PRIVATE FNS
 
 static inline UBYTE getFrameCountForAnim(tAnim eAnim) {
@@ -83,15 +106,21 @@ static void resetWarriorLookup(void) {
 	}
 }
 
+static UBYTE isPositionCollidingWithWarrior(
+	tUwCoordYX sPos, const tWarrior *pWarrior
+) {
+	return (
+		sPos.uwX < pWarrior->sPos.uwX + LOOKUP_TILE_SIZE &&
+		sPos.uwX + LOOKUP_TILE_SIZE > pWarrior->sPos.uwX &&
+		sPos.uwY < pWarrior->sPos.uwY + LOOKUP_TILE_SIZE &&
+		sPos.uwY + LOOKUP_TILE_SIZE > pWarrior->sPos.uwY
+	);
+}
+
 static UBYTE areWarriorsColliding(
 	const tWarrior *pWarrior1, const tWarrior *pWarrior2
 ) {
-	return (
-		pWarrior1->sPos.uwX < pWarrior2->sPos.uwX + LOOKUP_TILE_SIZE &&
-		pWarrior1->sPos.uwX + LOOKUP_TILE_SIZE > pWarrior2->sPos.uwX &&
-		pWarrior1->sPos.uwY < pWarrior2->sPos.uwY + LOOKUP_TILE_SIZE &&
-		pWarrior1->sPos.uwY + LOOKUP_TILE_SIZE > pWarrior2->sPos.uwY
-	);
+	return isPositionCollidingWithWarrior(pWarrior1->sPos, pWarrior2);
 }
 
 static inline tWarrior *warriorGetAtPos(
@@ -103,7 +132,6 @@ static inline tWarrior *warriorGetAtPos(
 }
 
 static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
-	// TODO: this assumes that deltas are -1/1, it might not always be the case
 	UBYTE ubOldLookupX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
 	UBYTE ubOldLookupY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
 	UBYTE isMoved = 0;
@@ -114,14 +142,14 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 		pWarrior->sPos.uwX += bDeltaX;
 
 		// collision with upper corner
-		tWarrior *pUp = warriorGetAtPos(sOldPos.uwX, bDeltaX, sOldPos.uwY, 0);
+		tWarrior *pUp = warriorGetAtPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, 0);
 		if(pUp && pUp != pWarrior) {
 			isColliding = areWarriorsColliding(pWarrior, pUp);
 		}
 
 		// collision with lower corner
 		if (!isColliding && (sOldPos.uwY & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pDown = warriorGetAtPos(sOldPos.uwX, bDeltaX, sOldPos.uwY, +1);
+			tWarrior *pDown = warriorGetAtPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, +1);
 			if(pDown && pDown != pWarrior) {
 				isColliding = areWarriorsColliding(pWarrior, pDown);
 			}
@@ -141,14 +169,14 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 		pWarrior->sPos.uwY += bDeltaY;
 
 		// collision with left corner
-		tWarrior *pLeft = warriorGetAtPos(sOldPos.uwX, 0, sOldPos.uwY, bDeltaY);
+		tWarrior *pLeft = warriorGetAtPos(sOldPos.uwX, 0, sOldPos.uwY, SGN(bDeltaY));
 		if(pLeft && pLeft != pWarrior) {
 			isColliding = areWarriorsColliding(pWarrior, pLeft);
 		}
 
 		// collision with right corner
 		if (!isColliding && (sOldPos.uwX & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pRight = warriorGetAtPos(sOldPos.uwX, +1, sOldPos.uwY, bDeltaY);
+			tWarrior *pRight = warriorGetAtPos(sOldPos.uwX, +1, sOldPos.uwY, SGN(bDeltaY));
 			if(pRight && pRight != pWarrior) {
 				isColliding = areWarriorsColliding(pWarrior, pRight);
 			}
@@ -191,7 +219,9 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 	}
 }
 
-static void warriorAdd(tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sSteer) {
+static void warriorAdd(
+	tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sSteer
+) {
 	pWarrior->sPos = (tUwCoordYX){.uwX = uwSpawnX, .uwY = uwSpawnY};
 	bobNewInit(
 		&pWarrior->sBob, WARRIOR_FRAME_WIDTH, WARRIOR_FRAME_HEIGHT, 1,
@@ -212,36 +242,96 @@ static void warriorSetAnim(tWarrior *pWarrior, tAnim eAnim) {
 	pWarrior->ubFrameCooldown = FRAME_COOLDOWN;
 }
 
+static void warriorSetAnimOnce(tWarrior *pWarrior, tAnim eAnim) {
+	if(pWarrior->eAnim != eAnim) {
+		warriorSetAnim(pWarrior, eAnim);
+	}
+}
+
+static void warriorStrike(const tWarrior *pWarrior) {
+	const tBCoordYX *pDelta = &s_pAnimDirToAttackDelta[pWarrior->eDirection];
+	const tBCoordYX *pPushDelta = &s_pAnimDirToPushDelta[pWarrior->eDirection];
+	tUwCoordYX sAttackPos = (tUwCoordYX) {
+		.uwX = pWarrior->sPos.uwX + pDelta->bX,
+		.uwY = pWarrior->sPos.uwY + pDelta->bY
+	};
+
+	tWarrior *pOther;
+
+	pOther = warriorGetAtPos(sAttackPos.uwX, 0, sAttackPos.uwY, 0);
+	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
+		warriorSetAnim(pOther, ANIM_HURT);
+		pOther->sPushDelta = *pPushDelta;
+		return;
+	}
+
+	pOther = warriorGetAtPos(sAttackPos.uwX, 1, sAttackPos.uwY, 0);
+	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
+		warriorSetAnim(pOther, ANIM_HURT);
+		pOther->sPushDelta = *pPushDelta;
+		return;
+	}
+
+	pOther = warriorGetAtPos(sAttackPos.uwX, 0, sAttackPos.uwY, 1);
+	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
+		warriorSetAnim(pOther, ANIM_HURT);
+		pOther->sPushDelta = *pPushDelta;
+		return;
+	}
+
+	pOther = warriorGetAtPos(sAttackPos.uwX, 1, sAttackPos.uwY, 1);
+	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
+		warriorSetAnim(pOther, ANIM_HURT);
+		pOther->sPushDelta = *pPushDelta;
+		return;
+	}
+}
+
 static void warriorProcess(tWarrior *pWarrior) {
 	steerProcess(&pWarrior->sSteer);
-	BYTE bDeltaX = 0, bDeltaY = 0;
-	if (steerDirCheck(&pWarrior->sSteer, DIRECTION_FIRE)) {
-		pWarrior->eAnim = ANIM_ATTACK;
+
+	if(pWarrior->eAnim == ANIM_HURT && pWarrior->ubAnimFrame != getFrameCountForAnim(ANIM_HURT) - 1) {
+		// Pushback
+		warriorTryMoveBy(pWarrior, pWarrior->sPushDelta.bX, pWarrior->sPushDelta.bY);
+	}
+	else if(pWarrior->eAnim == ANIM_ATTACK && pWarrior->ubAnimFrame != getFrameCountForAnim(ANIM_ATTACK) - 1) {
+		if(pWarrior->ubAnimFrame == getFrameCountForAnim(ANIM_ATTACK) - 2) {
+			// Do the actual hit
+			warriorStrike(pWarrior);
+		}
 	}
 	else {
-		if (steerDirCheck(&pWarrior->sSteer, DIRECTION_UP)) {
-			--bDeltaY;
-		}
-		if (steerDirCheck(&pWarrior->sSteer, DIRECTION_DOWN)) {
-			++bDeltaY;
-		}
-		if (steerDirCheck(&pWarrior->sSteer, DIRECTION_LEFT)) {
-			--bDeltaX;
-		}
-		if (steerDirCheck(&pWarrior->sSteer, DIRECTION_RIGHT)) {
-			++bDeltaX;
-		}
-		UBYTE ubDirId = DIR_ID(bDeltaX, bDeltaY);
-		if(ubDirId != DIR_ID(0, 0)) {
-			pWarrior->eDirection = s_pDirIdToAnimDir[ubDirId];
-			pWarrior->eAnim = ANIM_WALK;
-			warriorTryMoveBy(pWarrior, bDeltaX, bDeltaY);
+		if(steerDirCheck(&pWarrior->sSteer, DIRECTION_FIRE)) {
+			// Start swinging
+			warriorSetAnim(pWarrior, ANIM_ATTACK);
 		}
 		else {
-			pWarrior->eAnim = ANIM_IDLE;
+			BYTE bDeltaX = 0, bDeltaY = 0;
+			if (steerDirCheck(&pWarrior->sSteer, DIRECTION_UP)) {
+				--bDeltaY;
+			}
+			if (steerDirCheck(&pWarrior->sSteer, DIRECTION_DOWN)) {
+				++bDeltaY;
+			}
+			if (steerDirCheck(&pWarrior->sSteer, DIRECTION_LEFT)) {
+				--bDeltaX;
+			}
+			if (steerDirCheck(&pWarrior->sSteer, DIRECTION_RIGHT)) {
+				++bDeltaX;
+			}
+			UBYTE ubDirId = DIR_ID(bDeltaX, bDeltaY);
+			if(ubDirId != DIR_ID(0, 0)) {
+				pWarrior->eDirection = s_pDirIdToAnimDir[ubDirId];
+				warriorSetAnimOnce(pWarrior, ANIM_WALK);
+				warriorTryMoveBy(pWarrior, bDeltaX, bDeltaY);
+			}
+			else {
+				warriorSetAnimOnce(pWarrior, ANIM_IDLE);
+			}
 		}
 	}
 
+	--pWarrior->ubFrameCooldown;
 	if (!pWarrior->ubFrameCooldown) {
 		if (++pWarrior->ubAnimFrame >= getFrameCountForAnim(pWarrior->eAnim)) {
 			pWarrior->ubAnimFrame = 0;
@@ -249,9 +339,6 @@ static void warriorProcess(tWarrior *pWarrior) {
 		pWarrior->ubFrameCooldown = FRAME_COOLDOWN;
 		tFrameOffsets *pOffsets = &s_pFrameOffsets[pWarrior->eDirection][pWarrior->eAnim][pWarrior->ubAnimFrame];
 		bobNewSetFrame(&pWarrior->sBob, pOffsets->pBitmap, pOffsets->pMask);
-	}
-	else {
-		--pWarrior->ubFrameCooldown;
 	}
 
 	bobNewPush(&pWarrior->sBob);

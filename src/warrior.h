@@ -49,6 +49,7 @@ typedef struct tWarrior {
 	tAnim eAnim;
 	tAnimDirection eDirection;
 	tSteer sSteer;
+	tBCoordYX sPushDelta;
 } tWarrior;
 
 void warriorsCreate(void);
