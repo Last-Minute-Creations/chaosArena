@@ -14,12 +14,14 @@
 #include "tile.h"
 
 tStateManager *g_pStateMachineGame;
+tRandManager g_sRandManager;
 
 void genericCreate(void) {
 	g_pStateMachineGame = stateManagerCreate();
 	keyCreate();
 	joyOpen();
 	ptplayerCreate(1);
+	randInit(&g_sRandManager, 0x2184, 0x1911);
 
 	assetsGlobalCreate();
 	tilesInit();

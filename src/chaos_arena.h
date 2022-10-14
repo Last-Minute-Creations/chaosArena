@@ -5,6 +5,8 @@
 #ifndef INCLDE_CHAOS_ARENA_H
 #define INCLDE_CHAOS_ARENA_H
 
+#include <ace/managers/rand.h>
 
+extern tRandManager g_sRandManager;
 
 #endif // INCLDE_CHAOS_ARENA_H

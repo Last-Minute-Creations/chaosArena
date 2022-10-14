@@ -2,7 +2,9 @@
 #include <ace/types.h>
 #include <ace/generic/screen.h>
 #include <ace/managers/blit.h>
+#include <ace/managers/rand.h>
 #include "assets.h"
+#include "chaos_arena.h"
 
 #define TILE_WIDTH (SCREEN_PAL_WIDTH / MAP_TILE_SIZE)
 #define TILE_HEIGHT (SCREEN_PAL_HEIGHT / MAP_TILE_SIZE)
@@ -73,7 +75,14 @@ void tilesInit(void) {
 }
 
 void tileShuffleSpawns(void) {
-	// TODO
+	for(UBYTE ubShuffle = 0; ubShuffle < 50; ++ubShuffle) {
+		UBYTE ubA = randUwMax(&g_sRandManager, s_ubSpawnCount);
+		UBYTE ubB = randUwMax(&g_sRandManager, s_ubSpawnCount);
+
+		tUwCoordYX sTmp = {.ulYX = s_pSpawns[ubA].ulYX};
+		s_pSpawns[ubA].ulYX = s_pSpawns[ubB].ulYX;
+		s_pSpawns[ubB].ulYX = sTmp.ulYX;
+	}
 }
 
 const tUwCoordYX *tileGetSpawn(UBYTE ubIndex) {
