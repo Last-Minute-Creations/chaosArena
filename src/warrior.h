@@ -42,9 +42,10 @@ typedef enum tControl {
 typedef struct tWarrior {
 	tUwCoordYX sPos;
 	tBobNew sBob;
-	UBYTE ubStunCooldown;
 	UBYTE ubAnimFrame;
 	UBYTE ubFrameCooldown;
+	UBYTE ubStunCooldown;
+	UBYTE isDead;
 	tControl eControl;
 	tAnim eAnim;
 	tAnimDirection eDirection;

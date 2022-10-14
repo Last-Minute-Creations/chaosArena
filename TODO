@@ -3,12 +3,15 @@ Game:
 	✔ Move warrior coord to bottom center of sprite @done(22-10-12 21:24)
 	✔ sorting warrior bobs @done(22-10-13 18:30)
 	✔ pushing enemies with attacks @done(22-10-13 20:42)
-	☐ stopping on other enemies/edge of screen
-	☐ falling out of map
+	✘ stopping on other enemies/edge of screen @cancelled(22-10-13 20:45)
+	✔ die when out of map @done(22-10-14 17:30)
+	☐ spawn points
 	☐ win conditions
-	☐ different offsets of frames, move to 16x16 blits
 	☐ crumbling of map
 	☐ sfx
+	☐ fall anim
+	☐ basic AI
+	☐ different offsets of frames, move to 16x16 blits
 	☐ thunders?
 
 Menu:
@@ -16,7 +19,7 @@ Menu:
 	☐ start game
 	☐ exit to workbench
 	☐ credits
-	☐ how to play
+	☐ how to play (?)
 
 Logo screens:
 	☐ ACE from germz

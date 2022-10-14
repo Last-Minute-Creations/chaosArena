@@ -5,6 +5,7 @@
 #include "display.h"
 #include <ace/managers/viewport/simplebuffer.h>
 #include <ace/utils/palette.h>
+#include "tile.h"
 
 #define GAME_COLORS (1 << GAME_BPP)
 
@@ -31,6 +32,8 @@ void displayCreate(void) {
 	TAG_DONE);
 
 	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
+	tilesDrawOn(s_pVpManager->pBack);
+	tilesDrawOn(s_pVpManager->pFront);
 }
 
 void displayDestroy(void) {

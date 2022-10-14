@@ -5,10 +5,11 @@
 #include "warrior.h"
 #include "assets.h"
 #include "display.h"
+#include "tile.h"
 
 //---------------------------------------------------------------------- DEFINES
 
-#define WARRIOR_COUNT 3
+#define WARRIOR_COUNT 5
 #define WARRIORS_PER_ROW 8
 #define WARRIOR_FRAME_WIDTH 16
 #define WARRIOR_FRAME_HEIGHT 19
@@ -228,8 +229,10 @@ static void warriorAdd(
 		g_pWarriorFrames->Planes[0], g_pWarriorMasks->Planes[0],
 		pWarrior->sPos.uwX - BOB_OFFSET_X, pWarrior->sPos.uwY - BOB_OFFSET_Y
 	);
-	pWarrior->ubStunCooldown = 0;
+	pWarrior->ubAnimFrame = 0;
 	pWarrior->ubFrameCooldown = FRAME_COOLDOWN;
+	pWarrior->ubStunCooldown = 0;
+	pWarrior->isDead = 0;
 	pWarrior->eAnim = ANIM_IDLE;
 	pWarrior->eDirection = ANIM_DIRECTION_S;
 	pWarrior->sSteer = sSteer;
@@ -287,7 +290,42 @@ static void warriorStrike(const tWarrior *pWarrior) {
 	}
 }
 
+static UBYTE warriorIsInAir(const tWarrior *pWarrior) {
+	UWORD uwX = pWarrior->sPos.uwX - LOOKUP_TILE_SIZE / 2;
+	UWORD uwY = pWarrior->sPos.uwY - LOOKUP_TILE_SIZE / 2;
+	if(tileIsSolid(uwX / TILE_SIZE, uwY / TILE_SIZE)) {
+		return 0;
+	}
+
+	uwX = pWarrior->sPos.uwX + LOOKUP_TILE_SIZE / 2;
+	uwY = pWarrior->sPos.uwY + LOOKUP_TILE_SIZE / 2;
+	if(tileIsSolid(uwX / TILE_SIZE, uwY / TILE_SIZE)) {
+		return 0;
+	}
+
+	return 1;
+}
+
+static void warriorKill(tWarrior *pWarrior) {
+	pWarrior->isDead = 1;
+	UBYTE ubTileX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
+	UBYTE ubTileY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
+
+	if(s_pWarriorLookup[ubTileX][ubTileY] != pWarrior) {
+		logWrite(
+			"ERR: Clearing warrior %p when killing %p",
+			s_pWarriorLookup[ubTileX][ubTileY], pWarrior
+		);
+	}
+
+	s_pWarriorLookup[ubTileX][ubTileY] = 0;
+}
+
 static void warriorProcess(tWarrior *pWarrior) {
+	if(pWarrior->isDead) {
+		return;
+	}
+
 	steerProcess(&pWarrior->sSteer);
 
 	if(pWarrior->eAnim == ANIM_HURT && pWarrior->ubAnimFrame != getFrameCountForAnim(ANIM_HURT) - 1) {
@@ -327,6 +365,10 @@ static void warriorProcess(tWarrior *pWarrior) {
 			}
 			else {
 				warriorSetAnimOnce(pWarrior, ANIM_IDLE);
+			}
+
+			if(warriorIsInAir(pWarrior)) {
+				warriorKill(pWarrior);
 			}
 		}
 	}

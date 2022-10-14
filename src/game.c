@@ -9,39 +9,8 @@
 #include "warrior.h"
 #include "assets.h"
 
-#define TILE_WIDTH 20
-#define TILE_HEIGHT 16
-
-typedef enum tTile {
-	TILE_VOID,
-	TILE_WALL,
-	TILE_FLOOR,
-	TILE_COUNT
-} tTile;
-
 static tSimpleBufferManager *s_pVpManager;
 static UBYTE s_isDebug;
-
-static const char s_pMapPattern[TILE_HEIGHT][TILE_WIDTH + 1] = {
-	"....................",
-	"....................",
-	".##################.",
-	".##################.",
-	".####...####...####.",
-	".####...####...####.",
-	".####...####...####.",
-	".##################.",
-	".##################.",
-	".####...####...####.",
-	".####...####...####.",
-	".####...####...####.",
-	".##################.",
-	".##################.",
-	"....................",
-	"...................."
-};
-
-static tTile s_pTiles[TILE_WIDTH][TILE_HEIGHT];
 
 static void debugColor(UWORD uwColor) {
 	if (s_isDebug) {
@@ -63,24 +32,6 @@ static void gameGsCreate(void) {
 	warriorsCreate();
 	bobNewReallocateBgBuffers();
 
-	// Tiles
-	for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
-		for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
-			s_pTiles[ubX][ubY] = s_pMapPattern[ubY][ubX] == '#' ? TILE_FLOOR : TILE_VOID;
-			if (ubY > 0 && s_pTiles[ubX][ubY] == TILE_VOID && s_pTiles[ubX][ubY - 1] == TILE_FLOOR) {
-				s_pTiles[ubX][ubY] = TILE_WALL;
-			}
-			blitCopyAligned(
-				g_pTileset, 0, s_pTiles[ubX][ubY] * 16,
-				s_pVpManager->pBack, ubX * 16, ubY * 16, 16, 16
-			);
-			blitCopyAligned(
-				g_pTileset, 0, s_pTiles[ubX][ubY] * 16,
-				s_pVpManager->pFront, ubX * 16, ubY * 16, 16, 16
-			);
-		}
-	}
-
 	s_isDebug = 0;
 }
 
@@ -100,7 +51,7 @@ static void gameGsLoop(void) {
 
 	bobNewEnd();
 	debugReset();
-	// warriorDrawLookup(s_pVpManager->pBack);
+	// warriorsDrawLookup(s_pVpManager->pBack);
 }
 
 static void gameGsDestroy(void) {

@@ -11,6 +11,7 @@
 #include "display.h"
 #include "assets.h"
 #include "game.h"
+#include "tile.h"
 
 tStateManager *g_pStateMachineGame;
 
@@ -21,6 +22,7 @@ void genericCreate(void) {
 	ptplayerCreate(1);
 
 	assetsGlobalCreate();
+	tilesInit();
 	displayCreate();
 	systemUnuse();
 
