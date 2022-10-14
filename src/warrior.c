@@ -293,13 +293,13 @@ static void warriorStrike(const tWarrior *pWarrior) {
 static UBYTE warriorIsInAir(const tWarrior *pWarrior) {
 	UWORD uwX = pWarrior->sPos.uwX - LOOKUP_TILE_SIZE / 2;
 	UWORD uwY = pWarrior->sPos.uwY - LOOKUP_TILE_SIZE / 2;
-	if(tileIsSolid(uwX / TILE_SIZE, uwY / TILE_SIZE)) {
+	if(tileIsSolid(uwX / MAP_TILE_SIZE, uwY / MAP_TILE_SIZE)) {
 		return 0;
 	}
 
 	uwX = pWarrior->sPos.uwX + LOOKUP_TILE_SIZE / 2;
 	uwY = pWarrior->sPos.uwY + LOOKUP_TILE_SIZE / 2;
-	if(tileIsSolid(uwX / TILE_SIZE, uwY / TILE_SIZE)) {
+	if(tileIsSolid(uwX / MAP_TILE_SIZE, uwY / MAP_TILE_SIZE)) {
 		return 0;
 	}
 

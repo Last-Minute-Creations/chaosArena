@@ -4,8 +4,8 @@
 #include <ace/managers/blit.h>
 #include "assets.h"
 
-#define TILE_WIDTH (SCREEN_PAL_WIDTH / TILE_SIZE)
-#define TILE_HEIGHT (SCREEN_PAL_HEIGHT / TILE_SIZE)
+#define TILE_WIDTH (SCREEN_PAL_WIDTH / MAP_TILE_SIZE)
+#define TILE_HEIGHT (SCREEN_PAL_HEIGHT / MAP_TILE_SIZE)
 
 typedef enum tTile {
 	TILE_VOID,
