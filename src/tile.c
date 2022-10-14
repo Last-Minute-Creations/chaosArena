@@ -6,6 +6,7 @@
 
 #define TILE_WIDTH (SCREEN_PAL_WIDTH / MAP_TILE_SIZE)
 #define TILE_HEIGHT (SCREEN_PAL_HEIGHT / MAP_TILE_SIZE)
+#define SPAWNS_MAX 30
 
 typedef enum tTile {
 	TILE_VOID,
@@ -15,38 +16,48 @@ typedef enum tTile {
 } tTile;
 
 static tTile s_pTilesXy[TILE_WIDTH][TILE_HEIGHT];
+static tUwCoordYX s_pSpawns[SPAWNS_MAX];
+static UBYTE s_ubSpawnCount;
 
 /**
  * @brief The easy to read tile layout.
  * Note that indices are reversed here, but the ascii is in correct order.
  */
 static const char s_pMapPatternYx[TILE_HEIGHT][TILE_WIDTH + 1] = {
-	"....................",
-	"....................",
-	".##################.",
-	".##################.",
-	".####...####...####.",
-	".####...####...####.",
-	".####...####...####.",
-	".##################.",
-	".##################.",
-	".####...####...####.",
-	".####...####...####.",
-	".####...####...####.",
-	".##################.",
-	".##################.",
-	"....................",
-	"...................."
+	"@@@@@@@@@@@@@@@@@@@@",
+	"@@@@@@@@@@@@@@@@@@@@",
+	"@.....L......J.....@",
+	"@.1......9.......3.@",
+	"@....@@@....@@@....@",
+	"@.G..@@@..5.@@@..D.@",
+	"@....@@@....@@@....@",
+	"@.....B...M......8.@",
+	"@.7......N...C.....@",
+	"@....@@@....@@@....@",
+	"@.E..@@@.6..@@@..F.@",
+	"@....@@@....@@@....@",
+	"@.4.......A......2.@",
+	"@.....H......K.....@",
+	"@@@@@@@@@@@@@@@@@@@@",
+	"@@@@@@@@@@@@@@@@@@@@"
 };
 
 //------------------------------------------------------------------- PUBLIC FNS
 
 void tilesInit(void) {
+	s_ubSpawnCount = 0;
 	for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
 		for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
 			s_pTilesXy[ubX][ubY] = (
-				s_pMapPatternYx[ubY][ubX] == '#' ? TILE_FLOOR_1 : TILE_VOID
+				s_pMapPatternYx[ubY][ubX] == '@' ? TILE_VOID : TILE_FLOOR_1
 			);
+
+			if(s_pMapPatternYx[ubY][ubX] != '@' && s_pMapPatternYx[ubY][ubX] != '.') {
+				s_pSpawns[s_ubSpawnCount++] = (tUwCoordYX){
+					.uwX = ubX * MAP_TILE_SIZE + (MAP_TILE_SIZE / 2),
+					.uwY = ubY * MAP_TILE_SIZE + (MAP_TILE_SIZE / 2)
+				};
+			}
 
 			// 3d effect
 			if (
@@ -57,6 +68,16 @@ void tilesInit(void) {
 			}
 		}
 	}
+
+	logWrite("Loaded %hhu spawn points\n", s_ubSpawnCount);
+}
+
+void tileShuffleSpawns(void) {
+	// TODO
+}
+
+const tUwCoordYX *tileGetSpawn(UBYTE ubIndex) {
+	return &s_pSpawns[ubIndex];
 }
 
 void tilesDrawOn(tBitMap *pDestination) {

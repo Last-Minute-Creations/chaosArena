@@ -404,13 +404,15 @@ void warriorsDrawLookup(tBitMap *pBuffer) {
 void warriorsCreate(void) {
 	initFrameOffsets();
 	resetWarriorLookup();
+	tileShuffleSpawns();
 
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		s_pWarriors[i] = memAllocFast(sizeof(*s_pWarriors[i]));
+		const tUwCoordYX *pSpawn = tileGetSpawn(i);
 		warriorAdd(
 			s_pWarriors[i],
-			100 + 32 * (i % WARRIORS_PER_ROW),
-			100 + 32 * (i / WARRIORS_PER_ROW),
+			pSpawn->uwX,
+			pSpawn->uwY,
 			i == 0 ? steerInitKey(KEYMAP_WSAD) : (
 				i == 1 ? steerInitKey(KEYMAP_ARROWS) : steerInitIdle()
 			)

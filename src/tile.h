@@ -15,4 +15,8 @@ void tilesDrawOn(tBitMap *pDestination);
 
 UBYTE tileIsSolid(UBYTE ubTileX, UBYTE ubTileY);
 
+void tileShuffleSpawns(void);
+
+const tUwCoordYX *tileGetSpawn(UBYTE ubIndex);
+
 #endif // INCLUDE_TILE_H

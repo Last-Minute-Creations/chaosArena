@@ -5,7 +5,8 @@ Game:
 	✔ pushing enemies with attacks @done(22-10-13 20:42)
 	✘ stopping on other enemies/edge of screen @cancelled(22-10-13 20:45)
 	✔ die when out of map @done(22-10-14 17:30)
-	☐ spawn points
+	✔ spawn points @done(22-10-14 19:01)
+	☐ shuffle spawn points
 	☐ win conditions
 	☐ crumbling of map
 	☐ sfx
