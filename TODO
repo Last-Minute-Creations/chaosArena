@@ -16,10 +16,13 @@ Game:
 	☐ thunders?
 
 Menu:
-	☐ player selection (P1-P6, fire enables/disables, left-right switches config)
+	✔ player selection (P1-P6, left-right switches config) @done(22-10-15 17:04)
+	✘ fire enables/disables player @cancelled(22-10-15 17:04)
 	☐ start game
-	☐ exit to workbench
-	☐ credits
+	☐ credits at the bottom of menu
+	☐ summary after match
+	☐ bots off/on
+	✔ exit to workbench @done(22-10-15 17:05)
 	☐ how to play (?)
 
 Logo screens:
