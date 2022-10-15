@@ -9,7 +9,7 @@
 #include <ace/managers/ptplayer.h>
 #include "display.h"
 #include "assets.h"
-#include "game.h"
+#include "menu.h"
 #include "tile.h"
 
 tStateManager *g_pStateMachineGame;
@@ -28,7 +28,7 @@ void genericCreate(void) {
 	systemUnuse();
 
 	displayOn();
-	statePush(g_pStateMachineGame, &g_sStateGame);
+	statePush(g_pStateMachineGame, &g_sStateMenu);
 }
 
 void genericProcess(void) {

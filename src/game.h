@@ -7,6 +7,4 @@
 
 #include <ace/managers/state.h>
 
-extern tState g_sStateGame;
-
 #endif // INCLUDE_GAME_H

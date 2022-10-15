@@ -5,6 +5,9 @@
 #ifndef INCLUDE_ASSETS_H
 #define INCLUDE_ASSETS_H
 
+#include <ace/utils/bitmap.h>
+#include <ace/utils/font.h>
+
 void assetsGlobalCreate(void);
 
 void assetsGlobalDestroy(void);
@@ -12,5 +15,7 @@ void assetsGlobalDestroy(void);
 extern tBitMap *g_pWarriorFrames;
 extern tBitMap *g_pWarriorMasks;
 extern tBitMap *g_pTileset;
+extern tFont *g_pFontMenu;
+extern tTextBitMap *g_pTextBitmap;
 
 #endif // INCLUDE_ASSETS_H
