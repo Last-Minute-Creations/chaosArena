@@ -35,8 +35,19 @@ static void gameGsCreate(void) {
 }
 
 static void gameGsLoop(void) {
-	if(warriorsGetAliveCount() <= 1) {
-		gameExit();
+	if(keyUse(KEY_ESCAPE)) {
+		// Game canceled - go back to menu
+		stateChange(g_pStateMachineGame, &g_sStateMenu);
+		return;
+	}
+
+	UBYTE ubAlivePlayers = warriorsGetAlivePlayerCount();
+	if(
+		(warriorsGetAliveCount() == 1 && ubAlivePlayers == 1) ||
+		ubAlivePlayers == 0
+	) {
+		// TODO: Summary
+		stateChange(g_pStateMachineGame, &g_sStateMenu);
 		return;
 	}
 
