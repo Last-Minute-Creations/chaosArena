@@ -20,9 +20,22 @@
 #define MENU_DISPLAY_START_Y ((DISPLAY_HEIGHT - MENU_HEIGHT) / 2)
 #define MENU_DISPLAY_END_Y (MENU_DISPLAY_START_Y + MENU_HEIGHT)
 #define MENU_COLOR_BG 5
-#define MENU_COLOR_INACTIVE 6
+#define MENU_COLOR_INACTIVE 4
 #define MENU_COLOR_ACTIVE 7
 #define MENU_COLOR_TITLE 7
+
+//-------------------------------------------------------------------------TYPES
+
+typedef enum tSteerKind {
+	STEER_KIND_JOY1,
+	STEER_KIND_JOY2,
+	STEER_KIND_JOY3,
+	STEER_KIND_JOY4,
+	STEER_KIND_WSAD,
+	STEER_KIND_ARROWS,
+	STEER_KIND_OFF,
+	STEER_KIND_COUNT,
+} tSteerKind;
 
 //---------------------------------------------------------------- PRIVATE DECLS
 
@@ -33,20 +46,72 @@ static void onDrawPos(
 	UWORD uwX, UWORD uwY, const char *szCaption, const char *szText,
 	UBYTE isActive, UWORD *pUndrawWidth
 );
+static void onSteerValChange(void);
+static void onSteerValDraw(UBYTE ubIdx);
 
 //----------------------------------------------------------------- PRIVATE VARS
 
 static tSimpleBufferManager *s_pVpManager;
 static tBitMap *s_pMenuBitmap;
+static UBYTE s_pPlayerSteers[6] = {
+	STEER_KIND_JOY1, STEER_KIND_JOY2, STEER_KIND_JOY3,
+	STEER_KIND_JOY4, STEER_KIND_ARROWS, STEER_KIND_WSAD
+};
+
+static const char *s_pSteerEnumLabels[] = {
+	"JOY 1",
+	"JOY 2",
+	"JOY 3",
+	"JOY 4",
+	"WSAD",
+	"ARROWS",
+	"OFF",
+};
 
 static tMenuListOption s_pMenuOptions[] = {
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onStart}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
+		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteers[0],
+		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1,
+		.cbOnValChange = onSteerValChange, .cbOnValDraw = onSteerValDraw
+	}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
+		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteers[1],
+		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1,
+		.cbOnValChange = onSteerValChange, .cbOnValDraw = onSteerValDraw
+	}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
+		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteers[2],
+		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1,
+		.cbOnValChange = onSteerValChange, .cbOnValDraw = onSteerValDraw
+	}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
+		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteers[3],
+		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1,
+		.cbOnValChange = onSteerValChange, .cbOnValDraw = onSteerValDraw
+	}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
+		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteers[4],
+		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1,
+		.cbOnValChange = onSteerValChange, .cbOnValDraw = onSteerValDraw
+	}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
+		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteers[5],
+		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1,
+		.cbOnValChange = onSteerValChange, .cbOnValDraw = onSteerValDraw
+	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onExit}},
 };
 #define MENU_OPTION_COUNT (sizeof(s_pMenuOptions) / sizeof(s_pMenuOptions[0]))
 
 const char *s_pMenuCaptions[MENU_OPTION_COUNT] = {
 	"BEGIN CHAOS",
+	"PLAYER 1",
+	"PLAYER 2",
+	"PLAYER 3",
+	"PLAYER 4",
+	"PLAYER 5",
+	"PLAYER 6",
 	"EXIT",
 };
 
@@ -108,6 +173,14 @@ static void onDrawPos(
 		FONT_SHADOW | FONT_COOKIE | FONT_HCENTER, g_pTextBitmap
 	);
 	*pUndrawWidth = (MENU_WIDTH + uwTextWidth) / 2;
+}
+
+static void onSteerValChange(void) {
+
+}
+
+static void onSteerValDraw(UBYTE ubIdx) {
+
 }
 
 //------------------------------------------------------------------ PUBLIC VARS

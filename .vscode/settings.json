@@ -15,7 +15,10 @@
 		"assets.h": "c",
 		"chaos_arena.h": "c",
 		"rand.h": "c",
-		"key.h": "c"
+		"key.h": "c",
+		"blit.h": "c",
+		"game.h": "c",
+		"menu_list.h": "c"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
