@@ -24,10 +24,7 @@ static void debugReset(void) {
 
 static void gameGsCreate(void) {
 	s_pVpManager = displayGetManager();
-	bobNewManagerCreate(
-		s_pVpManager->pFront, s_pVpManager->pBack,
-		s_pVpManager->sCommon.pVPort->uwHeight
-	);
+	bobNewManagerCreate(s_pVpManager->pFront, s_pVpManager->pBack, 512);
 
 	warriorsCreate();
 	bobNewReallocateBgBuffers();

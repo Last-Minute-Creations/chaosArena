@@ -7,7 +7,7 @@
 #include <ace/utils/palette.h>
 #include "tile.h"
 
-#define GAME_COLORS (1 << GAME_BPP)
+#define GAME_COLORS (1 << DISPLAY_BPP)
 
 static tView *s_pView;
 static tVPort *s_pVp;
@@ -20,7 +20,7 @@ void displayCreate(void) {
 	TAG_DONE);
 
 	s_pVp = vPortCreate(0,
-		TAG_VPORT_BPP, GAME_BPP,
+		TAG_VPORT_BPP, DISPLAY_BPP,
 		TAG_VPORT_VIEW, s_pView,
 	TAG_DONE);
 
@@ -28,8 +28,12 @@ void displayCreate(void) {
 		TAG_SIMPLEBUFFER_BITMAP_FLAGS, BMF_CLEAR | BMF_INTERLEAVED,
 		TAG_SIMPLEBUFFER_IS_DBLBUF, 1,
 		TAG_SIMPLEBUFFER_USE_X_SCROLLING, 0,
+		TAG_SIMPLEBUFFER_BOUND_WIDTH, DISPLAY_WIDTH,
+		TAG_SIMPLEBUFFER_BOUND_HEIGHT, DISPLAY_HEIGHT,
 		TAG_SIMPLEBUFFER_VPORT, s_pVp,
 	TAG_DONE);
+
+	cameraSetCoord(s_pVpManager->pCamera, DISPLAY_TILE_MARGIN * 16, DISPLAY_TILE_MARGIN * 16);
 
 	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
 	tilesDrawOn(s_pVpManager->pBack);

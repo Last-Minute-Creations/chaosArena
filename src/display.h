@@ -5,9 +5,13 @@
 #ifndef INCLUDE_DISPLAY_H
 #define INCLUDE_DISPLAY_H
 
+#include <ace/generic/screen.h>
 #include <ace/managers/viewport/simplebuffer.h>
 
-#define GAME_BPP 4
+#define DISPLAY_BPP 4
+#define DISPLAY_TILE_MARGIN 2
+#define DISPLAY_WIDTH (SCREEN_PAL_WIDTH + 2 * DISPLAY_TILE_MARGIN * 16)
+#define DISPLAY_HEIGHT (SCREEN_PAL_HEIGHT + 2 * DISPLAY_TILE_MARGIN * 16)
 
 void displayCreate(void);
 

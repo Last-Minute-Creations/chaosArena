@@ -7,7 +7,13 @@
 		"*.uxml": "xml",
 		"simplebuffer.h": "c",
 		"main.h": "c",
-		"display.h": "c"
+		"display.h": "c",
+		"screen.h": "c",
+		"types.h": "c",
+		"palette.h": "c",
+		"ptplayer.h": "c",
+		"assets.h": "c",
+		"chaos_arena.h": "c"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

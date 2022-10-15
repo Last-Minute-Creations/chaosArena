@@ -5,9 +5,10 @@
 #include <ace/managers/rand.h>
 #include "assets.h"
 #include "chaos_arena.h"
+#include "display.h"
 
-#define TILE_WIDTH (SCREEN_PAL_WIDTH / MAP_TILE_SIZE)
-#define TILE_HEIGHT (SCREEN_PAL_HEIGHT / MAP_TILE_SIZE)
+#define TILE_WIDTH (DISPLAY_WIDTH / MAP_TILE_SIZE)
+#define TILE_HEIGHT (DISPLAY_HEIGHT / MAP_TILE_SIZE)
 #define SPAWNS_MAX 30
 
 typedef enum tTile {
@@ -26,22 +27,26 @@ static UBYTE s_ubSpawnCount;
  * Note that indices are reversed here, but the ascii is in correct order.
  */
 static const char s_pMapPatternYx[TILE_HEIGHT][TILE_WIDTH + 1] = {
-	"@@@@@@@@@@@@@@@@@@@@",
-	"@@@@@@@@@@@@@@@@@@@@",
-	"@.....L......J.....@",
-	"@.1......9.......3.@",
-	"@....@@@....@@@....@",
-	"@.G..@@@..5.@@@..D.@",
-	"@....@@@....@@@....@",
-	"@.....B...M......8.@",
-	"@.7......N...C.....@",
-	"@....@@@....@@@....@",
-	"@.E..@@@.6..@@@..F.@",
-	"@....@@@....@@@....@",
-	"@.4.......A......2.@",
-	"@.....H......K.....@",
-	"@@@@@@@@@@@@@@@@@@@@",
-	"@@@@@@@@@@@@@@@@@@@@"
+	"@@@@@@@@@@@@@@@@@@@@@@@@",
+	"@@@@@@@@@@@@@@@@@@@@@@@@",
+	"@@@@@@@@@@@@@@@@@@@@@@@@",
+	"@@@@@@@@@@@@@@@@@@@@@@@@",
+	"@@@.....L......J.....@@@",
+	"@@@.1......9.......3.@@@",
+	"@@@....@@@....@@@....@@@",
+	"@@@.G..@@@..5.@@@..D.@@@",
+	"@@@....@@@....@@@....@@@",
+	"@@@.....B...M......8.@@@",
+	"@@@.7......N...C.....@@@",
+	"@@@....@@@....@@@....@@@",
+	"@@@.E..@@@.6..@@@..F.@@@",
+	"@@@....@@@....@@@....@@@",
+	"@@@.4.......A......2.@@@",
+	"@@@.....H......K.....@@@",
+	"@@@@@@@@@@@@@@@@@@@@@@@@",
+	"@@@@@@@@@@@@@@@@@@@@@@@@",
+	"@@@@@@@@@@@@@@@@@@@@@@@@",
+	"@@@@@@@@@@@@@@@@@@@@@@@@"
 };
 
 //------------------------------------------------------------------- PUBLIC FNS
@@ -90,8 +95,8 @@ const tUwCoordYX *tileGetSpawn(UBYTE ubIndex) {
 }
 
 void tilesDrawOn(tBitMap *pDestination) {
-	for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
-		for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
+	for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
+		for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
 			blitCopyAligned(
 				g_pTileset, 0, s_pTilesXy[ubX][ubY] * 16,
 				pDestination, ubX * 16, ubY * 16, 16, 16

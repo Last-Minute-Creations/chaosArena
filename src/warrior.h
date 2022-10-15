@@ -25,6 +25,7 @@ typedef enum tAnim {
 	ANIM_WALK,
 	ANIM_ATTACK,
 	ANIM_HURT,
+	ANIM_FALLING,
 	ANIM_COUNT,
 } tAnim;
 

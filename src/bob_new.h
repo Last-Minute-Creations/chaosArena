@@ -75,6 +75,7 @@ typedef struct tBobNew {
  * @param pFront Double buffering's front buffer bitmap.
  * @param pBack Double buffering's back buffer bitmap.
  * @param uwAvailHeight True available height for Y-scroll in passed bitmap.
+ * Must be power of 2!
  *
  * @see bobNewInit()
  * @see bobNewReallocateBgBuffers()
