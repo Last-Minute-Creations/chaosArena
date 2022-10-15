@@ -24,6 +24,7 @@
 #define MENU_COLOR_INACTIVE 4
 #define MENU_COLOR_ACTIVE 7
 #define MENU_COLOR_TITLE 7
+#define APPEAR_ANIM_SPEED 4
 
 //-------------------------------------------------------------------------TYPES
 
@@ -57,6 +58,8 @@ static UBYTE s_pPlayerSteerKinds[6] = {
 	STEER_KIND_JOY4, STEER_KIND_ARROWS, STEER_KIND_WSAD
 };
 static tSteer s_pMenuSteers[6];
+static UBYTE s_ubLastDrawEnd[2];
+static UBYTE s_isOdd;
 
 static const char *s_pSteerEnumLabels[] = {
 	"JOY 1",
@@ -134,11 +137,27 @@ static void menuGsCreate(void) {
 		MENU_COLOR_TITLE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 	);
 	menuListDraw();
+	s_ubLastDrawEnd[0] = 0;
+	s_ubLastDrawEnd[1] = 0;
+	s_isOdd = 0;
 }
 
 static void menuGsLoop(void) {
 	if(keyUse(KEY_ESCAPE)) {
 		gameExit();
+		return;
+	}
+
+	if(s_ubLastDrawEnd[s_isOdd] < MENU_HEIGHT) {
+		UBYTE ubStartRow = s_ubLastDrawEnd[s_isOdd];
+		UBYTE ubEndRow = s_ubLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED;
+		blitCopyAligned(
+			s_pMenuBitmap, 0, ubStartRow, s_pVpManager->pBack,
+			MENU_DISPLAY_START_X, MENU_DISPLAY_START_Y + ubStartRow,
+			MENU_WIDTH, ubEndRow - ubStartRow
+		);
+		s_ubLastDrawEnd[s_isOdd] = ubEndRow;
+		s_isOdd = !s_isOdd;
 		return;
 	}
 

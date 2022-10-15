@@ -9,6 +9,7 @@
 #include "display.h"
 #include "warrior.h"
 #include "assets.h"
+#include "tile.h"
 #include "chaos_arena.h"
 
 static tSimpleBufferManager *s_pVpManager;
@@ -27,10 +28,10 @@ static void debugReset(void) {
 static void gameGsCreate(void) {
 	s_pVpManager = displayGetManager();
 	bobNewManagerCreate(s_pVpManager->pFront, s_pVpManager->pBack, 512);
-
 	warriorsCreate();
 	bobNewReallocateBgBuffers();
-
+	tilesDrawOn(s_pVpManager->pBack);
+	tilesDrawOn(s_pVpManager->pFront);
 	s_isDebug = 0;
 }
 

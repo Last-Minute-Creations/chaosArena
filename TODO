@@ -9,6 +9,8 @@ Game:
 	✔ fall anim @done(22-10-15 10:37)
 	✔ shuffle spawn points @done(22-10-15 10:37)
 	✔ win conditions @done(22-10-15 13:51)
+	☐ countdown
+	☐ fade between gamestates
 	☐ crumbling of map
 	☐ sfx
 	☐ basic AI
@@ -18,11 +20,11 @@ Game:
 Menu:
 	✔ player selection (P1-P6, left-right switches config) @done(22-10-15 17:04)
 	✘ fire enables/disables player @cancelled(22-10-15 17:04)
-	☐ start game
+	✔ start game @done(22-10-15 20:47)
+	✔ exit to workbench @done(22-10-15 17:05)
 	☐ credits at the bottom of menu
 	☐ summary after match
 	☐ bots off/on
-	✔ exit to workbench @done(22-10-15 17:05)
 	☐ how to play (?)
 
 Logo screens:
