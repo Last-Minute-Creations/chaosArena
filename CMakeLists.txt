@@ -95,9 +95,9 @@ convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
 	PALETTE ${RES_DIR}/chaos_arena.gpl
 	MASK_COLOR "#FF00FF"
-	INTERLEAVED SOURCES ${GEN_DIR}/warrior.png
-	DESTINATIONS ${DATA_DIR}/warrior.bm
-	MASKS ${DATA_DIR}/warrior_mask.bm
+	INTERLEAVED SOURCES ${GEN_DIR}/warrior.png ${RES_DIR}/countdown.png ${RES_DIR}/fight.png
+	DESTINATIONS ${DATA_DIR}/warrior.bm ${DATA_DIR}/countdown.bm ${DATA_DIR}/fight.bm
+	MASKS ${DATA_DIR}/warrior_mask.bm ${DATA_DIR}/countdown_mask.bm ${DATA_DIR}/fight_mask.bm
 )
 
 convertBitmaps(

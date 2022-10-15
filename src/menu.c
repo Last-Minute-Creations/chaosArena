@@ -150,7 +150,7 @@ static void menuGsLoop(void) {
 
 	if(s_ubLastDrawEnd[s_isOdd] < MENU_HEIGHT) {
 		UBYTE ubStartRow = s_ubLastDrawEnd[s_isOdd];
-		UBYTE ubEndRow = s_ubLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED;
+		UBYTE ubEndRow = MIN(s_ubLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED, MENU_HEIGHT);
 		blitCopyAligned(
 			s_pMenuBitmap, 0, ubStartRow, s_pVpManager->pBack,
 			MENU_DISPLAY_START_X, MENU_DISPLAY_START_Y + ubStartRow,

@@ -9,11 +9,11 @@ Game:
 	✔ fall anim @done(22-10-15 10:37)
 	✔ shuffle spawn points @done(22-10-15 10:37)
 	✔ win conditions @done(22-10-15 13:51)
-	☐ countdown
-	☐ fade between gamestates
+	✔ countdown @done(22-10-15 21:45)
 	☐ crumbling of map
 	☐ sfx
 	☐ basic AI
+	☐ fade between gamestates
 	☐ different offsets of frames, move to 16x16 blits
 	☐ thunders?
 

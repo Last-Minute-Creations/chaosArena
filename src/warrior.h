@@ -66,4 +66,6 @@ UBYTE warriorsGetAliveCount(void);
 
 UBYTE warriorsGetAlivePlayerCount(void);
 
+void warriorsEnableMove(UBYTE isEnabled);
+
 #endif // INCLUDE_WARRIOR_H

@@ -34,12 +34,10 @@ typedef struct tFrameOffsets {
 	UBYTE *pMask;
 } tFrameOffsets;
 
-//-------------------------------------------------------------- PRIVATE GLOBALS
+//----------------------------------------------------------------- PRIVATE VARS
 
 static tWarrior *s_pWarriors[WARRIOR_COUNT];
-
 static tWarrior *s_pWarriorLookup[LOOKUP_TILE_WIDTH][LOOKUP_TILE_HEIGHT];
-
 static tFrameOffsets s_pFrameOffsets[ANIM_DIRECTION_COUNT][ANIM_COUNT][MAX_ANIM_FRAMES];
 
 static const tAnimDirection s_pDirIdToAnimDir[] = {
@@ -86,6 +84,7 @@ static const UBYTE s_pFrameCountForAnim[ANIM_COUNT] = {
 
 static UBYTE s_ubAliveCount;
 static UBYTE s_ubAlivePlayerCount;
+static UBYTE s_isMoveEnabled;
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -160,6 +159,10 @@ static void warriorUpdateBobPosition(tWarrior *pWarrior) {
 }
 
 static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
+	if(!s_isMoveEnabled) {
+		return;
+	}
+
 	UBYTE ubOldLookupX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
 	UBYTE ubOldLookupY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
 	UBYTE isMoved = 0;
@@ -471,6 +474,7 @@ void warriorsCreate(void) {
 	tileShuffleSpawns();
 	s_ubAliveCount = 0;
 	s_ubAlivePlayerCount = 0;
+	s_isMoveEnabled = 0;
 
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		s_pWarriors[i] = memAllocFast(sizeof(*s_pWarriors[i]));
@@ -514,4 +518,8 @@ UBYTE warriorsGetAliveCount(void) {
 
 UBYTE warriorsGetAlivePlayerCount(void) {
 	return s_ubAlivePlayerCount;
+}
+
+void warriorsEnableMove(UBYTE isEnabled) {
+	s_isMoveEnabled = isEnabled;
 }

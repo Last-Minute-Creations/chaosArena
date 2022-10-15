@@ -14,6 +14,10 @@ void assetsGlobalDestroy(void);
 
 extern tBitMap *g_pWarriorFrames;
 extern tBitMap *g_pWarriorMasks;
+extern tBitMap *g_pCountdownMask;
+extern tBitMap *g_pCountdownFrames;
+extern tBitMap *g_pFightFrames;
+extern tBitMap *g_pFightMask;
 extern tBitMap *g_pTileset;
 extern tFont *g_pFontMenu;
 extern tTextBitMap *g_pTextBitmap;
