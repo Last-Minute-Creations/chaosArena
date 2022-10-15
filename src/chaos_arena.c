@@ -6,7 +6,6 @@
 #include <ace/generic/main.h>
 #include <ace/managers/key.h>
 #include <ace/managers/joy.h>
-#include <ace/managers/state.h>
 #include <ace/managers/ptplayer.h>
 #include "display.h"
 #include "assets.h"
@@ -36,11 +35,6 @@ void genericProcess(void) {
 	ptplayerProcess();
 	keyProcess();
 	joyProcess();
-
-	if (keyUse(KEY_ESCAPE)) {
-		gameExit();
-	}
-
 	stateProcess(g_pStateMachineGame);
 	displayProcess();
 }

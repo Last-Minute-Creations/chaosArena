@@ -84,6 +84,8 @@ static const UBYTE s_pFrameCountForAnim[ANIM_COUNT] = {
 	[ANIM_FALLING] = 1,
 };
 
+static UBYTE s_ubAliveCount;
+
 //------------------------------------------------------------------ PRIVATE FNS
 
 static inline UBYTE getFrameCountForAnim(tAnim eAnim) {
@@ -259,6 +261,7 @@ static void warriorAdd(
 	pWarrior->eDirection = ANIM_DIRECTION_S;
 	pWarrior->sSteer = sSteer;
 	s_pWarriorLookup[uwSpawnX / LOOKUP_TILE_SIZE][uwSpawnY / LOOKUP_TILE_SIZE] = pWarrior;
+	++s_ubAliveCount;
 	logWrite("Spawned warrior %p at %hu,%hu", pWarrior, uwSpawnX, uwSpawnY);
 }
 
@@ -331,6 +334,7 @@ static UBYTE warriorIsInAir(const tWarrior *pWarrior) {
 
 static void warriorKill(tWarrior *pWarrior) {
 	pWarrior->isDead = 1;
+	--s_ubAliveCount;
 }
 
 static void warriorProcessState(tWarrior *pWarrior) {
@@ -458,6 +462,7 @@ void warriorsCreate(void) {
 	initFrameOffsets();
 	resetWarriorLookup();
 	tileShuffleSpawns();
+	s_ubAliveCount = 0;
 
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		s_pWarriors[i] = memAllocFast(sizeof(*s_pWarriors[i]));
@@ -493,4 +498,8 @@ void warriorsDestroy(void) {
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		memFree(s_pWarriors[i], sizeof(*s_pWarriors[i]));
 	}
+}
+
+UBYTE warriorsGetAliveCount(void) {
+	return s_ubAliveCount;
 }

@@ -6,7 +6,9 @@
 #define INCLDE_CHAOS_ARENA_H
 
 #include <ace/managers/rand.h>
+#include <ace/managers/state.h>
 
+extern tStateManager *g_pStateMachineGame;
 extern tRandManager g_sRandManager;
 
 #endif // INCLDE_CHAOS_ARENA_H

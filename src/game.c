@@ -4,10 +4,12 @@
 
 #include "game.h"
 #include <ace/managers/key.h>
+#include <ace/managers/game.h>
 #include "bob_new.h"
 #include "display.h"
 #include "warrior.h"
 #include "assets.h"
+#include "chaos_arena.h"
 
 static tSimpleBufferManager *s_pVpManager;
 static UBYTE s_isDebug;
@@ -33,6 +35,11 @@ static void gameGsCreate(void) {
 }
 
 static void gameGsLoop(void) {
+	if(warriorsGetAliveCount() <= 1) {
+		gameExit();
+		return;
+	}
+
 	if (keyUse(KEY_C)) {
 		s_isDebug = !s_isDebug;
 	}

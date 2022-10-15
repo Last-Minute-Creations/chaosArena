@@ -62,4 +62,6 @@ void warriorsDestroy(void);
 
 void warriorsDrawLookup(tBitMap *pBuffer);
 
+UBYTE warriorsGetAliveCount(void);
+
 #endif // INCLUDE_WARRIOR_H

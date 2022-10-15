@@ -13,7 +13,9 @@
 		"palette.h": "c",
 		"ptplayer.h": "c",
 		"assets.h": "c",
-		"chaos_arena.h": "c"
+		"chaos_arena.h": "c",
+		"rand.h": "c",
+		"key.h": "c"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
