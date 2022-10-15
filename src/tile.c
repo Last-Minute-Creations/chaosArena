@@ -64,6 +64,10 @@ void tilesInit(void) {
 					.uwX = ubX * MAP_TILE_SIZE + (MAP_TILE_SIZE / 2),
 					.uwY = ubY * MAP_TILE_SIZE + (MAP_TILE_SIZE / 2)
 				};
+				logWrite(
+					"Loaded spawn at %hhu,%hhu: %hu,%hu\n", ubX, ubY,
+					s_pSpawns[s_ubSpawnCount-1].uwX, s_pSpawns[s_ubSpawnCount-1].uwY
+				);
 			}
 
 			// 3d effect
@@ -81,8 +85,12 @@ void tilesInit(void) {
 
 void tileShuffleSpawns(void) {
 	for(UBYTE ubShuffle = 0; ubShuffle < 50; ++ubShuffle) {
-		UBYTE ubA = randUwMax(&g_sRandManager, s_ubSpawnCount);
-		UBYTE ubB = randUwMax(&g_sRandManager, s_ubSpawnCount);
+		UBYTE ubA = randUwMax(&g_sRandManager, s_ubSpawnCount - 1);
+		UBYTE ubB = randUwMax(&g_sRandManager, s_ubSpawnCount - 1);
+
+		if(ubA == ubB) {
+			continue;
+		}
 
 		tUwCoordYX sTmp = {.ulYX = s_pSpawns[ubA].ulYX};
 		s_pSpawns[ubA].ulYX = s_pSpawns[ubB].ulYX;

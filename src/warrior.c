@@ -152,7 +152,7 @@ static void warriorUpdateBobPosition(tWarrior *pWarrior) {
 	pWarrior->sBob.sPos.uwY = pWarrior->sPos.uwY - BOB_OFFSET_Y;
 
 	if (pWarrior->sBob.sPos.uwX > DISPLAY_WIDTH || pWarrior->sBob.sPos.uwY > DISPLAY_HEIGHT) {
-		logWrite("ERR: bob out of bounds");
+		logWrite("ERR: warrior %p bob out of bounds", pWarrior);
 	}
 }
 
@@ -259,6 +259,7 @@ static void warriorAdd(
 	pWarrior->eDirection = ANIM_DIRECTION_S;
 	pWarrior->sSteer = sSteer;
 	s_pWarriorLookup[uwSpawnX / LOOKUP_TILE_SIZE][uwSpawnY / LOOKUP_TILE_SIZE] = pWarrior;
+	logWrite("Spawned warrior %p at %hu,%hu", pWarrior, uwSpawnX, uwSpawnY);
 }
 
 static void warriorSetAnim(tWarrior *pWarrior, tAnim eAnim) {
