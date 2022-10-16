@@ -12,12 +12,15 @@
 #include "tile.h"
 #include "chaos_arena.h"
 
+#define GAME_CRUMBLE_COOLDOWN 250
+
 static tSimpleBufferManager *s_pVpManager;
 static UBYTE s_isDebug;
 static tBobNew s_sBobCountdown;
 static tBobNew s_sBobFight;
 static UBYTE s_ubCountdownPhase;
 static UBYTE s_ubCountdownCooldown;
+static UBYTE s_ubCrumbleCooldown;
 
 static void debugColor(UWORD uwColor) {
 	if (s_isDebug) {
@@ -49,6 +52,7 @@ static void gameGsCreate(void) {
 
 	s_ubCountdownPhase = 5;
 	s_ubCountdownCooldown = 1;
+	s_ubCrumbleCooldown = GAME_CRUMBLE_COOLDOWN;
 
 	bobNewReallocateBgBuffers();
 	tilesDrawAllOn(s_pVpManager->pBack);
@@ -115,7 +119,14 @@ static void gameGsLoop(void) {
 	bobNewBegin(s_pVpManager->pBack);
 
 	debugColor(0x0ff);
-	tileCrumbleProcess(s_pVpManager->pBack);
+	if(!s_ubCountdownPhase) {
+		if(!s_ubCrumbleCooldown) {
+			tileCrumbleProcess(s_pVpManager->pBack);
+		}
+		else {
+			--s_ubCrumbleCooldown;
+		}
+	}
 
 	debugColor(0x0f0);
 	warriorsProcess();
