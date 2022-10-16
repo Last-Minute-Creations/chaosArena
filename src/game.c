@@ -58,6 +58,8 @@ static void gameGsCreate(void) {
 	tilesDrawAllOn(s_pVpManager->pBack);
 	tilesDrawAllOn(s_pVpManager->pFront);
 	warriorsEnableMove(0);
+	ptplayerLoadMod(g_pModCombat, g_pModSamples, 0);
+	ptplayerEnableMusic(1);
 	s_isDebug = 0;
 }
 
@@ -143,6 +145,7 @@ static void gameGsLoop(void) {
 static void gameGsDestroy(void) {
 	bobNewManagerDestroy();
 	warriorsDestroy();
+	ptplayerStop();
 }
 
 tState g_sStateGame = {

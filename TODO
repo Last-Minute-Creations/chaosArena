@@ -12,11 +12,10 @@ Game:
 	✔ countdown @done(22-10-15 21:45)
 	✔ crumbling of map @done(22-10-16 17:50)
 	✔ crumbling starting of edges of map @done(22-10-16 19:44)
-	☐ sfx
+	✔ sfx @done(22-10-16 22:33)
 	☐ basic AI
-	☐ fade between gamestates
-	☐ different offsets of frames, move to 16x16 blits
-	☐ thunders?
+	☐ reset map between game restarts
+	☐ fade on launch/exit
 
 Menu:
 	✔ player selection (P1-P6, left-right switches config) @done(22-10-15 17:04)
@@ -27,14 +26,12 @@ Menu:
 	☐ credits at the bottom of menu
 	☐ summary after match
 	☐ bots off/on
-	☐ how to play (?)
 
 Logo screens:
 	☐ ACE from germz
 	☐ LMC from germz
 
-Final assets:
-	☐ sfx
-	☐ music
-	☐ proper palette
-	☐ proper graphics
+Nice to have:
+	☐ how to play (?)
+	☐ different offsets of frames, move to 16x16 blits
+	☐ thunders?

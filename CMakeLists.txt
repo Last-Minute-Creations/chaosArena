@@ -111,6 +111,35 @@ convertPalette(
 	${GAME_EXECUTABLE} ${RES_DIR}/chaos_arena.gpl ${DATA_DIR}/palette.plt
 )
 
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/bricks.wav
+	DESTINATION ${DATA_DIR}/crumble.sfx
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/noo5.wav
+	DESTINATION ${DATA_DIR}/noo.sfx
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/swipe1.wav
+	DESTINATION ${DATA_DIR}/swipe1.sfx
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/swipe2.wav
+	DESTINATION ${DATA_DIR}/swipe2.sfx
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/swipeHit.wav
+	DESTINATION ${DATA_DIR}/swipeHit.sfx
+)
+# mergeMods(
+# 	TARGET ${GAME_EXECUTABLE}
+# 	SOURCES ${RES_DIR}/charena1.mod ${RES_DIR}/charena2.mod
+# 	DESTINATIONS ${DATA_DIR}/charena1.mod ${DATA_DIR}/charena2.mod
+# 	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
+# )
+FILE(COPY ${RES_DIR}/charena2.mod DESTINATION ${DATA_DIR})
+
+
 # Generating ZIP
 set(GAME_ZIP_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")
 add_custom_target(generateZip COMMAND

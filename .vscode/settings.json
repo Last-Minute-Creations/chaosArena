@@ -19,7 +19,9 @@
 		"blit.h": "c",
 		"game.h": "c",
 		"menu_list.h": "c",
-		"macros.h": "c"
+		"macros.h": "c",
+		"bitmap.h": "c",
+		"font.h": "c"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

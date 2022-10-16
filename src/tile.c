@@ -19,6 +19,8 @@
 #define CRUMBLE_COOLDOWN 4
 #define TILE_QUEUE_SIZE (CRUMBLES_MAX * 2)
 
+#define SFX_PRIORITY_CRUMBLE 8
+
 typedef enum tTile {
 	TILE_VOID,
 	TILE_WALL1,
@@ -250,6 +252,7 @@ void tileCrumbleProcess(tBitMap *pBuffer) {
 					tileQueueAddEntry(pCrumble->ubTileX, pCrumble->ubTileY + 1, TILE_VOID);
 				}
 				pCrumble->pTile = 0;
+				ptplayerSfxPlay(g_pSfxCrumble, 2, 64, SFX_PRIORITY_CRUMBLE);
 			}
 			else {
 				eNewTile = *pCrumble->pTile + 1;

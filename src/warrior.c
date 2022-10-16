@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "warrior.h"
+#include "chaos_arena.h"
 #include "assets.h"
 #include "display.h"
 #include "tile.h"
@@ -20,6 +21,10 @@
 #define BOB_OFFSET_X (WARRIOR_FRAME_WIDTH / 2)
 #define BOB_OFFSET_Y (WARRIOR_FRAME_HEIGHT)
 #define WARRIOR_PUSH_DELTA 2
+
+#define SFX_PRIORITY_SWIPE 3
+#define SFX_PRIORITY_HIT 5
+#define SFX_PRIORITY_FALL 10
 
 // Must be power of 2!
 #define LOOKUP_TILE_SIZE 8
@@ -284,7 +289,7 @@ static void warriorSetAnimOnce(tWarrior *pWarrior, tAnim eAnim) {
 	}
 }
 
-static void warriorStrike(const tWarrior *pWarrior) {
+static UBYTE warriorStrike(const tWarrior *pWarrior) {
 	const tBCoordYX *pDelta = &s_pAnimDirToAttackDelta[pWarrior->eDirection];
 	const tBCoordYX *pPushDelta = &s_pAnimDirToPushDelta[pWarrior->eDirection];
 	tUwCoordYX sAttackPos = (tUwCoordYX) {
@@ -298,29 +303,31 @@ static void warriorStrike(const tWarrior *pWarrior) {
 	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
 		warriorSetAnim(pOther, ANIM_HURT);
 		pOther->sPushDelta = *pPushDelta;
-		return;
+		return 1;
 	}
 
 	pOther = warriorGetAtPos(sAttackPos.uwX, 1, sAttackPos.uwY, 0);
 	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
 		warriorSetAnim(pOther, ANIM_HURT);
 		pOther->sPushDelta = *pPushDelta;
-		return;
+		return 1;
 	}
 
 	pOther = warriorGetAtPos(sAttackPos.uwX, 0, sAttackPos.uwY, 1);
 	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
 		warriorSetAnim(pOther, ANIM_HURT);
 		pOther->sPushDelta = *pPushDelta;
-		return;
+		return 1;
 	}
 
 	pOther = warriorGetAtPos(sAttackPos.uwX, 1, sAttackPos.uwY, 1);
 	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
 		warriorSetAnim(pOther, ANIM_HURT);
 		pOther->sPushDelta = *pPushDelta;
-		return;
+		return 1;
 	}
+
+	return 0;
 }
 
 static UBYTE warriorIsInAir(const tWarrior *pWarrior) {
@@ -378,7 +385,13 @@ static void warriorProcessState(tWarrior *pWarrior) {
 	if(pWarrior->eAnim == ANIM_ATTACK && pWarrior->ubAnimFrame != getFrameCountForAnim(ANIM_ATTACK) - 1) {
 		if(pWarrior->ubAnimFrame == getFrameCountForAnim(ANIM_ATTACK) - 2) {
 			// Do the actual hit
-			warriorStrike(pWarrior);
+			UBYTE isHit = warriorStrike(pWarrior);
+			if(isHit) {
+				ptplayerSfxPlay(g_pSfxSwipeHit, 3, 64, SFX_PRIORITY_HIT);
+			}
+			else {
+				ptplayerSfxPlay(g_pSfxSwipes[randUw(&g_sRandManager) & 1], 3, 64, SFX_PRIORITY_SWIPE);
+			}
 		}
 		return;
 	}
@@ -415,6 +428,7 @@ static void warriorProcessState(tWarrior *pWarrior) {
 
 	if(warriorIsInAir(pWarrior)) {
 		warriorSetAnim(pWarrior, ANIM_FALLING);
+		ptplayerSfxPlay(g_pSfxNo, 3, 64, SFX_PRIORITY_FALL);
 
 		// stop collision of warrior
 		UBYTE ubTileX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;

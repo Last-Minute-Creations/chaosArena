@@ -8,13 +8,25 @@
 
 tBitMap *g_pWarriorFrames;
 tBitMap *g_pWarriorMasks;
+
 tBitMap *g_pTileset;
+
 tFont *g_pFontMenu;
 tTextBitMap *g_pTextBitmap;
+
 tBitMap *g_pCountdownMask;
 tBitMap *g_pCountdownFrames;
 tBitMap *g_pFightFrames;
 tBitMap *g_pFightMask;
+
+tPtplayerSfx *g_pSfxNo;
+tPtplayerSfx *g_pSfxSwipes[2];
+tPtplayerSfx *g_pSfxSwipeHit;
+tPtplayerSfx *g_pSfxCrumble;
+
+tPtplayerMod *g_pModCombat;
+UWORD *g_pModSamples = 0;
+// static ULONG s_ulSampleSize;
 
 void assetsGlobalCreate(void) {
 	g_pWarriorFrames = bitmapCreateFromFile("data/warrior.bm", 0);
@@ -23,9 +35,25 @@ void assetsGlobalCreate(void) {
 	g_pCountdownFrames = bitmapCreateFromFile("data/countdown_mask.bm", 0);
 	g_pFightFrames = bitmapCreateFromFile("data/fight.bm", 0);
 	g_pFightMask = bitmapCreateFromFile("data/fight_mask.bm", 0);
+
 	g_pTileset = bitmapCreateFromFile("data/tiles.bm", 0);
+
 	g_pFontMenu = fontCreate("data/menu.fnt");
 	g_pTextBitmap = fontCreateTextBitMap(320, g_pFontMenu->uwHeight);
+
+	g_pSfxCrumble = ptplayerSfxCreateFromFile("data/crumble.sfx");
+	g_pSfxNo = ptplayerSfxCreateFromFile("data/noo.sfx");
+	g_pSfxSwipes[0] = ptplayerSfxCreateFromFile("data/swipe1.sfx");
+	g_pSfxSwipes[1] = ptplayerSfxCreateFromFile("data/swipe2.sfx");
+	g_pSfxSwipeHit = ptplayerSfxCreateFromFile("data/swipeHit.sfx");
+
+	g_pModCombat = ptplayerModCreate("data/charena2.mod");
+
+	// s_ulSampleSize = fileGetSize("data/samples.samplepack");
+	// g_pModSamples = memAllocChip(s_ulSampleSize);
+	// tFile *pFileSamples = fileOpen("data/samples.samplepack", "rb");
+	// fileRead(pFileSamples, g_pModSamples, s_ulSampleSize);
+	// fileClose(pFileSamples);
 }
 
 void assetsGlobalDestroy(void) {
@@ -35,7 +63,18 @@ void assetsGlobalDestroy(void) {
 	bitmapDestroy(g_pCountdownFrames);
 	bitmapDestroy(g_pFightFrames);
 	bitmapDestroy(g_pFightMask);
+
 	bitmapDestroy(g_pTileset);
+
 	fontDestroy(g_pFontMenu);
 	fontDestroyTextBitMap(g_pTextBitmap);
+
+	ptplayerSfxDestroy(g_pSfxCrumble);
+	ptplayerSfxDestroy(g_pSfxNo);
+	ptplayerSfxDestroy(g_pSfxSwipes[0]);
+	ptplayerSfxDestroy(g_pSfxSwipes[1]);
+	ptplayerSfxDestroy(g_pSfxSwipeHit);
+
+	ptplayerModDestroy(g_pModCombat);
+	// memFree(g_pModSamples, s_ulSampleSize);
 }
