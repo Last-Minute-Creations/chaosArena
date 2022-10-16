@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "tile.h"
+#include <mini_std/stdlib.h>
 #include <ace/types.h>
 #include <ace/generic/screen.h>
 #include <ace/managers/blit.h>
@@ -49,6 +50,11 @@ typedef struct tTileDrawQueueEntry {
 	UBYTE ubDrawCount;
 } tTileDrawQueueEntry;
 
+typedef struct tTileCrumbleOrderEntry {
+	tUbCoordYX sPos;
+	UWORD uwSortOrder;
+} tTileCrumbleOrderEntry;
+
 static tTile s_pTilesXy[TILE_WIDTH][TILE_HEIGHT];
 static tCrumble s_pCrumbleList[CRUMBLES_MAX];
 static tUwCoordYX s_pSpawns[SPAWNS_MAX];
@@ -58,6 +64,10 @@ static UBYTE s_ubActiveCrumbles;
 static tTileDrawQueueEntry s_pTileRedrawQueue[TILE_QUEUE_SIZE];
 static UBYTE s_ubRedrawPushPos;
 static UBYTE s_ubRedrawPopPos;
+static tTileCrumbleOrderEntry s_pTileCrumbleOrder[TILE_WIDTH * TILE_HEIGHT];
+
+static UWORD s_uwTileCount;
+static UWORD s_uwCurrentTileCrumble;
 
 /**
  * @brief The easy to read tile layout.
@@ -131,10 +141,42 @@ static UBYTE tileQueueHasSpace(void) {
 	return s_ubRedrawPopPos == s_ubRedrawPushPos;
 }
 
+static int onTileCrumbleSort(const void *pLhs, const void *pRhs) {
+	const tTileCrumbleOrderEntry *pLhsCoord = (tTileCrumbleOrderEntry*)pLhs;
+	const tTileCrumbleOrderEntry *pRhsCoord = (tTileCrumbleOrderEntry*)pRhs;
+	return pRhsCoord->uwSortOrder - pLhsCoord->uwSortOrder;
+}
+
+static void tileCrumbleAddNext(void) {
+	if(s_uwCurrentTileCrumble >= s_uwTileCount) {
+		return;
+	}
+
+	tUbCoordYX sPos = {.uwYX = s_pTileCrumbleOrder[s_uwCurrentTileCrumble].sPos.uwYX};
+	tTile *pTile = &s_pTilesXy[sPos.ubX][sPos.ubY];
+	if(*pTile != TILE_FLOOR1) {
+		return;
+	}
+
+	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i) {
+		if(!s_pCrumbleList[i].pTile) {
+			s_pCrumbleList[i].pTile = pTile;
+			s_pCrumbleList[i].ubCooldown = CRUMBLE_COOLDOWN;
+			s_pCrumbleList[i].ubTileX = sPos.ubX;
+			s_pCrumbleList[i].ubTileY = sPos.ubY;
+			++s_ubActiveCrumbles;
+			++s_uwCurrentTileCrumble;
+			return;
+		}
+	}
+}
+
 //------------------------------------------------------------------- PUBLIC FNS
 
 void tilesInit(void) {
 	s_ubSpawnCount = 0;
+	s_uwTileCount = 0;
+	s_uwCurrentTileCrumble = 0;
 	for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
 		for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
 			s_pTilesXy[ubX][ubY] = (
@@ -152,6 +194,13 @@ void tilesInit(void) {
 				);
 			}
 
+			if(s_pTilesXy[ubX][ubY] == TILE_FLOOR1) {
+				s_pTileCrumbleOrder[s_uwTileCount++] = (tTileCrumbleOrderEntry){
+					.sPos = {.ubX = ubX, .ubY = ubY},
+					.uwSortOrder = ABS(TILE_WIDTH / 2 - ubX) + ABS(TILE_HEIGHT / 2 - ubY)
+				};
+			}
+
 			// 3d effect
 			if (
 				ubY > 0 && s_pTilesXy[ubX][ubY] == TILE_VOID &&
@@ -163,38 +212,22 @@ void tilesInit(void) {
 	}
 
 	logWrite("Loaded %hhu spawn points\n", s_ubSpawnCount);
-
 	s_ubRedrawPushPos = 0;
 	s_ubRedrawPopPos = 0;
 	s_ubActiveCrumbles = 0;
 	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i) {
 		s_pCrumbleList[i].pTile = 0;
 	}
-}
 
-void tileCrumbleAdd(UBYTE ubTileX, UBYTE ubTileY) {
-	tTile *pTile = &s_pTilesXy[ubTileX][ubTileY];
-	if(*pTile != TILE_FLOOR1) {
-		return;
-	}
-
-	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i) {
-		if(!s_pCrumbleList[i].pTile) {
-			s_pCrumbleList[i].pTile = pTile;
-			s_pCrumbleList[i].ubCooldown = CRUMBLE_COOLDOWN;
-			s_pCrumbleList[i].ubTileX = ubTileX;
-			s_pCrumbleList[i].ubTileY = ubTileY;
-			++s_ubActiveCrumbles;
-			return;
-		}
-	}
+	qsort(
+		s_pTileCrumbleOrder, s_uwTileCount, sizeof(s_pTileCrumbleOrder[0]),
+		onTileCrumbleSort
+	);
+	logWrite("Tiles: %hu\n", s_uwTileCount);
 }
 
 void tileCrumbleProcess(tBitMap *pBuffer) {
-	tileCrumbleAdd(
-		randUwMax(&g_sRandManager, DISPLAY_WIDTH / MAP_TILE_SIZE - 1),
-		randUwMax(&g_sRandManager, DISPLAY_HEIGHT / MAP_TILE_SIZE - 1)
-	);
+	tileCrumbleAddNext();
 	tileQueueProcess(pBuffer);
 	if(!tileQueueHasSpace()) {
 		return;
