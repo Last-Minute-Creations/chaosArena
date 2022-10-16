@@ -31,7 +31,7 @@ static void debugReset(void) {
 
 static void gameGsCreate(void) {
 	s_pVpManager = displayGetManager();
-	bobNewManagerCreate(s_pVpManager->pFront, s_pVpManager->pBack, 512);
+	bobNewManagerCreate(s_pVpManager->pBack, s_pVpManager->pFront, 512);
 	warriorsCreate();
 
 	UBYTE ubCountdownWidth = bitmapGetByteWidth(g_pCountdownFrames) * 8;
