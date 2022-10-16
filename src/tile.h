@@ -11,12 +11,16 @@
 
 void tilesInit(void);
 
-void tilesDrawOn(tBitMap *pDestination);
+void tilesDrawAllOn(tBitMap *pDestination);
 
 UBYTE tileIsSolid(UBYTE ubTileX, UBYTE ubTileY);
 
 void tileShuffleSpawns(void);
 
 const tUwCoordYX *tileGetSpawn(UBYTE ubIndex);
+
+void tileCrumbleAdd(UBYTE ubTileX, UBYTE ubTileY);
+
+void tileCrumbleProcess(tBitMap *pBuffer);
 
 #endif // INCLUDE_TILE_H

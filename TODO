@@ -10,7 +10,8 @@ Game:
 	✔ shuffle spawn points @done(22-10-15 10:37)
 	✔ win conditions @done(22-10-15 13:51)
 	✔ countdown @done(22-10-15 21:45)
-	☐ crumbling of map
+	✔ crumbling of map @done(22-10-16 17:50)
+	☐ crumbling starting of edges of map
 	☐ sfx
 	☐ basic AI
 	☐ fade between gamestates
@@ -22,6 +23,7 @@ Menu:
 	✘ fire enables/disables player @cancelled(22-10-15 17:04)
 	✔ start game @done(22-10-15 20:47)
 	✔ exit to workbench @done(22-10-15 17:05)
+	☐ pass steer presets to game
 	☐ credits at the bottom of menu
 	☐ summary after match
 	☐ bots off/on

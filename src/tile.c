@@ -14,17 +14,50 @@
 #define TILE_WIDTH (DISPLAY_WIDTH / MAP_TILE_SIZE)
 #define TILE_HEIGHT (DISPLAY_HEIGHT / MAP_TILE_SIZE)
 #define SPAWNS_MAX 30
+#define CRUMBLES_MAX 4
+#define CRUMBLE_COOLDOWN 4
+#define TILE_QUEUE_SIZE (CRUMBLES_MAX * 2)
 
 typedef enum tTile {
 	TILE_VOID,
-	TILE_WALL_1,
-	TILE_FLOOR_1,
+	TILE_WALL1,
+	TILE_FLOOR1,
+	TILE_FLOOR1_C1, // crumble state
+	TILE_FLOOR1_C2,
+	TILE_FLOOR1_C3,
+	TILE_FLOOR1_C4,
+	TILE_FLOOR1_C5,
+	TILE_FLOOR1_C6,
+	TILE_FLOOR1_C7,
+	TILE_FLOOR1_C8,
+	TILE_FLOOR1_C9,
+	TILE_FLOOR1_C10,
 	TILE_COUNT
 } tTile;
 
+typedef struct tCrumble {
+	tTile *pTile;
+	UBYTE ubTileX;
+	UBYTE ubTileY;
+	UBYTE ubCooldown;
+} tCrumble;
+
+typedef struct tTileDrawQueueEntry {
+	UWORD uwX;
+	UWORD uwY;
+	UWORD uwTileOffset;
+	UBYTE ubDrawCount;
+} tTileDrawQueueEntry;
+
 static tTile s_pTilesXy[TILE_WIDTH][TILE_HEIGHT];
+static tCrumble s_pCrumbleList[CRUMBLES_MAX];
 static tUwCoordYX s_pSpawns[SPAWNS_MAX];
 static UBYTE s_ubSpawnCount;
+static UBYTE s_ubActiveCrumbles;
+
+static tTileDrawQueueEntry s_pTileRedrawQueue[TILE_QUEUE_SIZE];
+static UBYTE s_ubRedrawPushPos;
+static UBYTE s_ubRedrawPopPos;
 
 /**
  * @brief The easy to read tile layout.
@@ -53,6 +86,51 @@ static const char s_pMapPatternYx[TILE_HEIGHT][TILE_WIDTH + 1] = {
 	"@@@@@@@@@@@@@@@@@@@@@@@@"
 };
 
+//------------------------------------------------------------------ PRIVATE FNS
+
+static void tileQueueAddEntry(UBYTE ubTileX, UBYTE ubTileY, tTile eTile) {
+	s_pTilesXy[ubTileX][ubTileY] = eTile;
+	tTileDrawQueueEntry *pEntry = &s_pTileRedrawQueue[s_ubRedrawPushPos];
+	pEntry->uwTileOffset = eTile * MAP_TILE_SIZE;
+	pEntry->uwX = ubTileX * MAP_TILE_SIZE;
+	pEntry->uwY = ubTileY * MAP_TILE_SIZE;
+	pEntry->ubDrawCount = 2;
+
+	if(++s_ubRedrawPushPos == TILE_QUEUE_SIZE) {
+		s_ubRedrawPushPos = 0;
+	}
+	if(s_ubRedrawPushPos == s_ubRedrawPopPos) {
+		logWrite("ERR: Ring buffer overflow");
+	}
+}
+
+static void tileQueueProcess(tBitMap *pBuffer) {
+	tTileDrawQueueEntry *pEntry = &s_pTileRedrawQueue[s_ubRedrawPopPos];
+	if(pEntry->ubDrawCount == 0) {
+		return;
+	}
+
+	blitCopyAligned(
+		g_pTileset, 0, pEntry->uwTileOffset,
+		pBuffer, pEntry->uwX, pEntry->uwY, MAP_TILE_SIZE, MAP_TILE_SIZE
+	);
+
+	if(--pEntry->ubDrawCount == 0) {
+		if(++s_ubRedrawPopPos == TILE_QUEUE_SIZE) {
+			s_ubRedrawPopPos = 0;
+		}
+	}
+}
+
+static UBYTE tileQueueHasSpace(void) {
+	// UBYTE ubPopPos = s_ubRedrawPopPos;
+	// if(ubPopPos <= s_ubRedrawPushPos) {
+	// 	ubPopPos += TILE_QUEUE_SIZE;
+	// }
+	// return (ubPopPos - s_ubRedrawPushPos) > 2;
+	return s_ubRedrawPopPos == s_ubRedrawPushPos;
+}
+
 //------------------------------------------------------------------- PUBLIC FNS
 
 void tilesInit(void) {
@@ -60,7 +138,7 @@ void tilesInit(void) {
 	for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
 		for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
 			s_pTilesXy[ubX][ubY] = (
-				s_pMapPatternYx[ubY][ubX] == '@' ? TILE_VOID : TILE_FLOOR_1
+				s_pMapPatternYx[ubY][ubX] == '@' ? TILE_VOID : TILE_FLOOR1
 			);
 
 			if(s_pMapPatternYx[ubY][ubX] != '@' && s_pMapPatternYx[ubY][ubX] != '.') {
@@ -77,14 +155,76 @@ void tilesInit(void) {
 			// 3d effect
 			if (
 				ubY > 0 && s_pTilesXy[ubX][ubY] == TILE_VOID &&
-				s_pTilesXy[ubX][ubY - 1] == TILE_FLOOR_1
+				s_pTilesXy[ubX][ubY - 1] == TILE_FLOOR1
 			) {
-				s_pTilesXy[ubX][ubY] = TILE_WALL_1;
+				s_pTilesXy[ubX][ubY] = TILE_WALL1;
 			}
 		}
 	}
 
 	logWrite("Loaded %hhu spawn points\n", s_ubSpawnCount);
+
+	s_ubRedrawPushPos = 0;
+	s_ubRedrawPopPos = 0;
+	s_ubActiveCrumbles = 0;
+	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i) {
+		s_pCrumbleList[i].pTile = 0;
+	}
+}
+
+void tileCrumbleAdd(UBYTE ubTileX, UBYTE ubTileY) {
+	tTile *pTile = &s_pTilesXy[ubTileX][ubTileY];
+	if(*pTile != TILE_FLOOR1) {
+		return;
+	}
+
+	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i) {
+		if(!s_pCrumbleList[i].pTile) {
+			s_pCrumbleList[i].pTile = pTile;
+			s_pCrumbleList[i].ubCooldown = CRUMBLE_COOLDOWN;
+			s_pCrumbleList[i].ubTileX = ubTileX;
+			s_pCrumbleList[i].ubTileY = ubTileY;
+			++s_ubActiveCrumbles;
+			return;
+		}
+	}
+}
+
+void tileCrumbleProcess(tBitMap *pBuffer) {
+	tileCrumbleAdd(
+		randUwMax(&g_sRandManager, DISPLAY_WIDTH / MAP_TILE_SIZE - 1),
+		randUwMax(&g_sRandManager, DISPLAY_HEIGHT / MAP_TILE_SIZE - 1)
+	);
+	tileQueueProcess(pBuffer);
+	if(!tileQueueHasSpace()) {
+		return;
+	}
+
+	tCrumble *pCrumble = &s_pCrumbleList[0];
+	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i, ++pCrumble) {
+		if(!pCrumble->pTile) {
+			continue;
+		}
+		if(--pCrumble->ubCooldown == 0) {
+			tTile eNewTile;
+			if(*pCrumble->pTile == TILE_FLOOR1_C10) {
+				eNewTile = (
+					tileIsSolid(pCrumble->ubTileX, pCrumble->ubTileY - 1) ?
+					TILE_WALL1 : TILE_VOID
+				);
+
+				if(s_pTilesXy[pCrumble->ubTileX][pCrumble->ubTileY + 1] == TILE_WALL1) {
+					tileQueueAddEntry(pCrumble->ubTileX, pCrumble->ubTileY + 1, TILE_VOID);
+				}
+				pCrumble->pTile = 0;
+			}
+			else {
+				eNewTile = *pCrumble->pTile + 1;
+			}
+			pCrumble->ubCooldown = CRUMBLE_COOLDOWN;
+			tileQueueAddEntry(pCrumble->ubTileX, pCrumble->ubTileY, eNewTile);
+		}
+	}
 }
 
 void tileShuffleSpawns(void) {
@@ -106,7 +246,7 @@ const tUwCoordYX *tileGetSpawn(UBYTE ubIndex) {
 	return &s_pSpawns[ubIndex];
 }
 
-void tilesDrawOn(tBitMap *pDestination) {
+void tilesDrawAllOn(tBitMap *pDestination) {
 	for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
 		for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
 			blitCopyAligned(
@@ -118,5 +258,5 @@ void tilesDrawOn(tBitMap *pDestination) {
 }
 
 UBYTE tileIsSolid(UBYTE ubTileX, UBYTE ubTileY) {
-	return s_pTilesXy[ubTileX][ubTileY] >= TILE_FLOOR_1;
+	return s_pTilesXy[ubTileX][ubTileY] >= TILE_FLOOR1;
 }

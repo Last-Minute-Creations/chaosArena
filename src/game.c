@@ -51,8 +51,8 @@ static void gameGsCreate(void) {
 	s_ubCountdownCooldown = 1;
 
 	bobNewReallocateBgBuffers();
-	tilesDrawOn(s_pVpManager->pBack);
-	tilesDrawOn(s_pVpManager->pFront);
+	tilesDrawAllOn(s_pVpManager->pBack);
+	tilesDrawAllOn(s_pVpManager->pFront);
 	warriorsEnableMove(0);
 	s_isDebug = 0;
 }
@@ -113,6 +113,9 @@ static void gameGsLoop(void) {
 
 	debugColor(0xf00);
 	bobNewBegin(s_pVpManager->pBack);
+
+	debugColor(0x0ff);
+	tileCrumbleProcess(s_pVpManager->pBack);
 
 	debugColor(0x0f0);
 	warriorsProcess();

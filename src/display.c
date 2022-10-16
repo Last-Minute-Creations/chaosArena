@@ -36,8 +36,8 @@ void displayCreate(void) {
 	cameraSetCoord(s_pVpManager->pCamera, DISPLAY_TILE_MARGIN * 16, DISPLAY_TILE_MARGIN * 16);
 
 	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
-	tilesDrawOn(s_pVpManager->pBack);
-	tilesDrawOn(s_pVpManager->pFront);
+	tilesDrawAllOn(s_pVpManager->pBack);
+	tilesDrawAllOn(s_pVpManager->pFront);
 }
 
 void displayDestroy(void) {
