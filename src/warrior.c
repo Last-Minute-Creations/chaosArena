@@ -7,6 +7,7 @@
 #include "assets.h"
 #include "display.h"
 #include "tile.h"
+#include "menu.h"
 
 //---------------------------------------------------------------------- DEFINES
 
@@ -499,9 +500,7 @@ void warriorsCreate(void) {
 			s_pWarriors[i],
 			pSpawn->uwX,
 			pSpawn->uwY,
-			i == 0 ? steerInitKey(KEYMAP_WSAD) : (
-				i == 1 ? steerInitKey(KEYMAP_ARROWS) : steerInitIdle()
-			)
+			steerInitFromMode(menuGetSteerModeForPlayer(i), i)
 		);
 	}
 }

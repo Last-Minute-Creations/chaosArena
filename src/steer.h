@@ -32,17 +32,17 @@ typedef enum tSteerDirState {
 	STEER_DIR_STATE_ACTIVE,
 } tSteerDirState;
 
-typedef enum tKeymap {
-	KEYMAP_WSAD,
-	KEYMAP_ARROWS
-} tKeymap;
+typedef enum tSteerKeymap {
+	STEER_KEYMAP_WSAD,
+	STEER_KEYMAP_ARROWS
+} tSteerKeymap;
 
 typedef struct tSteer {
 	tCbSteerProcess cbProcess;
 	tSteerDirState pDirectionStates[DIRECTION_COUNT];
 	union {
 		UBYTE ubJoy; ///< for joy steer
-		tKeymap eKeymap; ///< for keyboard steer
+		tSteerKeymap eKeymap; ///< for keyboard steer
 		// tAi sAi;
 	};
 } tSteer;
@@ -51,7 +51,7 @@ tSteer steerInitFromMode(tSteerMode eMode, UBYTE ubPlayerIdx);
 
 tSteer steerInitJoy(UBYTE ubJoy);
 
-tSteer steerInitKey(tKeymap eKeymap);
+tSteer steerInitKey(tSteerKeymap eKeymap);
 
 tSteer steerInitAi(UBYTE ubPlayerIdx);
 

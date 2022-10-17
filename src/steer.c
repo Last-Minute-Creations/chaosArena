@@ -50,7 +50,7 @@ static void onKey(tSteer *pSteer) {
 		[DIRECTION_FIRE] = KEY_RSHIFT
 	};
 
-	const UBYTE *pDirToKey = (pSteer->eKeymap == KEYMAP_WSAD) ? pDirsWsad : pDirsArrows;
+	const UBYTE *pDirToKey = (pSteer->eKeymap == STEER_KEYMAP_WSAD) ? pDirsWsad : pDirsArrows;
 
 	for(tDirection eDir = 0; eDir < DIRECTION_COUNT; ++eDir) {
 		if(keyCheck(pDirToKey[eDir])) {
@@ -117,9 +117,9 @@ tSteer steerInitFromMode(tSteerMode eMode, UBYTE ubPlayerIdx) {
 		case STEER_MODE_JOY_4:
 			return steerInitJoy(JOY4);
 		case STEER_MODE_KEY_ARROWS:
-			return steerInitKey(KEYMAP_ARROWS);
+			return steerInitKey(STEER_KEYMAP_ARROWS);
 		case STEER_MODE_KEY_WSAD:
-			return steerInitKey(KEYMAP_WSAD);
+			return steerInitKey(STEER_KEYMAP_WSAD);
 		case STEER_MODE_AI:
 			return steerInitAi(ubPlayerIdx);
 		default:
@@ -135,7 +135,7 @@ tSteer steerInitJoy(UBYTE ubJoy) {
 	return sSteer;
 }
 
-tSteer steerInitKey(tKeymap eKeymap) {
+tSteer steerInitKey(tSteerKeymap eKeymap) {
 	tSteer sSteer = {
 		.cbProcess = onKey,
 		.eKeymap = eKeymap
@@ -169,7 +169,7 @@ UBYTE steerIsPlayer(const tSteer *pSteer) {
 }
 
 UBYTE steerIsArrows(const tSteer *pSteer) {
-	UBYTE isArrows = (pSteer->cbProcess == onKey && pSteer->eKeymap == KEYMAP_ARROWS);
+	UBYTE isArrows = (pSteer->cbProcess == onKey && pSteer->eKeymap == STEER_KEYMAP_ARROWS);
 	return isArrows;
 }
 

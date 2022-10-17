@@ -13,8 +13,8 @@ Game:
 	✔ crumbling of map @done(22-10-16 17:50)
 	✔ crumbling starting of edges of map @done(22-10-16 19:44)
 	✔ sfx @done(22-10-16 22:33)
-	☐ basic AI
 	☐ reset map between game restarts
+	☐ basic AI
 	☐ fade on launch/exit
 
 Menu:
@@ -22,8 +22,8 @@ Menu:
 	✘ fire enables/disables player @cancelled(22-10-15 17:04)
 	✔ start game @done(22-10-15 20:47)
 	✔ exit to workbench @done(22-10-15 17:05)
-	☐ pass steer presets to game
-	☐ credits at the bottom of menu
+	✔ credits at the bottom of menu @done(22-10-17 15:57)
+	✔ pass steer presets to game @done(22-10-17 16:25)
 	☐ summary after match
 	☐ bots off/on
 

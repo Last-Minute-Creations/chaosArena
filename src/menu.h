@@ -5,6 +5,8 @@
 #ifndef INCLUDE_MENU_H
 #define INCLUDE_MENU_H
 
-#include <ace/managers/state.h>
+#include "steer.h"
+
+tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex);
 
 #endif // INCLUDE_MENU_H

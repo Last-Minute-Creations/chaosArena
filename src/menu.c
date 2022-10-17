@@ -245,6 +245,30 @@ static void onDrawPos(
 	*pUndrawWidth = (MENU_WIDTH + uwTextWidth) / 2;
 }
 
+//------------------------------------------------------------------- PUBLIC FNS
+
+tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex) {
+	if(ubPlayerIndex >= 6) {
+		return STEER_MODE_IDLE; // TODO: AI
+	}
+	switch(s_pPlayerSteerKinds[ubPlayerIndex]) {
+		case STEER_KIND_ARROWS:
+			return STEER_MODE_KEY_ARROWS;
+		case STEER_KIND_WSAD:
+			return STEER_MODE_KEY_WSAD;
+		case STEER_KIND_JOY1:
+			return STEER_MODE_JOY_1;
+		case STEER_KIND_JOY2:
+			return STEER_MODE_JOY_2;
+		case STEER_KIND_JOY3:
+			return STEER_MODE_JOY_3;
+		case STEER_KIND_JOY4:
+			return STEER_MODE_JOY_4;
+		default:
+			return STEER_MODE_IDLE; // TODO: AI
+	}
+}
+
 //------------------------------------------------------------------ PUBLIC VARS
 
 tState g_sStateMenu = {
