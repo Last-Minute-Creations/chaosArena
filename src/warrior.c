@@ -428,7 +428,7 @@ static void warriorProcessState(tWarrior *pWarrior) {
 
 	if(warriorIsInAir(pWarrior)) {
 		warriorSetAnim(pWarrior, ANIM_FALLING);
-		ptplayerSfxPlay(g_pSfxNo, 3, 64, SFX_PRIORITY_FALL);
+		ptplayerSfxPlay(g_pSfxNo, 2, 64, SFX_PRIORITY_FALL);
 
 		// stop collision of warrior
 		UBYTE ubTileX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;

@@ -8,6 +8,7 @@
 #include <ace/utils/bitmap.h>
 
 #define MAP_TILE_SIZE 16
+#define HALF_TILE_SIZE (MAP_TILE_SIZE / 2)
 
 void tilesInit(void);
 

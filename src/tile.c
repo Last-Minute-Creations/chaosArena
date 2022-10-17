@@ -17,6 +17,7 @@
 #define SPAWNS_MAX 30
 #define CRUMBLES_MAX 4
 #define CRUMBLE_COOLDOWN 4
+#define CRUMBLE_ADD_COOLDOWN 15
 #define TILE_QUEUE_SIZE (CRUMBLES_MAX * 2)
 
 #define SFX_PRIORITY_CRUMBLE 8
@@ -62,6 +63,7 @@ static tCrumble s_pCrumbleList[CRUMBLES_MAX];
 static tUwCoordYX s_pSpawns[SPAWNS_MAX];
 static UBYTE s_ubSpawnCount;
 static UBYTE s_ubActiveCrumbles;
+static UBYTE s_ubCrumbleAddCooldown;
 
 static tTileDrawQueueEntry s_pTileRedrawQueue[TILE_QUEUE_SIZE];
 static UBYTE s_ubRedrawPushPos;
@@ -179,6 +181,7 @@ void tilesInit(void) {
 	s_ubSpawnCount = 0;
 	s_uwTileCount = 0;
 	s_uwCurrentTileCrumble = 0;
+	s_ubCrumbleAddCooldown = CRUMBLE_ADD_COOLDOWN;
 	for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
 		for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
 			s_pTilesXy[ubX][ubY] = (
@@ -199,7 +202,10 @@ void tilesInit(void) {
 			if(s_pTilesXy[ubX][ubY] == TILE_FLOOR1) {
 				s_pTileCrumbleOrder[s_uwTileCount++] = (tTileCrumbleOrderEntry){
 					.sPos = {.ubX = ubX, .ubY = ubY},
-					.uwSortOrder = ABS(TILE_WIDTH / 2 - ubX) + ABS(TILE_HEIGHT / 2 - ubY)
+					.uwSortOrder = (
+						ABS(DISPLAY_WIDTH / 2 - ((ubX * MAP_TILE_SIZE) + HALF_TILE_SIZE)) +
+						ABS(DISPLAY_HEIGHT / 2 - ((ubY * MAP_TILE_SIZE) + HALF_TILE_SIZE))
+					)
 				};
 			}
 
@@ -229,7 +235,11 @@ void tilesInit(void) {
 }
 
 void tileCrumbleProcess(tBitMap *pBuffer) {
-	tileCrumbleAddNext();
+	if(--s_ubCrumbleAddCooldown == 0) {
+		tileCrumbleAddNext();
+		s_ubCrumbleAddCooldown = CRUMBLE_ADD_COOLDOWN;
+	}
+
 	tileQueueProcess(pBuffer);
 	if(!tileQueueHasSpace()) {
 		return;
