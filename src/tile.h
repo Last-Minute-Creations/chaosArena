@@ -22,4 +22,6 @@ const tUwCoordYX *tileGetSpawn(UBYTE ubIndex);
 
 void tileCrumbleProcess(tBitMap *pBuffer);
 
+void tilesReload(void);
+
 #endif // INCLUDE_TILE_H

@@ -58,6 +58,7 @@ typedef struct tTileCrumbleOrderEntry {
 	UWORD uwSortOrder;
 } tTileCrumbleOrderEntry;
 
+static tTile s_pTilesSourceXy[TILE_WIDTH][TILE_HEIGHT];
 static tTile s_pTilesXy[TILE_WIDTH][TILE_HEIGHT];
 static tCrumble s_pCrumbleList[CRUMBLES_MAX];
 static tUwCoordYX s_pSpawns[SPAWNS_MAX];
@@ -180,11 +181,9 @@ static void tileCrumbleAddNext(void) {
 void tilesInit(void) {
 	s_ubSpawnCount = 0;
 	s_uwTileCount = 0;
-	s_uwCurrentTileCrumble = 0;
-	s_ubCrumbleAddCooldown = CRUMBLE_ADD_COOLDOWN;
 	for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
 		for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
-			s_pTilesXy[ubX][ubY] = (
+			s_pTilesSourceXy[ubX][ubY] = (
 				s_pMapPatternYx[ubY][ubX] == '@' ? TILE_VOID : TILE_FLOOR1
 			);
 
@@ -199,7 +198,7 @@ void tilesInit(void) {
 				);
 			}
 
-			if(s_pTilesXy[ubX][ubY] == TILE_FLOOR1) {
+			if(s_pTilesSourceXy[ubX][ubY] == TILE_FLOOR1) {
 				s_pTileCrumbleOrder[s_uwTileCount++] = (tTileCrumbleOrderEntry){
 					.sPos = {.ubX = ubX, .ubY = ubY},
 					.uwSortOrder = (
@@ -211,27 +210,40 @@ void tilesInit(void) {
 
 			// 3d effect
 			if (
-				ubY > 0 && s_pTilesXy[ubX][ubY] == TILE_VOID &&
-				s_pTilesXy[ubX][ubY - 1] == TILE_FLOOR1
+				ubY > 0 && s_pTilesSourceXy[ubX][ubY] == TILE_VOID &&
+				s_pTilesSourceXy[ubX][ubY - 1] == TILE_FLOOR1
 			) {
-				s_pTilesXy[ubX][ubY] = TILE_WALL1;
+				s_pTilesSourceXy[ubX][ubY] = TILE_WALL1;
 			}
 		}
 	}
 
 	logWrite("Loaded %hhu spawn points\n", s_ubSpawnCount);
-	s_ubRedrawPushPos = 0;
-	s_ubRedrawPopPos = 0;
-	s_ubActiveCrumbles = 0;
-	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i) {
-		s_pCrumbleList[i].pTile = 0;
-	}
 
 	qsort(
 		s_pTileCrumbleOrder, s_uwTileCount, sizeof(s_pTileCrumbleOrder[0]),
 		onTileCrumbleSort
 	);
 	logWrite("Tiles: %hu\n", s_uwTileCount);
+}
+
+void tilesReload(void) {
+	s_uwCurrentTileCrumble = 0;
+	s_ubCrumbleAddCooldown = CRUMBLE_ADD_COOLDOWN;
+
+	const tTile *pBegin = &s_pTilesSourceXy[0][0];
+	const tTile *pEnd = &s_pTilesSourceXy[TILE_WIDTH - 1][TILE_HEIGHT - 1 + 1];
+	tTile *pDestination = &s_pTilesXy[0][0];
+	for(const tTile *pTile = pBegin; pTile != pEnd; ++pTile) {
+		*(pDestination++) = *pTile;
+	}
+
+	s_ubRedrawPushPos = 0;
+	s_ubRedrawPopPos = 0;
+	s_ubActiveCrumbles = 0;
+	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i) {
+		s_pCrumbleList[i].pTile = 0;
+	}
 }
 
 void tileCrumbleProcess(tBitMap *pBuffer) {

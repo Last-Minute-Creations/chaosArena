@@ -13,7 +13,7 @@ Game:
 	✔ crumbling of map @done(22-10-16 17:50)
 	✔ crumbling starting of edges of map @done(22-10-16 19:44)
 	✔ sfx @done(22-10-16 22:33)
-	☐ reset map between game restarts
+	✔ reset map between game restarts @done(22-10-17 17:13)
 	☐ basic AI
 	☐ fade on launch/exit
 

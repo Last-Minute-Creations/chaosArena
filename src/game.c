@@ -55,6 +55,7 @@ static void gameGsCreate(void) {
 	s_ubCrumbleCooldown = GAME_CRUMBLE_COOLDOWN;
 
 	bobNewReallocateBgBuffers();
+	tilesReload();
 	tilesDrawAllOn(s_pVpManager->pBack);
 	tilesDrawAllOn(s_pVpManager->pFront);
 	warriorsEnableMove(0);
