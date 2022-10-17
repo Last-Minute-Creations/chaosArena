@@ -11,7 +11,7 @@
 
 //---------------------------------------------------------------------- DEFINES
 
-#define WARRIOR_COUNT 5
+#define WARRIOR_COUNT 8
 #define WARRIORS_PER_ROW 8
 #define WARRIOR_FRAME_WIDTH 16
 #define WARRIOR_FRAME_HEIGHT 19

@@ -21,9 +21,10 @@
 #define MENU_DISPLAY_START_Y ((DISPLAY_HEIGHT - MENU_HEIGHT) / 2)
 #define MENU_DISPLAY_END_Y (MENU_DISPLAY_START_Y + MENU_HEIGHT)
 #define MENU_COLOR_BG 5
-#define MENU_COLOR_INACTIVE 4
-#define MENU_COLOR_ACTIVE 7
-#define MENU_COLOR_TITLE 7
+#define MENU_COLOR_INACTIVE 14
+#define MENU_COLOR_ACTIVE 15
+#define MENU_COLOR_TITLE 11
+#define MENU_COLOR_FOOTER 14
 #define APPEAR_ANIM_SPEED 4
 
 //-------------------------------------------------------------------------TYPES
@@ -62,13 +63,13 @@ static UBYTE s_ubLastDrawEnd[2];
 static UBYTE s_isOdd;
 
 static const char *s_pSteerEnumLabels[STEER_KIND_COUNT] = {
-	[STEER_KIND_JOY1] = "JOY 1",
-	[STEER_KIND_JOY2] = "JOY 2",
-	[STEER_KIND_JOY3] = "JOY 3",
-	[STEER_KIND_JOY4] = "JOY 4",
+	[STEER_KIND_JOY1] = "Joy 1",
+	[STEER_KIND_JOY2] = "Joy 2",
+	[STEER_KIND_JOY3] = "Joy 3",
+	[STEER_KIND_JOY4] = "Joy 4",
 	[STEER_KIND_WSAD] = "WSAD",
-	[STEER_KIND_ARROWS] = "ARROWS",
-	[STEER_KIND_OFF] = "OFF",
+	[STEER_KIND_ARROWS] = "Arrows",
+	[STEER_KIND_OFF] = "Off",
 };
 
 static tMenuListOption s_pMenuOptions[] = {
@@ -103,13 +104,13 @@ static tMenuListOption s_pMenuOptions[] = {
 
 const char *s_pMenuCaptions[MENU_OPTION_COUNT] = {
 	"BEGIN CHAOS",
-	"PLAYER 1",
-	"PLAYER 2",
-	"PLAYER 3",
-	"PLAYER 4",
-	"PLAYER 5",
-	"PLAYER 6",
-	"EXIT",
+	"Player 1",
+	"Player 2",
+	"Player 3",
+	"Player 4",
+	"Player 5",
+	"Player 6",
+	"Exit",
 };
 
 //------------------------------------------------------------------ PRIVATE FNS
@@ -147,14 +148,14 @@ static void menuGsCreate(void) {
 	UWORD uwY = MENU_HEIGHT - 2 * ubLineHeight - 5;
 	fontDrawStr(
 		g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY,
-		"A Game by Last Minute Creations",
-		MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+		"A game by Last Minute Creations",
+		MENU_COLOR_FOOTER, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 	);
 	uwY += ubLineHeight;
 	fontDrawStr(
 		g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY,
-		"Code: KaiN, Audio: Luc3k, Gfx: Softiron",
-		MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+		"Audio: Luc3k, Code: KaiN, Gfx: Softiron",
+		MENU_COLOR_FOOTER, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 	);
 	menuListDraw();
 	s_ubLastDrawEnd[0] = 0;
@@ -229,7 +230,7 @@ static void onExit(void) {
 }
 
 static void onUndraw(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight) {
-	blitRect(s_pMenuBitmap, uwX, uwY, uwWidth, uwHeight, MENU_COLOR_BG);
+	blitRect(s_pMenuBitmap, uwX, uwY, uwWidth, uwHeight + 1, MENU_COLOR_BG);
 }
 
 static void onDrawPos(
