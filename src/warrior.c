@@ -383,6 +383,7 @@ static void warriorProcessState(tWarrior *pWarrior) {
 	}
 
 	if(pWarrior->eAnim == ANIM_ATTACK && pWarrior->ubAnimFrame != getFrameCountForAnim(ANIM_ATTACK) - 1) {
+		warriorTryMoveBy(pWarrior, pWarrior->sPushDelta.bX, pWarrior->sPushDelta.bY);
 		if(pWarrior->ubAnimFrame == getFrameCountForAnim(ANIM_ATTACK) - 2) {
 			// Do the actual hit
 			UBYTE isHit = warriorStrike(pWarrior);
@@ -399,6 +400,7 @@ static void warriorProcessState(tWarrior *pWarrior) {
 	if(steerDirCheck(&pWarrior->sSteer, DIRECTION_FIRE)) {
 		// Start swinging
 		warriorSetAnim(pWarrior, ANIM_ATTACK);
+		pWarrior->sPushDelta = s_pAnimDirToPushDelta[pWarrior->eDirection];
 		return;
 	}
 
