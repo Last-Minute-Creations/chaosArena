@@ -23,7 +23,8 @@ extern tBitMap *g_pFightMask;
 
 extern tBitMap *g_pTileset;
 
-extern tFont *g_pFontMenu;
+extern tFont *g_pFontBig;
+extern tFont *g_pFontSmall;
 extern tTextBitMap *g_pTextBitmap;
 
 extern tPtplayerSfx *g_pSfxNo;

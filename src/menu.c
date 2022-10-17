@@ -54,21 +54,21 @@ static void onDrawPos(
 static tSimpleBufferManager *s_pVpManager;
 static tBitMap *s_pMenuBitmap;
 static UBYTE s_pPlayerSteerKinds[6] = {
-	STEER_KIND_JOY1, STEER_KIND_JOY2, STEER_KIND_JOY3,
-	STEER_KIND_JOY4, STEER_KIND_ARROWS, STEER_KIND_WSAD
+	STEER_KIND_JOY1, STEER_KIND_JOY2, STEER_KIND_OFF,
+	STEER_KIND_OFF, STEER_KIND_OFF, STEER_KIND_OFF
 };
 static tSteer s_pMenuSteers[6];
 static UBYTE s_ubLastDrawEnd[2];
 static UBYTE s_isOdd;
 
-static const char *s_pSteerEnumLabels[] = {
-	"JOY 1",
-	"JOY 2",
-	"JOY 3",
-	"JOY 4",
-	"WSAD",
-	"ARROWS",
-	"OFF",
+static const char *s_pSteerEnumLabels[STEER_KIND_COUNT] = {
+	[STEER_KIND_JOY1] = "JOY 1",
+	[STEER_KIND_JOY2] = "JOY 2",
+	[STEER_KIND_JOY3] = "JOY 3",
+	[STEER_KIND_JOY4] = "JOY 4",
+	[STEER_KIND_WSAD] = "WSAD",
+	[STEER_KIND_ARROWS] = "ARROWS",
+	[STEER_KIND_OFF] = "OFF",
 };
 
 static tMenuListOption s_pMenuOptions[] = {
@@ -127,14 +127,34 @@ static void menuGsCreate(void) {
 	s_pMenuSteers[5] = steerInitFromMode(STEER_MODE_KEY_ARROWS, 0);
 
 	menuListInit(
-		s_pMenuOptions, s_pMenuCaptions, MENU_OPTION_COUNT, g_pFontMenu,
-		0, 30, onUndraw, onDrawPos
+		s_pMenuOptions, s_pMenuCaptions, MENU_OPTION_COUNT, g_pFontSmall,
+		0, 40, onUndraw, onDrawPos
 	);
 
 	blitRect(s_pMenuBitmap, 0, 0, MENU_WIDTH, MENU_HEIGHT, MENU_COLOR_BG);
 	fontDrawStr(
-		g_pFontMenu, s_pMenuBitmap, MENU_WIDTH / 2, 10, "CHAOS ARENA",
+		g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, "CHAOS ARENA",
 		MENU_COLOR_TITLE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+	);
+
+	fontDrawStr(
+		g_pFontSmall, s_pMenuBitmap, MENU_WIDTH - 5, 5,
+		"v." GAME_VERSION,
+		MENU_COLOR_INACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_RIGHT, g_pTextBitmap
+	);
+
+	UBYTE ubLineHeight = g_pFontSmall->uwHeight + 1;
+	UWORD uwY = MENU_HEIGHT - 2 * ubLineHeight - 5;
+	fontDrawStr(
+		g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY,
+		"A Game by Last Minute Creations",
+		MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+	);
+	uwY += ubLineHeight;
+	fontDrawStr(
+		g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY,
+		"Code: KaiN, Audio: Luc3k, Gfx: Softiron",
+		MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 	);
 	menuListDraw();
 	s_ubLastDrawEnd[0] = 0;
@@ -216,9 +236,9 @@ static void onDrawPos(
 	UWORD uwX, UWORD uwY, const char *szCaption, const char *szText,
 	UBYTE isActive, UWORD *pUndrawWidth
 ) {
-	UWORD uwTextWidth = fontMeasureText(g_pFontMenu, szText).uwX;
+	UWORD uwTextWidth = fontMeasureText(g_pFontSmall, szText).uwX;
 	fontDrawStr(
-		g_pFontMenu, s_pMenuBitmap, uwX + MENU_WIDTH / 2, uwY, szText,
+		g_pFontSmall, s_pMenuBitmap, uwX + MENU_WIDTH / 2, uwY, szText,
 		isActive ? MENU_COLOR_ACTIVE : MENU_COLOR_INACTIVE,
 		FONT_SHADOW | FONT_COOKIE | FONT_HCENTER, g_pTextBitmap
 	);

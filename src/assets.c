@@ -11,7 +11,8 @@ tBitMap *g_pWarriorMasks;
 
 tBitMap *g_pTileset;
 
-tFont *g_pFontMenu;
+tFont *g_pFontBig;
+tFont *g_pFontSmall;
 tTextBitMap *g_pTextBitmap;
 
 tBitMap *g_pCountdownMask;
@@ -38,8 +39,9 @@ void assetsGlobalCreate(void) {
 
 	g_pTileset = bitmapCreateFromFile("data/tiles.bm", 0);
 
-	g_pFontMenu = fontCreate("data/menu.fnt");
-	g_pTextBitmap = fontCreateTextBitMap(320, g_pFontMenu->uwHeight);
+	g_pFontBig = fontCreate("data/menu.fnt");
+	g_pFontSmall = fontCreate("data/uni54.fnt");
+	g_pTextBitmap = fontCreateTextBitMap(320, g_pFontBig->uwHeight);
 
 	g_pSfxCrumble = ptplayerSfxCreateFromFile("data/crumble.sfx");
 	g_pSfxNo = ptplayerSfxCreateFromFile("data/noo.sfx");
@@ -66,7 +68,8 @@ void assetsGlobalDestroy(void) {
 
 	bitmapDestroy(g_pTileset);
 
-	fontDestroy(g_pFontMenu);
+	fontDestroy(g_pFontBig);
+	fontDestroy(g_pFontSmall);
 	fontDestroyTextBitMap(g_pTextBitmap);
 
 	ptplayerSfxDestroy(g_pSfxCrumble);
