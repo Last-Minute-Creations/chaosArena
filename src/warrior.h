@@ -7,27 +7,7 @@
 
 #include "bob_new.h"
 #include "steer.h"
-
-typedef enum tAnimDirection {
-	ANIM_DIRECTION_S,
-	ANIM_DIRECTION_SE,
-	ANIM_DIRECTION_E,
-	ANIM_DIRECTION_NE,
-	ANIM_DIRECTION_N,
-	ANIM_DIRECTION_NW,
-	ANIM_DIRECTION_W,
-	ANIM_DIRECTION_SW,
-	ANIM_DIRECTION_COUNT,
-} tAnimDirection;
-
-typedef enum tAnim {
-	ANIM_IDLE,
-	ANIM_WALK,
-	ANIM_ATTACK,
-	ANIM_HURT,
-	ANIM_FALLING,
-	ANIM_COUNT,
-} tAnim;
+#include "anim.h"
 
 typedef enum tControl {
 	CONTROL_JOY1,
@@ -67,5 +47,9 @@ UBYTE warriorsGetAliveCount(void);
 UBYTE warriorsGetAlivePlayerCount(void);
 
 void warriorsEnableMove(UBYTE isEnabled);
+
+tWarrior *warriorGetStrikeTarget(
+	const tWarrior *pWarrior, tAnimDirection eDirection
+);
 
 #endif // INCLUDE_WARRIOR_H
