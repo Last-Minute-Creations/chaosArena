@@ -147,7 +147,7 @@ static UBYTE areWarriorsColliding(
 	return isPositionCollidingWithWarrior(pWarrior1->sPos, pWarrior2);
 }
 
-static inline tWarrior *warriorGetAtPos(
+static inline tWarrior *warriorGetNearPos(
 	UWORD uwPosX, BYTE bLookupAddX, UWORD uwPosY, BYTE bLookupAddY
 ) {
 	UWORD uwLookupX = uwPosX / LOOKUP_TILE_SIZE + bLookupAddX;
@@ -179,14 +179,14 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 		pWarrior->sPos.uwX += bDeltaX;
 
 		// collision with upper corner
-		tWarrior *pUp = warriorGetAtPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, 0);
+		tWarrior *pUp = warriorGetNearPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, 0);
 		if(pUp && pUp != pWarrior) {
 			isColliding = areWarriorsColliding(pWarrior, pUp);
 		}
 
 		// collision with lower corner
 		if (!isColliding && (sOldPos.uwY & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pDown = warriorGetAtPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, +1);
+			tWarrior *pDown = warriorGetNearPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, +1);
 			if(pDown && pDown != pWarrior) {
 				isColliding = areWarriorsColliding(pWarrior, pDown);
 			}
@@ -206,14 +206,14 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 		pWarrior->sPos.uwY += bDeltaY;
 
 		// collision with left corner
-		tWarrior *pLeft = warriorGetAtPos(sOldPos.uwX, 0, sOldPos.uwY, SGN(bDeltaY));
+		tWarrior *pLeft = warriorGetNearPos(sOldPos.uwX, 0, sOldPos.uwY, SGN(bDeltaY));
 		if(pLeft && pLeft != pWarrior) {
 			isColliding = areWarriorsColliding(pWarrior, pLeft);
 		}
 
 		// collision with right corner
 		if (!isColliding && (sOldPos.uwX & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pRight = warriorGetAtPos(sOldPos.uwX, +1, sOldPos.uwY, SGN(bDeltaY));
+			tWarrior *pRight = warriorGetNearPos(sOldPos.uwX, +1, sOldPos.uwY, SGN(bDeltaY));
 			if(pRight && pRight != pWarrior) {
 				isColliding = areWarriorsColliding(pWarrior, pRight);
 			}
@@ -290,44 +290,46 @@ static void warriorSetAnimOnce(tWarrior *pWarrior, tAnim eAnim) {
 	}
 }
 
-static UBYTE warriorStrike(const tWarrior *pWarrior) {
-	const tBCoordYX *pDelta = &s_pAnimDirToAttackDelta[pWarrior->eDirection];
-	const tBCoordYX *pPushDelta = &s_pAnimDirToPushDelta[pWarrior->eDirection];
+static tWarrior *warriorGetStrikeTarget(
+	const tWarrior *pWarrior,, tAnimDirection eDirection
+) {
+	const tBCoordYX *pDelta = &s_pAnimDirToAttackDelta[eDirection];
 	tUwCoordYX sAttackPos = (tUwCoordYX) {
 		.uwX = pWarrior->sPos.uwX + pDelta->bX,
 		.uwY = pWarrior->sPos.uwY + pDelta->bY
 	};
-
 	tWarrior *pOther;
 
-	pOther = warriorGetAtPos(sAttackPos.uwX, 0, sAttackPos.uwY, 0);
+	pOther = warriorGetNearPos(sAttackPos.uwX, 0, sAttackPos.uwY, 0);
 	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
-		warriorSetAnim(pOther, ANIM_HURT);
-		pOther->sPushDelta = *pPushDelta;
-		return 1;
+		return pOther;
 	}
 
-	pOther = warriorGetAtPos(sAttackPos.uwX, 1, sAttackPos.uwY, 0);
+	pOther = warriorGetNearPos(sAttackPos.uwX, 1, sAttackPos.uwY, 0);
 	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
-		warriorSetAnim(pOther, ANIM_HURT);
-		pOther->sPushDelta = *pPushDelta;
-		return 1;
+		return pOther;
 	}
 
-	pOther = warriorGetAtPos(sAttackPos.uwX, 0, sAttackPos.uwY, 1);
+	pOther = warriorGetNearPos(sAttackPos.uwX, 0, sAttackPos.uwY, 1);
 	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
-		warriorSetAnim(pOther, ANIM_HURT);
-		pOther->sPushDelta = *pPushDelta;
-		return 1;
+		return pOther;
 	}
 
-	pOther = warriorGetAtPos(sAttackPos.uwX, 1, sAttackPos.uwY, 1);
+	pOther = warriorGetNearPos(sAttackPos.uwX, 1, sAttackPos.uwY, 1);
 	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
-		warriorSetAnim(pOther, ANIM_HURT);
-		pOther->sPushDelta = *pPushDelta;
-		return 1;
+		return pOther;
 	}
 
+	return 0;
+}
+
+static UBYTE warriorStrike(const tWarrior *pWarrior) {
+	tWarrior *pTarget = warriorGetStrikeTarget(pWarrior pWarrior->eDirection);
+	if(pTarget) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = s_pAnimDirToPushDelta[pWarrior->eDirection];
+		return 1;
+	}
 	return 0;
 }
 
@@ -537,4 +539,79 @@ UBYTE warriorsGetAlivePlayerCount(void) {
 
 void warriorsEnableMove(UBYTE isEnabled) {
 	s_isMoveEnabled = isEnabled;
+}
+
+#define AI_MOVEMENT_COOLDOWN 100
+
+typedef enum tAiState {
+	AI_STATE_MOVING,
+	AI_STATE_ATTACKING,
+	AI_STATE_COUNT
+} tAiState;
+
+typedef struct tAi {
+	tWarrior *pWarrior;
+	tAiState eState;
+	tAnimDirection eNextAttackDirection;
+	tAnimDirection eNextMovementDirection;
+	UBYTE ubMovementCooldown;
+} tAi;
+
+static tDirection s_pAnimDirectionToSteerDirection[ANIM_DIRECTION_COUNT] = {
+	[ANIM_DIRECTION_S]  = DIRECTION_DOWN,
+	[ANIM_DIRECTION_SE] = DIRECTION_DOWN | DIRECTION_RIGHT,
+	[ANIM_DIRECTION_E]  = DIRECTION_RIGHT,
+	[ANIM_DIRECTION_NE] = DIRECTION_UP | DIRECTION_RIGHT,
+	[ANIM_DIRECTION_N]  = DIRECTION_UP,
+	[ANIM_DIRECTION_NW] = DIRECTION_UP | DIRECTION_LEFT,
+	[ANIM_DIRECTION_W]  = DIRECTION_LEFT,
+	[ANIM_DIRECTION_SW] = DIRECTION_DOWN | DIRECTION_LEFT,
+};
+
+UBYTE aiIsEnemyNearInCurrentScanDirection(tAi *pAi) {
+	tWarrior *pTarget = warriorGetStrikeTarget(pAi->pWarrior, pAi->eNextAttackDirection;
+	if(pTarget) {
+		return 1;
+	}
+	return 0;
+}
+
+tDirection warriorProcessAi(tAi *pAi) {
+	// Don't do a thing if it's not idling/moving
+	if(pAi->pWarrior->isDead || pAi->pWarrior->eAnim > ANIM_WALK) {
+		return;
+	}
+
+	switch(pAi->eState) {
+		case AI_STATE_MOVING:
+			// Finding next target needs to be done while moving or warrior will stop
+			// every second frame.
+			if(aiIsEnemyNearInCurrentScanDirection(pAi)) {
+				pAi->eState = AI_STATE_ATTACKING;
+				return s_pAnimDirectionToSteerDirection[pAi->eNextAttackDirection];
+			}
+			if(++pAi->eNextAttackDirection >= ANIM_DIRECTION_COUNT) {
+				pAi->eNextAttackDirection = 0;
+			}
+
+			// Move along current path until near the abyss, find next movement tile
+			if(
+				--pAi->ubMovementCooldown == 0 ||
+				!tileIsSolid(pAi->pWarrior->sPos.uwX + 0, pAi->pWarrior->sPos.uwY + 0)
+			) {
+				pAi->eNextMovementDirection = randUw(&g_sRandManager) & (ANIM_DIRECTION_COUNT - 1);
+				pAi->ubMovementCooldown = AI_MOVEMENT_COOLDOWN;
+			}
+			else {
+				return s_pAnimDirectionToSteerDirection[pAi->eNextMovementDirection];
+			}
+			break;
+		case AI_STATE_ATTACKING:
+			// Attack in current direction and continue movement
+			pAi->eState = AI_STATE_MOVING;
+			pAi->eNextMovementDirection = pAi->eNextAttackDirection;
+			pAi->ubMovementCooldown = AI_MOVEMENT_COOLDOWN;
+			return DIRECTION_FIRE;
+	}
+	return 0;
 }
