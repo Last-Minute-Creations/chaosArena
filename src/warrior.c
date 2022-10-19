@@ -369,6 +369,24 @@ static void warriorProcessState(tWarrior *pWarrior) {
 		return;
 	}
 
+	if(warriorIsInAir(pWarrior)) {
+		warriorSetAnim(pWarrior, ANIM_FALLING);
+		ptplayerSfxPlay(g_pSfxNo, 2, 64, SFX_PRIORITY_FALL);
+
+		// stop collision of warrior
+		UBYTE ubTileX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
+		UBYTE ubTileY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
+		if(s_pWarriorLookup[ubTileX][ubTileY] != pWarrior) {
+			logWrite(
+				"ERR: Clearing warrior %p when falling %p",
+				s_pWarriorLookup[ubTileX][ubTileY], pWarrior
+			);
+		}
+
+		s_pWarriorLookup[ubTileX][ubTileY] = 0;
+		return;
+	}
+
 	if(steerDirCheck(&pWarrior->sSteer, DIRECTION_FIRE)) {
 		// Start swinging
 		warriorSetAnim(pWarrior, ANIM_ATTACK);
@@ -398,23 +416,6 @@ static void warriorProcessState(tWarrior *pWarrior) {
 	}
 	else {
 		warriorSetAnimOnce(pWarrior, ANIM_IDLE);
-	}
-
-	if(warriorIsInAir(pWarrior)) {
-		warriorSetAnim(pWarrior, ANIM_FALLING);
-		ptplayerSfxPlay(g_pSfxNo, 2, 64, SFX_PRIORITY_FALL);
-
-		// stop collision of warrior
-		UBYTE ubTileX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
-		UBYTE ubTileY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
-		if(s_pWarriorLookup[ubTileX][ubTileY] != pWarrior) {
-			logWrite(
-				"ERR: Clearing warrior %p when falling %p",
-				s_pWarriorLookup[ubTileX][ubTileY], pWarrior
-			);
-		}
-
-		s_pWarriorLookup[ubTileX][ubTileY] = 0;
 	}
 }
 
