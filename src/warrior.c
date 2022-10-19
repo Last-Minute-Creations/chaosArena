@@ -11,7 +11,7 @@
 
 //---------------------------------------------------------------------- DEFINES
 
-#define WARRIOR_COUNT 8
+#define WARRIOR_COUNT 12
 #define WARRIORS_PER_ROW 8
 #define WARRIOR_FRAME_WIDTH 16
 #define WARRIOR_FRAME_HEIGHT 19
@@ -176,14 +176,19 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 	UBYTE isMoved = 0;
 
 	if (bDeltaX) {
-		UBYTE isColliding = 0;
 		tUwCoordYX sOldPos = {.ulYX = pWarrior->sPos.ulYX};
 		pWarrior->sPos.uwX += bDeltaX;
+		UBYTE isColliding = (bDeltaX > 0 ?
+			pWarrior->sPos.uwX >= DISPLAY_WIDTH - BOB_OFFSET_X :
+			pWarrior->sPos.uwX <= BOB_OFFSET_X
+		);
 
 		// collision with upper corner
-		tWarrior *pUp = warriorGetNearPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, 0);
-		if(pUp && pUp != pWarrior) {
-			isColliding = areWarriorsColliding(pWarrior, pUp);
+		if(!isColliding) {
+			tWarrior *pUp = warriorGetNearPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, 0);
+			if(pUp && pUp != pWarrior) {
+				isColliding = areWarriorsColliding(pWarrior, pUp);
+			}
 		}
 
 		// collision with lower corner
@@ -203,14 +208,19 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 	}
 
 	if (bDeltaY) {
-		UBYTE isColliding = 0;
 		tUwCoordYX sOldPos = {.ulYX = pWarrior->sPos.ulYX};
 		pWarrior->sPos.uwY += bDeltaY;
+		UBYTE isColliding = (bDeltaY > 0 ?
+			pWarrior->sPos.uwY >= DISPLAY_HEIGHT - BOB_OFFSET_Y :
+			pWarrior->sPos.uwY <= BOB_OFFSET_Y
+		);
 
 		// collision with left corner
-		tWarrior *pLeft = warriorGetNearPos(sOldPos.uwX, 0, sOldPos.uwY, SGN(bDeltaY));
-		if(pLeft && pLeft != pWarrior) {
-			isColliding = areWarriorsColliding(pWarrior, pLeft);
+		if(!isColliding) {
+			tWarrior *pLeft = warriorGetNearPos(sOldPos.uwX, 0, sOldPos.uwY, SGN(bDeltaY));
+			if(pLeft && pLeft != pWarrior) {
+				isColliding = areWarriorsColliding(pWarrior, pLeft);
+			}
 		}
 
 		// collision with right corner
