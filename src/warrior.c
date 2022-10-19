@@ -11,7 +11,7 @@
 
 //---------------------------------------------------------------------- DEFINES
 
-#define WARRIOR_COUNT 8
+#define WARRIOR_COUNT 12
 #define WARRIORS_PER_ROW 8
 #define WARRIOR_FRAME_WIDTH 16
 #define WARRIOR_FRAME_HEIGHT 19
@@ -69,17 +69,6 @@ static const tBCoordYX s_pAnimDirToAttackDelta[ANIM_DIRECTION_COUNT] = {
 	[ANIM_DIRECTION_SW] = {.bX = -LOOKUP_TILE_SIZE, .bY = LOOKUP_TILE_SIZE},
 };
 
-static const tBCoordYX s_pAnimDirToPushDelta[ANIM_DIRECTION_COUNT] = {
-	[ANIM_DIRECTION_S] =  {.bX =                   0, .bY =  WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_SE] = {.bX =  WARRIOR_PUSH_DELTA, .bY =  WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_E] =  {.bX =  WARRIOR_PUSH_DELTA, .bY =                   0},
-	[ANIM_DIRECTION_NE] = {.bX =  WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_N] =  {.bX =                   0, .bY = -WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_NW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_W] =  {.bX = -WARRIOR_PUSH_DELTA, .bY =                  0},
-	[ANIM_DIRECTION_SW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = WARRIOR_PUSH_DELTA},
-};
-
 static const UBYTE s_pFrameCountForAnim[ANIM_COUNT] = {
 	[ANIM_IDLE] = 2,
 	[ANIM_WALK] = 2,
@@ -91,6 +80,19 @@ static const UBYTE s_pFrameCountForAnim[ANIM_COUNT] = {
 static UBYTE s_ubAliveCount;
 static UBYTE s_ubAlivePlayerCount;
 static UBYTE s_isMoveEnabled;
+
+//------------------------------------------------------------------ PUBLIC VARS
+
+const tBCoordYX g_pAnimDirToPushDelta[ANIM_DIRECTION_COUNT] = {
+	[ANIM_DIRECTION_S] =  {.bX =                   0, .bY =  WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_SE] = {.bX =  WARRIOR_PUSH_DELTA, .bY =  WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_E] =  {.bX =  WARRIOR_PUSH_DELTA, .bY =                   0},
+	[ANIM_DIRECTION_NE] = {.bX =  WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_N] =  {.bX =                   0, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_NW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_W] =  {.bX = -WARRIOR_PUSH_DELTA, .bY =                  0},
+	[ANIM_DIRECTION_SW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = WARRIOR_PUSH_DELTA},
+};
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -147,7 +149,7 @@ static UBYTE areWarriorsColliding(
 	return isPositionCollidingWithWarrior(pWarrior1->sPos, pWarrior2);
 }
 
-static inline tWarrior *warriorGetAtPos(
+static inline tWarrior *warriorGetNearPos(
 	UWORD uwPosX, BYTE bLookupAddX, UWORD uwPosY, BYTE bLookupAddY
 ) {
 	UWORD uwLookupX = uwPosX / LOOKUP_TILE_SIZE + bLookupAddX;
@@ -174,19 +176,24 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 	UBYTE isMoved = 0;
 
 	if (bDeltaX) {
-		UBYTE isColliding = 0;
 		tUwCoordYX sOldPos = {.ulYX = pWarrior->sPos.ulYX};
 		pWarrior->sPos.uwX += bDeltaX;
+		UBYTE isColliding = (bDeltaX > 0 ?
+			pWarrior->sPos.uwX >= DISPLAY_WIDTH - BOB_OFFSET_X :
+			pWarrior->sPos.uwX <= BOB_OFFSET_X
+		);
 
 		// collision with upper corner
-		tWarrior *pUp = warriorGetAtPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, 0);
-		if(pUp && pUp != pWarrior) {
-			isColliding = areWarriorsColliding(pWarrior, pUp);
+		if(!isColliding) {
+			tWarrior *pUp = warriorGetNearPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, 0);
+			if(pUp && pUp != pWarrior) {
+				isColliding = areWarriorsColliding(pWarrior, pUp);
+			}
 		}
 
 		// collision with lower corner
 		if (!isColliding && (sOldPos.uwY & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pDown = warriorGetAtPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, +1);
+			tWarrior *pDown = warriorGetNearPos(sOldPos.uwX, SGN(bDeltaX), sOldPos.uwY, +1);
 			if(pDown && pDown != pWarrior) {
 				isColliding = areWarriorsColliding(pWarrior, pDown);
 			}
@@ -201,19 +208,24 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 	}
 
 	if (bDeltaY) {
-		UBYTE isColliding = 0;
 		tUwCoordYX sOldPos = {.ulYX = pWarrior->sPos.ulYX};
 		pWarrior->sPos.uwY += bDeltaY;
+		UBYTE isColliding = (bDeltaY > 0 ?
+			pWarrior->sPos.uwY >= DISPLAY_HEIGHT - BOB_OFFSET_Y :
+			pWarrior->sPos.uwY <= BOB_OFFSET_Y
+		);
 
 		// collision with left corner
-		tWarrior *pLeft = warriorGetAtPos(sOldPos.uwX, 0, sOldPos.uwY, SGN(bDeltaY));
-		if(pLeft && pLeft != pWarrior) {
-			isColliding = areWarriorsColliding(pWarrior, pLeft);
+		if(!isColliding) {
+			tWarrior *pLeft = warriorGetNearPos(sOldPos.uwX, 0, sOldPos.uwY, SGN(bDeltaY));
+			if(pLeft && pLeft != pWarrior) {
+				isColliding = areWarriorsColliding(pWarrior, pLeft);
+			}
 		}
 
 		// collision with right corner
 		if (!isColliding && (sOldPos.uwX & (LOOKUP_TILE_SIZE - 1))) {
-			tWarrior *pRight = warriorGetAtPos(sOldPos.uwX, +1, sOldPos.uwY, SGN(bDeltaY));
+			tWarrior *pRight = warriorGetNearPos(sOldPos.uwX, +1, sOldPos.uwY, SGN(bDeltaY));
 			if(pRight && pRight != pWarrior) {
 				isColliding = areWarriorsColliding(pWarrior, pRight);
 			}
@@ -255,7 +267,7 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 }
 
 static void warriorAdd(
-	tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteer sSteer
+	tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteerMode eSteerMode
 ) {
 	pWarrior->sPos = (tUwCoordYX){.uwX = uwSpawnX, .uwY = uwSpawnY};
 	bobNewInit(
@@ -269,7 +281,7 @@ static void warriorAdd(
 	pWarrior->isDead = 0;
 	pWarrior->eAnim = ANIM_IDLE;
 	pWarrior->eDirection = ANIM_DIRECTION_S;
-	pWarrior->sSteer = sSteer;
+	pWarrior->sSteer = steerInitFromMode(eSteerMode, pWarrior);
 	s_pWarriorLookup[uwSpawnX / LOOKUP_TILE_SIZE][uwSpawnY / LOOKUP_TILE_SIZE] = pWarrior;
 	++s_ubAliveCount;
 	if(steerIsPlayer(&pWarrior->sSteer)) {
@@ -291,43 +303,12 @@ static void warriorSetAnimOnce(tWarrior *pWarrior, tAnim eAnim) {
 }
 
 static UBYTE warriorStrike(const tWarrior *pWarrior) {
-	const tBCoordYX *pDelta = &s_pAnimDirToAttackDelta[pWarrior->eDirection];
-	const tBCoordYX *pPushDelta = &s_pAnimDirToPushDelta[pWarrior->eDirection];
-	tUwCoordYX sAttackPos = (tUwCoordYX) {
-		.uwX = pWarrior->sPos.uwX + pDelta->bX,
-		.uwY = pWarrior->sPos.uwY + pDelta->bY
-	};
-
-	tWarrior *pOther;
-
-	pOther = warriorGetAtPos(sAttackPos.uwX, 0, sAttackPos.uwY, 0);
-	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
-		warriorSetAnim(pOther, ANIM_HURT);
-		pOther->sPushDelta = *pPushDelta;
+	tWarrior *pTarget = warriorGetStrikeTarget(pWarrior, pWarrior->eDirection);
+	if(pTarget) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[pWarrior->eDirection];
 		return 1;
 	}
-
-	pOther = warriorGetAtPos(sAttackPos.uwX, 1, sAttackPos.uwY, 0);
-	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
-		warriorSetAnim(pOther, ANIM_HURT);
-		pOther->sPushDelta = *pPushDelta;
-		return 1;
-	}
-
-	pOther = warriorGetAtPos(sAttackPos.uwX, 0, sAttackPos.uwY, 1);
-	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
-		warriorSetAnim(pOther, ANIM_HURT);
-		pOther->sPushDelta = *pPushDelta;
-		return 1;
-	}
-
-	pOther = warriorGetAtPos(sAttackPos.uwX, 1, sAttackPos.uwY, 1);
-	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
-		warriorSetAnim(pOther, ANIM_HURT);
-		pOther->sPushDelta = *pPushDelta;
-		return 1;
-	}
-
 	return 0;
 }
 
@@ -398,10 +379,28 @@ static void warriorProcessState(tWarrior *pWarrior) {
 		return;
 	}
 
+	if(warriorIsInAir(pWarrior)) {
+		warriorSetAnim(pWarrior, ANIM_FALLING);
+		ptplayerSfxPlay(g_pSfxNo, 2, 64, SFX_PRIORITY_FALL);
+
+		// stop collision of warrior
+		UBYTE ubTileX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
+		UBYTE ubTileY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
+		if(s_pWarriorLookup[ubTileX][ubTileY] != pWarrior) {
+			logWrite(
+				"ERR: Clearing warrior %p when falling %p",
+				s_pWarriorLookup[ubTileX][ubTileY], pWarrior
+			);
+		}
+
+		s_pWarriorLookup[ubTileX][ubTileY] = 0;
+		return;
+	}
+
 	if(steerDirCheck(&pWarrior->sSteer, DIRECTION_FIRE)) {
 		// Start swinging
 		warriorSetAnim(pWarrior, ANIM_ATTACK);
-		pWarrior->sPushDelta = s_pAnimDirToPushDelta[pWarrior->eDirection];
+		pWarrior->sPushDelta = g_pAnimDirToPushDelta[pWarrior->eDirection];
 		return;
 	}
 
@@ -427,23 +426,6 @@ static void warriorProcessState(tWarrior *pWarrior) {
 	}
 	else {
 		warriorSetAnimOnce(pWarrior, ANIM_IDLE);
-	}
-
-	if(warriorIsInAir(pWarrior)) {
-		warriorSetAnim(pWarrior, ANIM_FALLING);
-		ptplayerSfxPlay(g_pSfxNo, 2, 64, SFX_PRIORITY_FALL);
-
-		// stop collision of warrior
-		UBYTE ubTileX = pWarrior->sPos.uwX / LOOKUP_TILE_SIZE;
-		UBYTE ubTileY = pWarrior->sPos.uwY / LOOKUP_TILE_SIZE;
-		if(s_pWarriorLookup[ubTileX][ubTileY] != pWarrior) {
-			logWrite(
-				"ERR: Clearing warrior %p when falling %p",
-				s_pWarriorLookup[ubTileX][ubTileY], pWarrior
-			);
-		}
-
-		s_pWarriorLookup[ubTileX][ubTileY] = 0;
 	}
 }
 
@@ -500,7 +482,7 @@ void warriorsCreate(void) {
 			s_pWarriors[i],
 			pSpawn->uwX,
 			pSpawn->uwY,
-			steerInitFromMode(menuGetSteerModeForPlayer(i), i)
+			menuGetSteerModeForPlayer(i)
 		);
 	}
 }
@@ -537,4 +519,37 @@ UBYTE warriorsGetAlivePlayerCount(void) {
 
 void warriorsEnableMove(UBYTE isEnabled) {
 	s_isMoveEnabled = isEnabled;
+}
+
+tWarrior *warriorGetStrikeTarget(
+	const tWarrior *pWarrior, tAnimDirection eDirection
+) {
+	const tBCoordYX *pDelta = &s_pAnimDirToAttackDelta[eDirection];
+	tUwCoordYX sAttackPos = (tUwCoordYX) {
+		.uwX = pWarrior->sPos.uwX + pDelta->bX,
+		.uwY = pWarrior->sPos.uwY + pDelta->bY
+	};
+	tWarrior *pOther;
+
+	pOther = warriorGetNearPos(sAttackPos.uwX, 0, sAttackPos.uwY, 0);
+	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
+		return pOther;
+	}
+
+	pOther = warriorGetNearPos(sAttackPos.uwX, 1, sAttackPos.uwY, 0);
+	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
+		return pOther;
+	}
+
+	pOther = warriorGetNearPos(sAttackPos.uwX, 0, sAttackPos.uwY, 1);
+	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
+		return pOther;
+	}
+
+	pOther = warriorGetNearPos(sAttackPos.uwX, 1, sAttackPos.uwY, 1);
+	if(pOther && pOther != pWarrior && isPositionCollidingWithWarrior(sAttackPos, pOther)) {
+		return pOther;
+	}
+
+	return 0;
 }

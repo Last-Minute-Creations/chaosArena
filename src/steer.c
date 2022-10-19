@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "steer.h"
-// #include "player.h"
 #include <ace/managers/joy.h>
 #include <ace/managers/key.h>
 
@@ -65,8 +64,8 @@ static void onKey(tSteer *pSteer) {
 }
 
 static void onAi(tSteer *pSteer) {
-	// tAi *pAi = &pSteer->sAi;
-	// tDirection eDir = aiProcess(pAi);
+	tAi *pAi = &pSteer->sAi;
+	tDirection eDir = aiProcess(pAi);
 
 	// // Fire is a special button - can be pressed for more than one process
 	// if(pAi->isPressingFire) {
@@ -82,22 +81,22 @@ static void onAi(tSteer *pSteer) {
 	// 	pSteer->pDirectionStates[DIRECTION_FIRE] = STEER_DIR_STATE_INACTIVE;
 	// }
 
-	// if(eDir != DIRECTION_COUNT) {
-	// 	// Push the selected button
-	// 	if(pSteer->pDirectionStates[eDir] == STEER_DIR_STATE_INACTIVE) {
-	// 		logWrite("Pressing dir %hhu\n", eDir);
-	// 		pSteer->pDirectionStates[eDir] = STEER_DIR_STATE_ACTIVE;
-	// 	}
-	// }
+	if(eDir != DIRECTION_COUNT) {
+		// Push the selected button
+		if(pSteer->pDirectionStates[eDir] == STEER_DIR_STATE_INACTIVE) {
+			// logWrite("Pressing dir %hhu\n", eDir);
+			pSteer->pDirectionStates[eDir] = STEER_DIR_STATE_ACTIVE;
+		}
+	}
 
-	// // Unpress the previous action
-	// if(pAi->ePrevDir != DIRECTION_COUNT) {
-	// 	logWrite("Releasing dir %hhu\n", pAi->ePrevDir);
-	// 	pSteer->pDirectionStates[pAi->ePrevDir] = STEER_DIR_STATE_INACTIVE;
-	// }
+	// Unpress the previous action
+	if(pSteer->ePrevDirection != DIRECTION_COUNT && pSteer->ePrevDirection != eDir) {
+		// logWrite("Releasing dir %hhu\n", pAi->ePrevDir);
+		pSteer->pDirectionStates[pSteer->ePrevDirection] = STEER_DIR_STATE_INACTIVE;
+	}
 
-	// // Save the current action for later unpressing
-	// pAi->ePrevDir = eDir;
+	// Save the current action for later unpressing
+	pSteer->ePrevDirection = eDir;
 }
 
 static void onIdle(UNUSED_ARG tSteer *pSteer) {
@@ -106,7 +105,7 @@ static void onIdle(UNUSED_ARG tSteer *pSteer) {
 
 //------------------------------------------------------------------- PUBLIC FNS
 
-tSteer steerInitFromMode(tSteerMode eMode, UBYTE ubPlayerIdx) {
+tSteer steerInitFromMode(tSteerMode eMode, struct tWarrior *pWarrior) {
 	switch(eMode) {
 		case STEER_MODE_JOY_1:
 			return steerInitJoy(JOY1);
@@ -121,7 +120,7 @@ tSteer steerInitFromMode(tSteerMode eMode, UBYTE ubPlayerIdx) {
 		case STEER_MODE_KEY_WSAD:
 			return steerInitKey(STEER_KEYMAP_WSAD);
 		case STEER_MODE_AI:
-			return steerInitAi(ubPlayerIdx);
+			return steerInitAi(pWarrior);
 		default:
 			return steerInitIdle();
 	}
@@ -143,11 +142,12 @@ tSteer steerInitKey(tSteerKeymap eKeymap) {
 	return sSteer;
 }
 
-tSteer steerInitAi(UBYTE ubPlayerIdx) {
+tSteer steerInitAi(struct tWarrior *pWarrior) {
 	tSteer sSteer = {
 		.cbProcess = onAi
 	};
-	// aiInit(&sSteer.sAi, ubPlayerIdx);
+
+	aiInit(&sSteer.sAi, pWarrior);
 	return sSteer;
 }
 
@@ -202,9 +202,9 @@ tDirection steerGetPressedDir(const tSteer *pSteer) {
 }
 
 void steerResetAi(tSteer *pSteer) {
-	// if(pSteer->cbProcess == onAi) {
-	// 	aiInit(&pSteer->sAi, pSteer->sAi.ubPlayerIdx);
-	// }
+	if(pSteer->cbProcess == onAi) {
+		aiInit(&pSteer->sAi, pSteer->sAi.pWarrior);
+	}
 }
 
 const char *g_pSteerModeLabels[STEER_MODE_COUNT] = {

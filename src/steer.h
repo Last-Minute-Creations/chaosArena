@@ -7,7 +7,7 @@
 
 #include <ace/managers/joy.h> // for steerInitJoy() param
 #include "direction.h"
-// #include "ai.h"
+#include "ai.h"
 
 typedef enum tSteerMode {
 	STEER_MODE_JOY_1,
@@ -43,17 +43,20 @@ typedef struct tSteer {
 	union {
 		UBYTE ubJoy; ///< for joy steer
 		tSteerKeymap eKeymap; ///< for keyboard steer
-		// tAi sAi;
+		struct {
+			tAi sAi;
+			tDirection ePrevDirection;
+		};
 	};
 } tSteer;
 
-tSteer steerInitFromMode(tSteerMode eMode, UBYTE ubPlayerIdx);
+tSteer steerInitFromMode(tSteerMode eMode, struct tWarrior *pWarrior);
 
 tSteer steerInitJoy(UBYTE ubJoy);
 
 tSteer steerInitKey(tSteerKeymap eKeymap);
 
-tSteer steerInitAi(UBYTE ubPlayerIdx);
+tSteer steerInitAi(struct tWarrior *pWarrior);
 
 void steerProcess(tSteer *pSteer);
 

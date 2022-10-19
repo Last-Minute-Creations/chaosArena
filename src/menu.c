@@ -250,7 +250,7 @@ static void onDrawPos(
 
 tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex) {
 	if(ubPlayerIndex >= 6) {
-		return STEER_MODE_IDLE; // TODO: AI
+		return STEER_MODE_AI;
 	}
 	switch(s_pPlayerSteerKinds[ubPlayerIndex]) {
 		case STEER_KIND_ARROWS:
@@ -266,7 +266,7 @@ tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex) {
 		case STEER_KIND_JOY4:
 			return STEER_MODE_JOY_4;
 		default:
-			return STEER_MODE_IDLE; // TODO: AI
+			return STEER_MODE_AI;
 	}
 }
 
