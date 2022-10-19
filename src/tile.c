@@ -103,6 +103,12 @@ static const char s_pMapPatternYx[TILE_HEIGHT][TILE_WIDTH + 1] = {
 
 //------------------------------------------------------------------ PRIVATE FNS
 
+static void tileQueueReset(void) {
+	for(UBYTE i = 0; i < TILE_QUEUE_SIZE; ++i) {
+		s_pTileRedrawQueue[i].ubDrawCount = 0;
+	}
+}
+
 static void tileQueueAddEntry(UBYTE ubTileX, UBYTE ubTileY, tTile eTile) {
 	s_pTilesXy[ubTileX][ubTileY] = eTile;
 	tTileDrawQueueEntry *pEntry = &s_pTileRedrawQueue[s_ubRedrawPushPos];
@@ -244,6 +250,7 @@ void tilesReload(void) {
 	for(UBYTE i = 0; i < CRUMBLES_MAX; ++i) {
 		s_pCrumbleList[i].pTile = 0;
 	}
+	tileQueueReset();
 }
 
 void tileCrumbleProcess(tBitMap *pBuffer) {
