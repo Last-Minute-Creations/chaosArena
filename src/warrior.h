@@ -34,6 +34,8 @@ typedef struct tWarrior {
 	tBCoordYX sPushDelta;
 } tWarrior;
 
+extern const tBCoordYX g_pAnimDirToPushDelta[ANIM_DIRECTION_COUNT];
+
 void warriorsCreate(void);
 
 void warriorsProcess(void);

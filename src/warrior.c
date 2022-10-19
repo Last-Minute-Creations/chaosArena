@@ -69,17 +69,6 @@ static const tBCoordYX s_pAnimDirToAttackDelta[ANIM_DIRECTION_COUNT] = {
 	[ANIM_DIRECTION_SW] = {.bX = -LOOKUP_TILE_SIZE, .bY = LOOKUP_TILE_SIZE},
 };
 
-static const tBCoordYX s_pAnimDirToPushDelta[ANIM_DIRECTION_COUNT] = {
-	[ANIM_DIRECTION_S] =  {.bX =                   0, .bY =  WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_SE] = {.bX =  WARRIOR_PUSH_DELTA, .bY =  WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_E] =  {.bX =  WARRIOR_PUSH_DELTA, .bY =                   0},
-	[ANIM_DIRECTION_NE] = {.bX =  WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_N] =  {.bX =                   0, .bY = -WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_NW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
-	[ANIM_DIRECTION_W] =  {.bX = -WARRIOR_PUSH_DELTA, .bY =                  0},
-	[ANIM_DIRECTION_SW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = WARRIOR_PUSH_DELTA},
-};
-
 static const UBYTE s_pFrameCountForAnim[ANIM_COUNT] = {
 	[ANIM_IDLE] = 2,
 	[ANIM_WALK] = 2,
@@ -91,6 +80,19 @@ static const UBYTE s_pFrameCountForAnim[ANIM_COUNT] = {
 static UBYTE s_ubAliveCount;
 static UBYTE s_ubAlivePlayerCount;
 static UBYTE s_isMoveEnabled;
+
+//------------------------------------------------------------------ PUBLIC VARS
+
+const tBCoordYX g_pAnimDirToPushDelta[ANIM_DIRECTION_COUNT] = {
+	[ANIM_DIRECTION_S] =  {.bX =                   0, .bY =  WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_SE] = {.bX =  WARRIOR_PUSH_DELTA, .bY =  WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_E] =  {.bX =  WARRIOR_PUSH_DELTA, .bY =                   0},
+	[ANIM_DIRECTION_NE] = {.bX =  WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_N] =  {.bX =                   0, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_NW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = -WARRIOR_PUSH_DELTA},
+	[ANIM_DIRECTION_W] =  {.bX = -WARRIOR_PUSH_DELTA, .bY =                  0},
+	[ANIM_DIRECTION_SW] = {.bX = -WARRIOR_PUSH_DELTA, .bY = WARRIOR_PUSH_DELTA},
+};
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -294,7 +296,7 @@ static UBYTE warriorStrike(const tWarrior *pWarrior) {
 	tWarrior *pTarget = warriorGetStrikeTarget(pWarrior, pWarrior->eDirection);
 	if(pTarget) {
 		warriorSetAnim(pTarget, ANIM_HURT);
-		pTarget->sPushDelta = s_pAnimDirToPushDelta[pWarrior->eDirection];
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[pWarrior->eDirection];
 		return 1;
 	}
 	return 0;
@@ -370,7 +372,7 @@ static void warriorProcessState(tWarrior *pWarrior) {
 	if(steerDirCheck(&pWarrior->sSteer, DIRECTION_FIRE)) {
 		// Start swinging
 		warriorSetAnim(pWarrior, ANIM_ATTACK);
-		pWarrior->sPushDelta = s_pAnimDirToPushDelta[pWarrior->eDirection];
+		pWarrior->sPushDelta = g_pAnimDirToPushDelta[pWarrior->eDirection];
 		return;
 	}
 

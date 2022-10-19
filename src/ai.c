@@ -3,7 +3,7 @@
 #include "chaos_arena.h"
 #include "warrior.h"
 
-#define AI_MOVEMENT_COOLDOWN 100
+#define AI_MOVEMENT_COOLDOWN 50
 
 static const tDirection s_pAnimDirectionToSteerDirection[ANIM_DIRECTION_COUNT] = {
 	[ANIM_DIRECTION_S]  = DIRECTION_DOWN,
@@ -66,9 +66,13 @@ tDirection aiProcess(tAi *pAi) {
 			const tBCoordYX *pDelta = &s_pAnimDirectionToMoveDelta[pAi->eNextMovementDirection];
 			if(
 				--pAi->ubMovementCooldown == 0 ||
-				!tileIsSolid(pAi->pWarrior->sPos.uwX + pDelta->bX, pAi->pWarrior->sPos.uwY + pDelta->bY)
+				!tileIsSolid(
+					(pAi->pWarrior->sPos.uwX / MAP_TILE_SIZE) + pDelta->bX,
+					(pAi->pWarrior->sPos.uwY / MAP_TILE_SIZE) + pDelta->bY
+				)
 			) {
-				pAi->eNextMovementDirection = randUw(&g_sRandManager) & (ANIM_DIRECTION_COUNT - 1);
+				// Skip odd directions to prevent oging diagonally
+				pAi->eNextMovementDirection = randUw(&g_sRandManager) & 0b110;
 				pAi->ubMovementCooldown = AI_MOVEMENT_COOLDOWN;
 			}
 			else {
