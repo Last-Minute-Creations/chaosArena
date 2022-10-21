@@ -11,6 +11,7 @@
 #include "assets.h"
 #include "chaos_arena.h"
 #include "display.h"
+#include "sfx.h"
 
 #define TILE_WIDTH (DISPLAY_WIDTH / MAP_TILE_SIZE)
 #define TILE_HEIGHT (DISPLAY_HEIGHT / MAP_TILE_SIZE)
@@ -19,8 +20,6 @@
 #define CRUMBLE_COOLDOWN 4
 #define CRUMBLE_ADD_COOLDOWN 15
 #define TILE_QUEUE_SIZE (CRUMBLES_MAX * 2)
-
-#define SFX_PRIORITY_CRUMBLE 8
 
 typedef enum tTile {
 	TILE_VOID,

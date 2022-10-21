@@ -24,6 +24,8 @@ tPtplayerSfx *g_pSfxNo;
 tPtplayerSfx *g_pSfxSwipes[2];
 tPtplayerSfx *g_pSfxSwipeHit;
 tPtplayerSfx *g_pSfxCrumble;
+tPtplayerSfx *g_pSfxCountdown[3];
+tPtplayerSfx *g_pSfxCountdownFight;
 
 tPtplayerMod *g_pModCombat;
 UWORD *g_pModSamples = 0;
@@ -48,6 +50,10 @@ void assetsGlobalCreate(void) {
 	g_pSfxSwipes[0] = ptplayerSfxCreateFromFile("data/swipe1.sfx");
 	g_pSfxSwipes[1] = ptplayerSfxCreateFromFile("data/swipe2.sfx");
 	g_pSfxSwipeHit = ptplayerSfxCreateFromFile("data/swipeHit.sfx");
+	g_pSfxCountdown[2] = ptplayerSfxCreateFromFile("data/cd3.sfx");
+	g_pSfxCountdown[1] = ptplayerSfxCreateFromFile("data/cd2.sfx");
+	g_pSfxCountdown[0] = ptplayerSfxCreateFromFile("data/cd1.sfx");
+	g_pSfxCountdownFight = ptplayerSfxCreateFromFile("data/cdfight.sfx");
 
 	g_pModCombat = ptplayerModCreate("data/charena2.mod");
 
@@ -77,6 +83,10 @@ void assetsGlobalDestroy(void) {
 	ptplayerSfxDestroy(g_pSfxSwipes[0]);
 	ptplayerSfxDestroy(g_pSfxSwipes[1]);
 	ptplayerSfxDestroy(g_pSfxSwipeHit);
+	ptplayerSfxDestroy(g_pSfxCountdown[2]);
+	ptplayerSfxDestroy(g_pSfxCountdown[1]);
+	ptplayerSfxDestroy(g_pSfxCountdown[0]);
+	ptplayerSfxDestroy(g_pSfxCountdownFight);
 
 	ptplayerModDestroy(g_pModCombat);
 	// memFree(g_pModSamples, s_ulSampleSize);

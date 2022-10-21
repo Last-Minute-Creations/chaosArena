@@ -135,6 +135,22 @@ convertAudio(
 	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/swipeHit.wav
 	DESTINATION ${DATA_DIR}/swipeHit.sfx
 )
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/countdown_3.wav
+	DESTINATION ${DATA_DIR}/cd3.sfx
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/countdown_2.wav
+	DESTINATION ${DATA_DIR}/cd2.sfx
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/countdown_1.wav
+	DESTINATION ${DATA_DIR}/cd1.sfx
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/countdown_fight.wav
+	DESTINATION ${DATA_DIR}/cdfight.sfx
+)
 # mergeMods(
 # 	TARGET ${GAME_EXECUTABLE}
 # 	SOURCES ${RES_DIR}/charena1.mod ${RES_DIR}/charena2.mod

@@ -6,6 +6,7 @@
 #include <ace/managers/blit.h>
 #include <ace/managers/game.h>
 #include <ace/managers/key.h>
+#inlude <ace/utils/string.h>
 #include <mini_std/stdio.h>
 #include "display.h"
 #include "assets.h"
@@ -29,6 +30,12 @@
 
 //-------------------------------------------------------------------------TYPES
 
+typedef enum tMenuPage {
+	MENU_PAGE_MAIN,
+	MENU_PAGE_SUMMARY,
+	MENU_PAGE_CREDITS,
+} tMenuPage;
+
 typedef enum tSteerKind {
 	STEER_KIND_JOY1,
 	STEER_KIND_JOY2,
@@ -44,6 +51,9 @@ typedef enum tSteerKind {
 
 static void onStart(void);
 static void onExit(void);
+static void onCredits(void);
+static void onContinue(void);
+static void onGoToMain(void);
 static void onUndraw(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight);
 static void onDrawPos(
 	UWORD uwX, UWORD uwY, const char *szCaption, const char *szText,
@@ -54,13 +64,16 @@ static void onDrawPos(
 
 static tSimpleBufferManager *s_pVpManager;
 static tBitMap *s_pMenuBitmap;
-static UBYTE s_pPlayerSteerKinds[6] = {
+static UBYTE s_pPlayerSteerKinds[PLAYER_MAX_COUNT] = {
 	STEER_KIND_JOY1, STEER_KIND_JOY2, STEER_KIND_OFF,
 	STEER_KIND_OFF, STEER_KIND_OFF, STEER_KIND_OFF
 };
-static tSteer s_pMenuSteers[6];
+static UBYTE s_ubExtraEnemies = 1;
+static tSteer s_pMenuSteers[PLAYER_MAX_COUNT];
+static UBYTE s_pScores[PLAYER_MAX_COUNT];
 static UBYTE s_ubLastDrawEnd[2];
 static UBYTE s_isOdd;
+static tMenuPage s_eCurrentPage;
 
 static const char *s_pSteerEnumLabels[STEER_KIND_COUNT] = {
 	[STEER_KIND_JOY1] = "Joy 1",
@@ -72,7 +85,9 @@ static const char *s_pSteerEnumLabels[STEER_KIND_COUNT] = {
 	[STEER_KIND_OFF] = "Off",
 };
 
-static tMenuListOption s_pMenuOptions[] = {
+static const char *s_pBoolEnumLabels[2] = {"OFF", "ON"};
+
+static tMenuListOption s_pMenuMainOptions[] = {
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onStart}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
 		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteerKinds[0],
@@ -98,11 +113,16 @@ static tMenuListOption s_pMenuOptions[] = {
 		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteerKinds[5],
 		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1
 	}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
+		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_ubExtraEnemies,
+		.ubMin = 0, .ubMax = 1
+	}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onCredits}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onExit}},
 };
-#define MENU_OPTION_COUNT (sizeof(s_pMenuOptions) / sizeof(s_pMenuOptions[0]))
+#define MENU_MAIN_OPTION_COUNT (sizeof(s_pMenuMainOptions) / sizeof(s_pMenuMainOptions[0]))
 
-const char *s_pMenuCaptions[MENU_OPTION_COUNT] = {
+static const char *s_pMenuMainCaptions[MENU_MAIN_OPTION_COUNT] = {
 	"BEGIN CHAOS",
 	"Player 1",
 	"Player 2",
@@ -110,10 +130,125 @@ const char *s_pMenuCaptions[MENU_OPTION_COUNT] = {
 	"Player 4",
 	"Player 5",
 	"Player 6",
+	"Extra enemies",
+	"Credits",
 	"Exit",
 };
 
+static tMenuListOption s_pMenuSummaryOptions[] = {
+	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onContinue}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onGoToMain}}
+};
+#define MENU_SUMMARY_OPTION_COUNT (sizeof(s_pMenuSummaryOptions) / sizeof(s_pMenuSummaryOptions[0]))
+
+static const char *s_pMenuSummaryCaptions[MENU_SUMMARY_OPTION_COUNT] = {
+	"CONTINUE CHAOS",
+	"End game",
+};
+
+static const char *s_pCreditsLines[] = {
+	"Chaos Arena by Last Minute Creations",
+	"lastminutecreations.itch.io/chaos_arena",
+	"  Graphics: Softiron",
+	"  Sounds and music: Luc3k",
+	"  Code: KaiN",
+	"  Announcer voice by ELEKTRON (youtube.com/c/ELEKTRON1)"
+	"",
+	"Game source code is available on",
+	"  github.com/Last-Minute-Creations/chaosArena",
+	"",
+	"This game uses following third party code and assets:",
+	"  Amiga C Engine, MPL2 license (github.com/AmigaPorts/ACE)",
+	"  uni05_54 font by raing Kroeger (minimal.com/fonts)",
+	"  Warrior graphics are based on Puny characters by Shade",
+	"  (merchant-shade.itch.io/16x16-puny-characters)",
+	"",
+	"Thanks for playing!"
+};
+#define MENU_CREDITS_LINE_COUNT (sizeof(s_pCreditsLines) / sizeof(s_pCreditsLines[0]))
+
 //------------------------------------------------------------------ PRIVATE FNS
+
+static void menuDrawPage(tMenuPage ePage) {
+	blitRect(s_pMenuBitmap, 0, 0, MENU_WIDTH, MENU_HEIGHT, MENU_COLOR_BG);
+	UBYTE ubLineHeight = g_pFontSmall->uwHeight + 1;
+
+	if(ePage == MENU_PAGE_MAIN) {
+		menuListInit(
+			s_pMenuMainOptions, s_pMenuMainCaptions, MENU_MAIN_OPTION_COUNT,
+			g_pFontSmall, 0, 40, onUndraw, onDrawPos
+		);
+
+		fontDrawStr(
+			g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, "CHAOS ARENA",
+			MENU_COLOR_TITLE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+		);
+
+		fontDrawStr(
+			g_pFontSmall, s_pMenuBitmap, MENU_WIDTH - 5, 5,
+			"v." GAME_VERSION,
+			MENU_COLOR_INACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_RIGHT, g_pTextBitmap
+		);
+
+		UWORD uwY = MENU_HEIGHT - ubLineHeight - 5;
+		fontDrawStr(
+			g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY,
+			"A game by Last Minute Creations",
+			MENU_COLOR_FOOTER, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+		);
+	}
+	else if(ePage == MENU_PAGE_SUMMARY) {
+		char szEntry[20];
+		if(s_ubLastWinner != WARRIOR_LAST_ALIVE_INDEX_INVALID) {
+			sprintf(szCaption, "PLAYER %hu WINS", s_ubLastWinner);
+		}
+		else {
+			stringCopy("SUMMARY", szCaption);
+		}
+		fontDrawStr(
+			g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, szCaption,
+			MENU_COLOR_TITLE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+		);
+
+		UWORD uwY = 40;
+		for(UBYTE i = 0; i < PLAYER_MAX_COUNT; ++i) {
+			if(s_pPlayerSteerKinds[i] != STEER_KIND_OFF) {
+				sprintf(szEntry, "Player %hhu: %hhu", i, s_pScores[i]);
+			}
+			fontDrawStr(
+				g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, szCaption,
+				MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+			);
+			uwY += ubLineHeight;
+		}
+
+		menuListInit(
+			s_pMenuSummaryOptions, s_pMenuSummaryCaptions, MENU_SUMMARY_OPTION_COUNT,
+			g_pFontSmall, 0, MENU_HEIGHT - 4 * ubLineHeight, onUndraw, onDrawPos
+		);
+	}
+	else { // MENU_PAGE_CREDITS
+		UWORD uwY = 20;
+		for(UBYTE ubLine = 0; ubLine < MENU_CREDITS_LINE_COUNT; ++ubLine) {
+			if(!stringIsEmpty(s_pCreditsLines[ubLine])) {
+				fontDrawStr(
+					g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, s_pCreditsLines[ubLine],
+					MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+				);
+			}
+			uwY += ubLineHeight;
+		}
+	}
+
+	if(ePage != MENU_PAGE_CREDITS) {
+		menuListDraw();
+	}
+}
+
+static void menuNavigateToPage(tPage ePage) {
+	s_eCurrentPage = ePage;
+	menuDrawPage(ePage);
+}
 
 static void menuGsCreate(void) {
 	s_pMenuBitmap = bitmapCreate(MENU_WIDTH, MENU_HEIGHT, DISPLAY_BPP, BMF_INTERLEAVED);
@@ -127,48 +262,13 @@ static void menuGsCreate(void) {
 	s_pMenuSteers[4] = steerInitFromMode(STEER_MODE_KEY_WSAD, 0);
 	s_pMenuSteers[5] = steerInitFromMode(STEER_MODE_KEY_ARROWS, 0);
 
-	menuListInit(
-		s_pMenuOptions, s_pMenuCaptions, MENU_OPTION_COUNT, g_pFontSmall,
-		0, 40, onUndraw, onDrawPos
-	);
-
-	blitRect(s_pMenuBitmap, 0, 0, MENU_WIDTH, MENU_HEIGHT, MENU_COLOR_BG);
-	fontDrawStr(
-		g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, "CHAOS ARENA",
-		MENU_COLOR_TITLE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
-	);
-
-	fontDrawStr(
-		g_pFontSmall, s_pMenuBitmap, MENU_WIDTH - 5, 5,
-		"v." GAME_VERSION,
-		MENU_COLOR_INACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_RIGHT, g_pTextBitmap
-	);
-
-	UBYTE ubLineHeight = g_pFontSmall->uwHeight + 1;
-	UWORD uwY = MENU_HEIGHT - 2 * ubLineHeight - 5;
-	fontDrawStr(
-		g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY,
-		"A game by Last Minute Creations",
-		MENU_COLOR_FOOTER, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
-	);
-	uwY += ubLineHeight;
-	fontDrawStr(
-		g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY,
-		"Audio: Luc3k, Code: KaiN, Gfx: Softiron",
-		MENU_COLOR_FOOTER, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
-	);
-	menuListDraw();
+	menuDrawPage(s_eCurrentPage);
 	s_ubLastDrawEnd[0] = 0;
 	s_ubLastDrawEnd[1] = 0;
 	s_isOdd = 0;
 }
 
 static void menuGsLoop(void) {
-	if(keyUse(KEY_ESCAPE)) {
-		gameExit();
-		return;
-	}
-
 	if(s_ubLastDrawEnd[s_isOdd] < MENU_HEIGHT) {
 		UBYTE ubStartRow = s_ubLastDrawEnd[s_isOdd];
 		UBYTE ubEndRow = MIN(s_ubLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED, MENU_HEIGHT);
@@ -182,33 +282,55 @@ static void menuGsLoop(void) {
 		return;
 	}
 
-	if(keyUse(KEY_RETURN)) {
-		menuListEnter();
+	if(keyUse(KEY_ESCAPE)) {
+		if(s_eCurrentPage == MENU_PAGE_MAIN) {
+			onExit();
+		}
+		else {
+			menuNavigateToPage(MENU_PAGE_MAIN);
+		}
 		return;
 	}
 
-	for(UBYTE ubPlayer = 0; ubPlayer < 6; ++ubPlayer) {
+	if(keyUse(KEY_RETURN)) {
+		if(s_eCurrentPage == MENU_PAGE_CREDITS) {
+			menuNavigateToPage(MENU_PAGE_MAIN);
+		}
+		else {
+			menuListEnter();
+		}
+		return;
+	}
+
+	for(UBYTE ubPlayer = 0; ubPlayer < PLAYER_MAX_COUNT; ++ubPlayer) {
 		tSteer *pSteer = &s_pMenuSteers[ubPlayer];
 		steerProcess(pSteer);
-		if(steerDirUse(pSteer, DIRECTION_UP)) {
-			menuListNavigate(-1);
+		if(s_eCurrentPage == MENU_PAGE_CREDITS) {
+			menuNavigateToPage(MENU_PAGE_MAIN);
 		}
-		else if(steerDirUse(pSteer, DIRECTION_DOWN)) {
-			menuListNavigate(+1);
-		}
-		else if(steerDirUse(pSteer, DIRECTION_LEFT)) {
-			menuListToggle(-1);
-		}
-		else if(steerDirUse(pSteer, DIRECTION_RIGHT)) {
-			menuListToggle(+1);
-		}
-		else if (steerDirUse(pSteer, DIRECTION_FIRE)) {
-			menuListEnter();
-			return;
+		else {
+			if(steerDirUse(pSteer, DIRECTION_UP)) {
+				menuListNavigate(-1);
+			}
+			else if(steerDirUse(pSteer, DIRECTION_DOWN)) {
+				menuListNavigate(+1);
+			}
+			else if(steerDirUse(pSteer, DIRECTION_LEFT)) {
+				menuListToggle(-1);
+			}
+			else if(steerDirUse(pSteer, DIRECTION_RIGHT)) {
+				menuListToggle(+1);
+			}
+			else if (steerDirUse(pSteer, DIRECTION_FIRE)) {
+				menuListEnter();
+				return;
+			}
 		}
 	}
 
-	menuListDraw();
+	if(s_eCurrentPage != MENU_PAGE_CREDITS) {
+		menuListDraw();
+	}
 
 	blitCopyAligned(
 		s_pMenuBitmap, 0, 0, s_pVpManager->pBack,
@@ -222,11 +344,26 @@ static void menuGsDestroy(void) {
 }
 
 static void onStart(void) {
+	for(UBYTE i = 0; i < PLAYER_MAX_COUNT; ++i) {
+		s_pScores[i] = 0;
+	}
 	stateChange(g_pStateMachineGame, &g_sStateGame);
 }
 
 static void onExit(void) {
 	gameExit();
+}
+
+static void onCredits(void) {
+	menuNavigateToPage(MENU_PAGE_CREDITS);
+}
+
+static void onContinue(void) {
+	stateChange(g_pStateMachineGame, &g_sStateGame);
+}
+
+static void onGoToMain(void) {
+	menuNavigateToPage(MENU_PAGE_MAIN);
 }
 
 static void onUndraw(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight) {
@@ -249,7 +386,7 @@ static void onDrawPos(
 //------------------------------------------------------------------- PUBLIC FNS
 
 tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex) {
-	if(ubPlayerIndex >= 6) {
+	if(ubPlayerIndex >= PLAYER_MAX_COUNT) {
 		return STEER_MODE_AI;
 	}
 	switch(s_pPlayerSteerKinds[ubPlayerIndex]) {
@@ -268,6 +405,25 @@ tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex) {
 		default:
 			return STEER_MODE_AI;
 	}
+}
+
+void menuSetupMain(void) {
+	s_eCurrentPage = MENU_PAGE_MAIN;
+}
+
+void menuSetupSummary(UBYTE ubWinnerIndex) {
+	s_eCurrentPage = MENU_PAGE_SUMMARY;
+	if(
+		ubWinnerIndex == WARRIOR_LAST_ALIVE_INDEX_INVALID ||
+		s_pPlayerSteerKinds[ubWinnerIndex] == STEER_KIND_OFF
+	) {
+		return;
+	}
+	++s_pScores[ubWinnerIndex];
+}
+
+UBYTE menuIsExtraEnemiesEnabled(void) {
+	return s_ubExtraEnemies;
 }
 
 //------------------------------------------------------------------ PUBLIC VARS

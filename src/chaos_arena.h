@@ -8,6 +8,8 @@
 #include <ace/managers/rand.h>
 #include <ace/managers/state.h>
 
+#define PLAYER_MAX_COUNT 6
+
 extern tStateManager *g_pStateMachineGame;
 extern tRandManager g_sRandManager;
 

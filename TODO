@@ -15,6 +15,8 @@ Game:
 	✔ sfx @done(22-10-16 22:33)
 	✔ reset map between game restarts @done(22-10-17 17:13)
 	☐ basic AI
+	☐ countdown sfx
+	☐ fix bobs/crumble flickering when going to menu
 	☐ fade on launch/exit
 
 Menu:
@@ -25,6 +27,7 @@ Menu:
 	✔ credits at the bottom of menu @done(22-10-17 15:57)
 	✔ pass steer presets to game @done(22-10-17 16:25)
 	☐ summary after match
+	☐ credits screen
 	☐ bots off/on
 
 Logo screens:

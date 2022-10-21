@@ -7,6 +7,12 @@
 
 #include "steer.h"
 
+void menuSetupMain(void);
+
+void menuSetupSummary(UBYTE ubWinnerIndex);
+
 tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex);
+
+UBYTE menuIsExtraEnemiesEnabled(void);
 
 #endif // INCLUDE_MENU_H

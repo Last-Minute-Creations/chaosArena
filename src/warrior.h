@@ -9,6 +9,8 @@
 #include "steer.h"
 #include "anim.h"
 
+#define WARRIOR_LAST_ALIVE_INDEX_INVALID 255
+
 typedef enum tControl {
 	CONTROL_JOY1,
 	CONTROL_JOY2,
@@ -36,7 +38,7 @@ typedef struct tWarrior {
 
 extern const tBCoordYX g_pAnimDirToPushDelta[ANIM_DIRECTION_COUNT];
 
-void warriorsCreate(void);
+void warriorsCreate(UBYTE isExtraEnemiesEnabled);
 
 void warriorsProcess(void);
 
@@ -47,6 +49,9 @@ void warriorsDrawLookup(tBitMap *pBuffer);
 UBYTE warriorsGetAliveCount(void);
 
 UBYTE warriorsGetAlivePlayerCount(void);
+
+// number is zero-based
+UBYTE warriorsGetLastAliveIndex(void);
 
 void warriorsEnableMove(UBYTE isEnabled);
 

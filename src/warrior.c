@@ -8,6 +8,7 @@
 #include "display.h"
 #include "tile.h"
 #include "menu.h"
+#include "sfx.h"
 
 //---------------------------------------------------------------------- DEFINES
 
@@ -22,10 +23,6 @@
 #define BOB_OFFSET_X (WARRIOR_FRAME_WIDTH / 2)
 #define BOB_OFFSET_Y (WARRIOR_FRAME_HEIGHT)
 #define WARRIOR_PUSH_DELTA 2
-
-#define SFX_PRIORITY_SWIPE 3
-#define SFX_PRIORITY_HIT 5
-#define SFX_PRIORITY_FALL 10
 
 // Must be power of 2!
 #define LOOKUP_TILE_SIZE 8
@@ -467,7 +464,7 @@ void warriorsDrawLookup(tBitMap *pBuffer) {
 	}
 }
 
-void warriorsCreate(void) {
+void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 	initFrameOffsets();
 	resetWarriorLookup();
 	tileShuffleSpawns();
@@ -478,12 +475,13 @@ void warriorsCreate(void) {
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		s_pWarriors[i] = memAllocFast(sizeof(*s_pWarriors[i]));
 		const tUwCoordYX *pSpawn = tileGetSpawn(i);
-		warriorAdd(
-			s_pWarriors[i],
-			pSpawn->uwX,
-			pSpawn->uwY,
-			menuGetSteerModeForPlayer(i)
-		);
+		tSteerMode eSteerMode = menuGetSteerModeForPlayer(i);
+		if(isExtraEnemiesEnabled || (
+				eSteerMode != STEER_MODE_AI && eSteerMode != STEER_MODE_IDLE &&
+				eSteerMode != STEER_MODE_OFF
+		)) {
+			warriorAdd(s_pWarriors[i], pSpawn->uwX, pSpawn->uwY, eSteerMode);
+		}
 	}
 }
 
@@ -515,6 +513,15 @@ UBYTE warriorsGetAliveCount(void) {
 
 UBYTE warriorsGetAlivePlayerCount(void) {
 	return s_ubAlivePlayerCount;
+}
+
+UBYTE warriorsGetLastAliveIndex(void) {
+	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
+		if(!s_pWarriors[i].isDead) {
+			return i;
+		}
+	}
+	return WARRIOR_LAST_ALIVE_INDEX_INVALID;
 }
 
 void warriorsEnableMove(UBYTE isEnabled) {

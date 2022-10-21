@@ -29,6 +29,7 @@ void genericCreate(void) {
 	systemUnuse();
 
 	displayOn();
+	menuSetupMain();
 	statePush(g_pStateMachineGame, &g_sStateMenu);
 }
 
