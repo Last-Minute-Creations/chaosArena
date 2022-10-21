@@ -11,17 +11,6 @@
 
 #define WARRIOR_LAST_ALIVE_INDEX_INVALID 255
 
-typedef enum tControl {
-	CONTROL_JOY1,
-	CONTROL_JOY2,
-	CONTROL_JOY3,
-	CONTROL_JOY4,
-	CONTROL_KEY1,
-	CONTROL_KEY2,
-	CONTROL_CPU,
-	CONTROL_OFF,
-} tControl;
-
 typedef struct tWarrior {
 	tUwCoordYX sPos;
 	tBobNew sBob;
@@ -29,7 +18,7 @@ typedef struct tWarrior {
 	UBYTE ubFrameCooldown;
 	UBYTE ubStunCooldown;
 	UBYTE isDead;
-	tControl eControl;
+	UBYTE ubIndex;
 	tAnim eAnim;
 	tAnimDirection eDirection;
 	tSteer sSteer;

@@ -264,7 +264,8 @@ static void warriorTryMoveBy(tWarrior *pWarrior, BYTE bDeltaX, BYTE bDeltaY) {
 }
 
 static void warriorAdd(
-	tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteerMode eSteerMode
+	tWarrior *pWarrior, UWORD uwSpawnX, UWORD uwSpawnY, tSteerMode eSteerMode,
+	UBYTE ubIndex
 ) {
 	pWarrior->sPos = (tUwCoordYX){.uwX = uwSpawnX, .uwY = uwSpawnY};
 	bobNewInit(
@@ -279,6 +280,7 @@ static void warriorAdd(
 	pWarrior->eAnim = ANIM_IDLE;
 	pWarrior->eDirection = ANIM_DIRECTION_S;
 	pWarrior->sSteer = steerInitFromMode(eSteerMode, pWarrior);
+	pWarrior->ubIndex = ubIndex;
 	s_pWarriorLookup[uwSpawnX / LOOKUP_TILE_SIZE][uwSpawnY / LOOKUP_TILE_SIZE] = pWarrior;
 	++s_ubAliveCount;
 	if(steerIsPlayer(&pWarrior->sSteer)) {
@@ -480,7 +482,7 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 				eSteerMode != STEER_MODE_AI && eSteerMode != STEER_MODE_IDLE &&
 				eSteerMode != STEER_MODE_OFF
 		)) {
-			warriorAdd(s_pWarriors[i], pSpawn->uwX, pSpawn->uwY, eSteerMode);
+			warriorAdd(s_pWarriors[i], pSpawn->uwX, pSpawn->uwY, eSteerMode, i);
 		}
 	}
 }
@@ -517,8 +519,8 @@ UBYTE warriorsGetAlivePlayerCount(void) {
 
 UBYTE warriorsGetLastAliveIndex(void) {
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
-		if(!s_pWarriors[i]->isDead) {
-			return i;
+		if(!s_pWarriors[i]->isDead && s_pWarriors[i]->ubIndex < PLAYER_MAX_COUNT) {
+			return s_pWarriors[i]->ubIndex;
 		}
 	}
 	return WARRIOR_LAST_ALIVE_INDEX_INVALID;

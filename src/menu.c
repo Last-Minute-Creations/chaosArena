@@ -201,8 +201,11 @@ static void menuDrawPage(tMenuPage ePage) {
 	}
 	else if(ePage == MENU_PAGE_SUMMARY) {
 		char szEntry[20];
-		if(s_ubLastWinner != WARRIOR_LAST_ALIVE_INDEX_INVALID) {
-			sprintf(szEntry, "PLAYER %hhu WINS", s_ubLastWinner);
+		if(
+			s_ubLastWinner < PLAYER_MAX_COUNT &&
+			s_pPlayerSteerKinds[s_ubLastWinner] != STEER_KIND_OFF
+		) {
+			sprintf(szEntry, "PLAYER %hhu WINS", s_ubLastWinner + 1);
 		}
 		else {
 			stringCopy("SUMMARY", szEntry);
@@ -215,12 +218,12 @@ static void menuDrawPage(tMenuPage ePage) {
 		UWORD uwY = 40;
 		for(UBYTE i = 0; i < PLAYER_MAX_COUNT; ++i) {
 			if(s_pPlayerSteerKinds[i] != STEER_KIND_OFF) {
-				sprintf(szEntry, "Player %hhu: %hhu", i, s_pScores[i]);
+				sprintf(szEntry, "Player %hhu: %hhu", i + 1, s_pScores[i]);
+				fontDrawStr(
+					g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, szEntry,
+					MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+				);
 			}
-			fontDrawStr(
-				g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, szEntry,
-				MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
-			);
 			uwY += ubLineHeight;
 		}
 
