@@ -17,8 +17,8 @@
 
 //---------------------------------------------------------------------- DEFINES
 
-#define MENU_WIDTH 192
-#define MENU_HEIGHT 168
+#define MENU_WIDTH 224
+#define MENU_HEIGHT 184
 #define MENU_DISPLAY_START_X ((DISPLAY_WIDTH - MENU_WIDTH) / 2)
 #define MENU_DISPLAY_START_Y ((DISPLAY_HEIGHT - MENU_HEIGHT) / 2)
 #define MENU_DISPLAY_END_Y (MENU_DISPLAY_START_Y + MENU_HEIGHT)
@@ -154,15 +154,14 @@ static const char *s_pCreditsLines[] = {
 	"  Graphics: Softiron",
 	"  Sounds and music: Luc3k",
 	"  Code: KaiN",
-	"  Announcer voice by ELEKTRON (youtube.com/c/ELEKTRON1)"
-	"",
+	"  Announcer voice by ELEKTRON",
+	"  (youtube.com/c/ELEKTRON1)",
 	"Game source code is available on",
 	"  github.com/Last-Minute-Creations/chaosArena",
-	"",
-	"This game uses following third party code and assets:",
-	"  Amiga C Engine, MPL2 license (github.com/AmigaPorts/ACE)",
-	"  uni05_54 font by raing Kroeger (minimal.com/fonts)",
-	"  Warrior graphics are based on Puny characters by Shade",
+	"Used third party code and assets:",
+	"  Amiga C Engine (github.com/AmigaPorts/ACE)",
+	"  uni05_54 font (minimal.com/fonts)",
+	"  Warrior graphics based on Puny characters",
 	"  (merchant-shade.itch.io/16x16-puny-characters)",
 	"",
 	"Thanks for playing!"
@@ -215,7 +214,12 @@ static void menuDrawPage(tMenuPage ePage) {
 			MENU_COLOR_TITLE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 		);
 
-		UWORD uwY = 40;
+		UWORD uwY = 50;
+		fontDrawStr(
+			g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, "Scores so far:",
+			MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+		);
+		uwY += 15;
 		for(UBYTE i = 0; i < PLAYER_MAX_COUNT; ++i) {
 			if(s_pPlayerSteerKinds[i] != STEER_KIND_OFF) {
 				sprintf(szEntry, "Player %hhu: %hhu", i + 1, s_pScores[i]);
@@ -233,12 +237,12 @@ static void menuDrawPage(tMenuPage ePage) {
 		);
 	}
 	else { // MENU_PAGE_CREDITS
-		UWORD uwY = 20;
+		UWORD uwY = 5;
 		for(UBYTE ubLine = 0; ubLine < MENU_CREDITS_LINE_COUNT; ++ubLine) {
 			if(!stringIsEmpty(s_pCreditsLines[ubLine])) {
 				fontDrawStr(
-					g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, s_pCreditsLines[ubLine],
-					MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+					g_pFontSmall, s_pMenuBitmap, 5, uwY, s_pCreditsLines[ubLine],
+					MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW, g_pTextBitmap
 				);
 			}
 			uwY += ubLineHeight;
@@ -311,7 +315,9 @@ static void menuGsLoop(void) {
 		tSteer *pSteer = &s_pMenuSteers[ubPlayer];
 		steerProcess(pSteer);
 		if(s_eCurrentPage == MENU_PAGE_CREDITS) {
-			menuNavigateToPage(MENU_PAGE_MAIN);
+			if(steerDirUse(pSteer, DIRECTION_FIRE)) {
+				menuNavigateToPage(MENU_PAGE_MAIN);
+			}
 		}
 		else {
 			if(steerDirUse(pSteer, DIRECTION_UP)) {
