@@ -35,6 +35,7 @@ extern tPtplayerSfx *g_pSfxCrumble;
 // extern tPtplayerSfx *g_pSfxCountdownFight;
 
 extern tPtplayerMod *g_pModCombat;
+extern tPtplayerMod *g_pModMenu;
 extern UWORD *g_pModSamples;
 
 #endif // INCLUDE_ASSETS_H

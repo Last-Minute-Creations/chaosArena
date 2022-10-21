@@ -260,6 +260,9 @@ static void menuNavigateToPage(tMenuPage ePage) {
 }
 
 static void menuGsCreate(void) {
+	ptplayerLoadMod(g_pModMenu, g_pModSamples, 0);
+	ptplayerEnableMusic(1);
+
 	s_pMenuBitmap = bitmapCreate(MENU_WIDTH, MENU_HEIGHT, DISPLAY_BPP, BMF_INTERLEAVED);
 	s_pVpManager = displayGetManager();
 	UBYTE isParallel = joyIsParallelEnabled();
@@ -352,6 +355,7 @@ static void menuGsLoop(void) {
 
 static void menuGsDestroy(void) {
 	bitmapDestroy(s_pMenuBitmap);
+	ptplayerStop();
 }
 
 static void onStart(void) {

@@ -28,8 +28,9 @@ tPtplayerSfx *g_pSfxCrumble;
 // tPtplayerSfx *g_pSfxCountdownFight;
 
 tPtplayerMod *g_pModCombat;
+tPtplayerMod *g_pModMenu;
 UWORD *g_pModSamples = 0;
-// static ULONG s_ulSampleSize;
+static ULONG s_ulSampleSize;
 
 void assetsGlobalCreate(void) {
 	g_pWarriorFrames = bitmapCreateFromFile("data/warrior.bm", 0);
@@ -55,13 +56,14 @@ void assetsGlobalCreate(void) {
 	// g_pSfxCountdown[0] = ptplayerSfxCreateFromFile("data/cd1.sfx");
 	// g_pSfxCountdownFight = ptplayerSfxCreateFromFile("data/cdfight.sfx");
 
-	g_pModCombat = ptplayerModCreate("data/charena2.mod");
+	g_pModCombat = ptplayerModCreate("data/charena_game.mod");
+	g_pModMenu = ptplayerModCreate("data/charena_menu.mod");
 
-	// s_ulSampleSize = fileGetSize("data/samples.samplepack");
-	// g_pModSamples = memAllocChip(s_ulSampleSize);
-	// tFile *pFileSamples = fileOpen("data/samples.samplepack", "rb");
-	// fileRead(pFileSamples, g_pModSamples, s_ulSampleSize);
-	// fileClose(pFileSamples);
+	s_ulSampleSize = fileGetSize("data/samples.samplepack");
+	g_pModSamples = memAllocChip(s_ulSampleSize);
+	tFile *pFileSamples = fileOpen("data/samples.samplepack", "rb");
+	fileRead(pFileSamples, g_pModSamples, s_ulSampleSize);
+	fileClose(pFileSamples);
 }
 
 void assetsGlobalDestroy(void) {
@@ -89,5 +91,6 @@ void assetsGlobalDestroy(void) {
 	// ptplayerSfxDestroy(g_pSfxCountdownFight);
 
 	ptplayerModDestroy(g_pModCombat);
-	// memFree(g_pModSamples, s_ulSampleSize);
+	ptplayerModDestroy(g_pModMenu);
+	memFree(g_pModSamples, s_ulSampleSize);
 }

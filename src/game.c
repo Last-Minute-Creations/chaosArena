@@ -14,7 +14,7 @@
 #include "sfx.h"
 #include "menu.h"
 
-#define GAME_CRUMBLE_COOLDOWN 250
+#define GAME_CRUMBLE_COOLDOWN 1
 #define GAME_COUNTDOWN_COOLDOWN 50
 
 typedef enum tCountdownPhase {

@@ -151,13 +151,13 @@ convertAudio(
 	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/countdown_fight.wav
 	DESTINATION ${DATA_DIR}/cdfight.sfx
 )
-# mergeMods(
-# 	TARGET ${GAME_EXECUTABLE}
-# 	SOURCES ${RES_DIR}/charena1.mod ${RES_DIR}/charena2.mod
-# 	DESTINATIONS ${DATA_DIR}/charena1.mod ${DATA_DIR}/charena2.mod
-# 	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
-# )
-FILE(COPY ${RES_DIR}/charena2.mod DESTINATION ${DATA_DIR})
+mergeMods(
+	TARGET ${GAME_EXECUTABLE}
+	SOURCES ${RES_DIR}/charena_menu.mod ${RES_DIR}/charena_game.mod
+	DESTINATIONS ${DATA_DIR}/charena_menu.mod ${DATA_DIR}/charena_game.mod
+	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
+)
+# FILE(COPY ${RES_DIR}/charena2.mod DESTINATION ${DATA_DIR})
 
 
 # Generating ZIP
