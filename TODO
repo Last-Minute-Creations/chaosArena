@@ -14,9 +14,9 @@ Game:
 	✔ crumbling starting of edges of map @done(22-10-16 19:44)
 	✔ sfx @done(22-10-16 22:33)
 	✔ reset map between game restarts @done(22-10-17 17:13)
-	☐ basic AI
+	✔ basic AI @done(22-10-21 22:15)
 	☐ countdown sfx
-	☐ fix bobs/crumble flickering when going to menu
+	✔ fix bobs/crumble flickering when going to menu @done(22-10-21 22:15)
 	☐ fade on launch/exit
 
 Menu:
@@ -26,9 +26,9 @@ Menu:
 	✔ exit to workbench @done(22-10-15 17:05)
 	✔ credits at the bottom of menu @done(22-10-17 15:57)
 	✔ pass steer presets to game @done(22-10-17 16:25)
-	☐ summary after match
-	☐ credits screen
-	☐ bots off/on
+	✔ summary after match @done(22-10-21 22:15)
+	✔ credits screen @done(22-10-21 22:15)
+	✔ bots off/on @done(22-10-21 22:15)
 
 Logo screens:
 	☐ ACE from germz
