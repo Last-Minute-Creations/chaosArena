@@ -11,6 +11,8 @@
 #include "assets.h"
 #include "tile.h"
 #include "chaos_arena.h"
+#include "sfx.h"
+#include "menu.h"
 
 #define GAME_CRUMBLE_COOLDOWN 250
 #define GAME_COUNTDOWN_COOLDOWN 50
@@ -108,6 +110,8 @@ static void countdownProcess(void) {
 			break;
 		case COUNTDOWN_PHASE_FIGHT:
 			bobNewPush(&s_sBobFight);
+			break;
+		default:
 			break;
 	}
 }

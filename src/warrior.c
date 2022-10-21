@@ -517,7 +517,7 @@ UBYTE warriorsGetAlivePlayerCount(void) {
 
 UBYTE warriorsGetLastAliveIndex(void) {
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
-		if(!s_pWarriors[i].isDead) {
+		if(!s_pWarriors[i]->isDead) {
 			return i;
 		}
 	}

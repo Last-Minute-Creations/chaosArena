@@ -6,13 +6,14 @@
 #include <ace/managers/blit.h>
 #include <ace/managers/game.h>
 #include <ace/managers/key.h>
-#inlude <ace/utils/string.h>
+#include <ace/utils/string.h>
 #include <mini_std/stdio.h>
 #include "display.h"
 #include "assets.h"
 #include "menu_list.h"
 #include "chaos_arena.h"
 #include "steer.h"
+#include "warrior.h"
 
 //---------------------------------------------------------------------- DEFINES
 
@@ -74,6 +75,7 @@ static UBYTE s_pScores[PLAYER_MAX_COUNT];
 static UBYTE s_ubLastDrawEnd[2];
 static UBYTE s_isOdd;
 static tMenuPage s_eCurrentPage;
+static UBYTE s_ubLastWinner;
 
 static const char *s_pSteerEnumLabels[STEER_KIND_COUNT] = {
 	[STEER_KIND_JOY1] = "Joy 1",
@@ -200,13 +202,13 @@ static void menuDrawPage(tMenuPage ePage) {
 	else if(ePage == MENU_PAGE_SUMMARY) {
 		char szEntry[20];
 		if(s_ubLastWinner != WARRIOR_LAST_ALIVE_INDEX_INVALID) {
-			sprintf(szCaption, "PLAYER %hu WINS", s_ubLastWinner);
+			sprintf(szEntry, "PLAYER %hhu WINS", s_ubLastWinner);
 		}
 		else {
-			stringCopy("SUMMARY", szCaption);
+			stringCopy("SUMMARY", szEntry);
 		}
 		fontDrawStr(
-			g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, szCaption,
+			g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, szEntry,
 			MENU_COLOR_TITLE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 		);
 
@@ -216,7 +218,7 @@ static void menuDrawPage(tMenuPage ePage) {
 				sprintf(szEntry, "Player %hhu: %hhu", i, s_pScores[i]);
 			}
 			fontDrawStr(
-				g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, szCaption,
+				g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, szEntry,
 				MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 			);
 			uwY += ubLineHeight;
@@ -245,7 +247,7 @@ static void menuDrawPage(tMenuPage ePage) {
 	}
 }
 
-static void menuNavigateToPage(tPage ePage) {
+static void menuNavigateToPage(tMenuPage ePage) {
 	s_eCurrentPage = ePage;
 	menuDrawPage(ePage);
 }
@@ -413,6 +415,7 @@ void menuSetupMain(void) {
 
 void menuSetupSummary(UBYTE ubWinnerIndex) {
 	s_eCurrentPage = MENU_PAGE_SUMMARY;
+	s_ubLastWinner = ubWinnerIndex;
 	if(
 		ubWinnerIndex == WARRIOR_LAST_ALIVE_INDEX_INVALID ||
 		s_pPlayerSteerKinds[ubWinnerIndex] == STEER_KIND_OFF
