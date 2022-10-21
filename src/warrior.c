@@ -478,11 +478,16 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 		s_pWarriors[i] = memAllocFast(sizeof(*s_pWarriors[i]));
 		const tUwCoordYX *pSpawn = tileGetSpawn(i);
 		tSteerMode eSteerMode = menuGetSteerModeForPlayer(i);
-		if(isExtraEnemiesEnabled || (
-				eSteerMode != STEER_MODE_AI && eSteerMode != STEER_MODE_IDLE &&
-				eSteerMode != STEER_MODE_OFF
+		warriorAdd(s_pWarriors[i], pSpawn->uwX, pSpawn->uwY, eSteerMode, i);
+		if(!isExtraEnemiesEnabled &&  (
+			eSteerMode == STEER_MODE_AI || eSteerMode == STEER_MODE_IDLE ||
+			eSteerMode == STEER_MODE_OFF
 		)) {
-			warriorAdd(s_pWarriors[i], pSpawn->uwX, pSpawn->uwY, eSteerMode, i);
+			warriorKill(s_pWarriors[i]);
+			UBYTE ubTileX = s_pWarriors[i]->sPos.uwX / LOOKUP_TILE_SIZE;
+			UBYTE ubTileY = s_pWarriors[i]->sPos.uwY / LOOKUP_TILE_SIZE;
+			s_pWarriorLookup[ubTileX][ubTileY] = 0;
+			warriorGetNearPos(s_pWarriors[i]->sPos.uwX, 0, s_pWarriors[i]->sPos.uwY, 0);
 		}
 	}
 }
