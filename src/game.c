@@ -91,13 +91,13 @@ static void countdownProcess(void) {
 				&s_sBobCountdown, &g_pCountdownFrames->Planes[0][ulFrameOffset],
 				&g_pCountdownMask->Planes[0][ulFrameOffset]
 			);
-			ptplayerSfxPlay(
-				g_pSfxCountdown[s_eCountdownPhase - COUNTDOWN_PHASE_1],
-				2, 64, SFX_PRIORITY_COUNTDOWN
-			);
+			// ptplayerSfxPlay(
+			// 	g_pSfxCountdown[s_eCountdownPhase - COUNTDOWN_PHASE_1],
+			// 	2, 64, SFX_PRIORITY_COUNTDOWN
+			// );
 		}
 		else if(s_eCountdownPhase == COUNTDOWN_PHASE_FIGHT) {
-			ptplayerSfxPlay(g_pSfxCountdownFight, 2, 64, SFX_PRIORITY_COUNTDOWN);
+			// ptplayerSfxPlay(g_pSfxCountdownFight, 2, 64, SFX_PRIORITY_COUNTDOWN);
 			warriorsEnableMove(1);
 		}
 	}

@@ -31,8 +31,8 @@ extern tPtplayerSfx *g_pSfxNo;
 extern tPtplayerSfx *g_pSfxSwipes[2];
 extern tPtplayerSfx *g_pSfxSwipeHit;
 extern tPtplayerSfx *g_pSfxCrumble;
-extern tPtplayerSfx *g_pSfxCountdown[3]; // [0] is "one", [2] is "three"
-extern tPtplayerSfx *g_pSfxCountdownFight;
+// extern tPtplayerSfx *g_pSfxCountdown[3]; // [0] is "one", [2] is "three"
+// extern tPtplayerSfx *g_pSfxCountdownFight;
 
 extern tPtplayerMod *g_pModCombat;
 extern UWORD *g_pModSamples;
