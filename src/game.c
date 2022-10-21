@@ -96,7 +96,7 @@ static void countdownProcess(void) {
 			// 	2, 64, SFX_PRIORITY_COUNTDOWN
 			// );
 		}
-		else if(s_eCountdownPhase == COUNTDOWN_PHASE_FIGHT) {
+		else if(s_eCountdownPhase == COUNTDOWN_PHASE_OFF) {
 			// ptplayerSfxPlay(g_pSfxCountdownFight, 2, 64, SFX_PRIORITY_COUNTDOWN);
 			warriorsEnableMove(1);
 		}
