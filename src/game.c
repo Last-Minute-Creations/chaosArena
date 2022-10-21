@@ -123,7 +123,7 @@ static void gameTransitToMenu(void) {
 	UWORD uwOffsY = 0;
 	for(UBYTE i = 0; i < 4; ++i) {
 		blitCopyAligned(
-			s_pVpManager->pFront, 0, uwOffsY, s_pVpManager->pFront, 0, uwOffsY,
+			s_pVpManager->pFront, 0, uwOffsY, s_pVpManager->pBack, 0, uwOffsY,
 			DISPLAY_WIDTH, ubPartHeight
 		);
 		uwOffsY += ubPartHeight;
