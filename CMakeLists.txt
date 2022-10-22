@@ -97,7 +97,7 @@ convertTileset(
 )
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
-	PALETTE ${RES_DIR}/chaos_arena.gpl
+	PALETTE ${RES_DIR}/chaos_arena.pal
 	MASK_COLOR "#FF00FF"
 	INTERLEAVED SOURCES ${GEN_DIR}/warrior.png ${RES_DIR}/countdown.png ${RES_DIR}/fight.png
 	DESTINATIONS ${DATA_DIR}/warrior.bm ${DATA_DIR}/countdown.bm ${DATA_DIR}/fight.bm
@@ -106,13 +106,13 @@ convertBitmaps(
 
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
-	PALETTE ${RES_DIR}/chaos_arena.gpl
+	PALETTE ${RES_DIR}/chaos_arena.pal
 	INTERLEAVED SOURCES ${RES_DIR}/tiles.png
 	DESTINATIONS ${DATA_DIR}/tiles.bm
 )
 
 convertPalette(
-	${GAME_EXECUTABLE} ${RES_DIR}/chaos_arena.gpl ${DATA_DIR}/palette.plt
+	${GAME_EXECUTABLE} ${RES_DIR}/chaos_arena.pal ${DATA_DIR}/palette.plt
 )
 
 convertAudio(

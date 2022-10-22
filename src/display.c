@@ -16,7 +16,7 @@ static tSimpleBufferManager *s_pVpManager;
 void displayCreate(void) {
 	s_pView = viewCreate(0,
 		TAG_VIEW_COPLIST_MODE, VIEW_COPLIST_MODE_BLOCK,
-		TAG_VIEW_GLOBAL_CLUT, 1,
+		TAG_VIEW_GLOBAL_PALETTE, 1,
 	TAG_DONE);
 
 	s_pVp = vPortCreate(0,
