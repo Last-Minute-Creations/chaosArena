@@ -24,7 +24,6 @@ void genericCreate(void) {
 	randInit(&g_sRandManager, 0x2184, 0x1911);
 
 	assetsGlobalCreate();
-	tilesInit();
 	displayCreate();
 	systemUnuse();
 

@@ -45,6 +45,7 @@ static void debugReset(void) {
 }
 
 static void gameGsCreate(void) {
+	tilesInit();
 	s_pVpManager = displayGetManager();
 	bobNewManagerCreate(s_pVpManager->pBack, s_pVpManager->pFront, 512);
 	warriorsCreate(menuIsExtraEnemiesEnabled());
