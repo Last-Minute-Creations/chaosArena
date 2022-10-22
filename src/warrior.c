@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "warrior.h"
+#include <ace/managers/key.h>
 #include "chaos_arena.h"
 #include "assets.h"
 #include "display.h"
@@ -493,6 +494,10 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 }
 
 void warriorsProcess(void) {
+	if(keyUse(KEY_U)) {
+		warriorAttackWithLightning(&s_pWarriors[0]->sPos);
+	}
+
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		warriorProcess(s_pWarriors[i]);
 	}
@@ -533,6 +538,38 @@ UBYTE warriorsGetLastAliveIndex(void) {
 
 void warriorsEnableMove(UBYTE isEnabled) {
 	s_isMoveEnabled = isEnabled;
+}
+
+void warriorAttackWithLightning(const tUwCoordYX *pAttackPos) {
+	tWarrior *pTarget;
+
+	pTarget = warriorGetNearPos(pAttackPos->uwX, 0, pAttackPos->uwY, 0);
+	if(pTarget && isPositionCollidingWithWarrior(*pAttackPos, pTarget)) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
+		return;
+	}
+
+	pTarget = warriorGetNearPos(pAttackPos->uwX, 1, pAttackPos->uwY, 0);
+	if(pTarget && isPositionCollidingWithWarrior(*pAttackPos, pTarget)) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
+		return;
+	}
+
+	pTarget = warriorGetNearPos(pAttackPos->uwX, 0, pAttackPos->uwY, 1);
+	if(pTarget && isPositionCollidingWithWarrior(*pAttackPos, pTarget)) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
+		return;
+	}
+
+	pTarget = warriorGetNearPos(pAttackPos->uwX, 1, pAttackPos->uwY, 1);
+	if(pTarget && isPositionCollidingWithWarrior(*pAttackPos, pTarget)) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
+		return;
+	}
 }
 
 tWarrior *warriorGetStrikeTarget(

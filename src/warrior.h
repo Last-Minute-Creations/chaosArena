@@ -44,6 +44,8 @@ UBYTE warriorsGetLastAliveIndex(void);
 
 void warriorsEnableMove(UBYTE isEnabled);
 
+void warriorAttackWithLightning(const tUwCoordYX *pAttackPos);
+
 tWarrior *warriorGetStrikeTarget(
 	const tWarrior *pWarrior, tAnimDirection eDirection
 );
