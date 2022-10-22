@@ -33,8 +33,6 @@ typedef enum tTile {
 	TILE_FLOOR1_C6,
 	TILE_FLOOR1_C7,
 	TILE_FLOOR1_C8,
-	TILE_FLOOR1_C9,
-	TILE_FLOOR1_C10,
 	TILE_COUNT
 } tTile;
 
@@ -270,7 +268,7 @@ void tileCrumbleProcess(tBitMap *pBuffer) {
 		}
 		if(--pCrumble->ubCooldown == 0) {
 			tTile eNewTile;
-			if(*pCrumble->pTile == TILE_FLOOR1_C10) {
+			if(*pCrumble->pTile == TILE_FLOOR1_C8) {
 				eNewTile = (
 					tileIsSolid(pCrumble->ubTileX, pCrumble->ubTileY - 1) ?
 					TILE_WALL1 : TILE_VOID

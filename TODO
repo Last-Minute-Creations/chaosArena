@@ -15,9 +15,8 @@ Game:
 	✔ sfx @done(22-10-16 22:33)
 	✔ reset map between game restarts @done(22-10-17 17:13)
 	✔ basic AI @done(22-10-21 22:15)
-	☐ countdown sfx
+	✔ countdown sfx @done(22-10-22 12:28)
 	✔ fix bobs/crumble flickering when going to menu @done(22-10-21 22:15)
-	☐ fade on launch/exit
 
 Menu:
 	✔ player selection (P1-P6, left-right switches config) @done(22-10-15 17:04)
@@ -36,5 +35,6 @@ Logo screens:
 
 Nice to have:
 	☐ how to play (?)
+	☐ fade on launch/exit
 	☐ different offsets of frames, move to 16x16 blits
 	☐ thunders?
