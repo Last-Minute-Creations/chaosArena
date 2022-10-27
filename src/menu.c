@@ -22,11 +22,11 @@
 #define MENU_DISPLAY_START_X ((DISPLAY_WIDTH - MENU_WIDTH) / 2)
 #define MENU_DISPLAY_START_Y ((DISPLAY_HEIGHT - MENU_HEIGHT) / 2)
 #define MENU_DISPLAY_END_Y (MENU_DISPLAY_START_Y + MENU_HEIGHT)
-#define MENU_COLOR_BG 5
-#define MENU_COLOR_INACTIVE 14
-#define MENU_COLOR_ACTIVE 11
+#define MENU_COLOR_BG 2
+#define MENU_COLOR_INACTIVE 3
+#define MENU_COLOR_ACTIVE 12
 #define MENU_COLOR_TITLE 11
-#define MENU_COLOR_FOOTER 14
+#define MENU_COLOR_FOOTER 3
 #define APPEAR_ANIM_SPEED 4
 
 //-------------------------------------------------------------------------TYPES
@@ -225,10 +225,10 @@ static void menuDrawPage(tMenuPage ePage) {
 				sprintf(szEntry, "Player %hhu: %hhu", i + 1, s_pScores[i]);
 				fontDrawStr(
 					g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, szEntry,
-					MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+					MENU_COLOR_INACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
 				);
+				uwY += ubLineHeight;
 			}
-			uwY += ubLineHeight;
 		}
 
 		menuListInit(
