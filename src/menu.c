@@ -69,7 +69,7 @@ static UBYTE s_pPlayerSteerKinds[PLAYER_MAX_COUNT] = {
 	STEER_KIND_JOY1, STEER_KIND_JOY2, STEER_KIND_OFF,
 	STEER_KIND_OFF, STEER_KIND_OFF, STEER_KIND_OFF
 };
-static UBYTE s_ubExtraEnemies = 1;
+static UBYTE s_ubExtraEnemies = 0;
 static tSteer s_pMenuSteers[PLAYER_MAX_COUNT];
 static UBYTE s_pScores[PLAYER_MAX_COUNT];
 static UBYTE s_ubLastDrawEnd[2];

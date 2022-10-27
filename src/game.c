@@ -13,6 +13,7 @@
 #include "chaos_arena.h"
 #include "sfx.h"
 #include "menu.h"
+#include "debug.h"
 
 #define GAME_CRUMBLE_COOLDOWN 1
 #define GAME_COUNTDOWN_COOLDOWN 50
@@ -27,22 +28,11 @@ typedef enum tCountdownPhase {
 } tCountdownPhase;
 
 static tSimpleBufferManager *s_pVpManager;
-static UBYTE s_isDebug;
 static tBobNew s_sBobCountdown;
 static tBobNew s_sBobFight;
 static tCountdownPhase s_eCountdownPhase;
 static UBYTE s_ubCountdownCooldown;
 static UBYTE s_ubCrumbleCooldown;
-
-static void debugColor(UWORD uwColor) {
-	if (s_isDebug) {
-		g_pCustom->color[0] = uwColor;
-	}
-}
-
-static void debugReset(void) {
-	g_pCustom->color[0] = s_pVpManager->sCommon.pVPort->pPalette[0];
-}
 
 static void gameGsCreate(void) {
 	tilesInit();
@@ -74,7 +64,6 @@ static void gameGsCreate(void) {
 	warriorsEnableMove(0);
 	ptplayerLoadMod(g_pModCombat, g_pModSamples, 0);
 	ptplayerEnableMusic(1);
-	s_isDebug = 0;
 }
 
 static void countdownProcess(void) {
@@ -154,14 +143,10 @@ static void gameGsLoop(void) {
 		return;
 	}
 
-	if (keyUse(KEY_F1)) {
-		s_isDebug = !s_isDebug;
-	}
-
-	debugColor(0xf00);
+	debugSetColor(0x008);
 	bobNewBegin(s_pVpManager->pBack);
 
-	debugColor(0x0ff);
+	debugSetColor(0x0ff);
 	if(!s_eCountdownPhase) {
 		if(!s_ubCrumbleCooldown) {
 			tileCrumbleProcess(s_pVpManager->pBack);
@@ -171,15 +156,13 @@ static void gameGsLoop(void) {
 		}
 	}
 
-	debugColor(0x0f0);
+	debugSetColor(0x0f0);
 	warriorsProcess();
 	countdownProcess();
 
-	debugColor(0x00f);
+	debugSetColor(0x00f);
 	bobNewPushingDone();
-
 	bobNewEnd();
-	debugReset();
 	// warriorsDrawLookup(s_pVpManager->pBack);
 }
 

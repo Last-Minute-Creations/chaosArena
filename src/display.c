@@ -4,8 +4,10 @@
 
 #include "display.h"
 #include <ace/managers/viewport/simplebuffer.h>
+#include <ace/managers/system.h>
 #include <ace/utils/palette.h>
 #include "tile.h"
+#include "debug.h"
 
 #define GAME_COLORS (1 << DISPLAY_BPP)
 
@@ -14,8 +16,10 @@ static tVPort *s_pVp;
 static tSimpleBufferManager *s_pVpManager;
 
 void displayCreate(void) {
+	UWORD uwDisplayCopperInstructions = simpleBufferGetRawCopperlistInstructionCount(DISPLAY_BPP);
 	s_pView = viewCreate(0,
-		TAG_VIEW_COPLIST_MODE, VIEW_COPLIST_MODE_BLOCK,
+		TAG_VIEW_COPLIST_MODE, VIEW_COPLIST_MODE_RAW,
+		TAG_VIEW_COPLIST_RAW_COUNT, uwDisplayCopperInstructions + 2,
 		TAG_VIEW_GLOBAL_PALETTE, 1,
 	TAG_DONE);
 
@@ -31,6 +35,7 @@ void displayCreate(void) {
 		TAG_SIMPLEBUFFER_BOUND_WIDTH, DISPLAY_WIDTH,
 		TAG_SIMPLEBUFFER_BOUND_HEIGHT, DISPLAY_HEIGHT,
 		TAG_SIMPLEBUFFER_VPORT, s_pVp,
+		TAG_SIMPLEBUFFER_COPLIST_OFFSET, 0,
 	TAG_DONE);
 
 	cameraSetCoord(s_pVpManager->pCamera, DISPLAY_TILE_MARGIN * 16, DISPLAY_TILE_MARGIN * 16);
@@ -38,6 +43,7 @@ void displayCreate(void) {
 	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
 	tilesDrawAllOn(s_pVpManager->pBack);
 	tilesDrawAllOn(s_pVpManager->pFront);
+	debugInit(s_pVp->pPalette[0]);
 }
 
 void displayDestroy(void) {
@@ -47,7 +53,10 @@ void displayDestroy(void) {
 void displayProcess(void) {
 	viewProcessManagers(s_pView);
 	copProcessBlocks();
+	debugReset();
+	systemIdleBegin();
 	vPortWaitForEnd(s_pVp);
+	systemIdleEnd();
 }
 
 void displayOn(void) {

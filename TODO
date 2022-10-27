@@ -17,8 +17,20 @@ Game:
 	✔ basic AI @done(22-10-21 22:15)
 	✔ countdown sfx @done(22-10-22 12:28)
 	✔ fix bobs/crumble flickering when going to menu @done(22-10-21 22:15)
+	✔ change to raw copperlist mode @done(22-10-27 14:19)
+	✔ global debug stuff @done(22-10-27 14:23)
+	☐ add thunder mechanics
+	☐ add initial sprites for showing who is who
+	☐ fade on launch/exit
+	☐ different offsets of frames, move to 16x16 blits
+	☐ 8 player support
+	☐ proper crumble gfx
 
-Menu:
+Logo screens:
+	☐ ACE from germz
+	☐ LMC from germz
+
+	Menu:
 	✔ player selection (P1-P6, left-right switches config) @done(22-10-15 17:04)
 	✘ fire enables/disables player @cancelled(22-10-15 17:04)
 	✔ start game @done(22-10-15 20:47)
@@ -29,12 +41,4 @@ Menu:
 	✔ credits screen @done(22-10-21 22:15)
 	✔ bots off/on @done(22-10-21 22:15)
 
-Logo screens:
-	☐ ACE from germz
-	☐ LMC from germz
 
-Nice to have:
-	☐ how to play (?)
-	☐ fade on launch/exit
-	☐ different offsets of frames, move to 16x16 blits
-	☐ thunders?
