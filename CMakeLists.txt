@@ -57,9 +57,10 @@ set(RES_DIR ${CMAKE_CURRENT_LIST_DIR}/res)
 set(DATA_DIR ${CMAKE_CURRENT_BINARY_DIR}/data)
 set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(WARRIOR_DIR ${GEN_DIR}/warrior)
-file(MAKE_DIRECTORY ${DATA_DIR} ${GEN_DIR} ${WARRIOR_DIR})
+set(THUNDER_DIR ${GEN_DIR}/thunder)
+file(MAKE_DIRECTORY ${DATA_DIR} ${GEN_DIR} ${WARRIOR_DIR} ${THUNDER_DIR})
 
-# Assets
+# Fonts
 convertFont(
 	TARGET ${GAME_EXECUTABLE} FIRST_CHAR 32
 	SOURCE ${RES_DIR}/font.png DESTINATION ${DATA_DIR}/menu.fnt
@@ -69,6 +70,7 @@ convertFont(
 	SOURCE ${RES_DIR}/font_uni54.png DESTINATION ${DATA_DIR}/uni54.fnt
 )
 
+# Warrior frames
 SET(X_SPACING 16)
 SET(Y_SPACING 13)
 SET(FRAME_WIDTH 16)
@@ -90,11 +92,28 @@ foreach(direction RANGE 7)
 	endforeach()
 endforeach()
 
+# Tiles
 convertTileset(
 	TARGET ${GAME_EXECUTABLE} SIZE 16 HEIGHT 19
 	SOURCE ${WARRIOR_DIR} DESTINATION ${GEN_DIR}/warrior.png
 	TILE_PATHS ${warriorFrames}
 )
+
+# Thunder
+extractBitmaps(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/thunder.png
+	DESTINATIONS
+		${THUNDER_DIR}/0.png 0 0 16 258
+		${THUNDER_DIR}/1.png 16 0 16 258
+	GENERATED_FILE_LIST thunderFrames
+)
+convertTileset(
+	TARGET ${GAME_EXECUTABLE} SIZE 16 HEIGHT 258
+	SOURCE ${THUNDER_DIR} DESTINATION ${GEN_DIR}/thunder.png
+	TILE_PATHS ${thunderFrames}
+)
+
+# Converting bimaps
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
 	PALETTE ${RES_DIR}/chaos_arena.pal
@@ -103,12 +122,17 @@ convertBitmaps(
 	DESTINATIONS ${DATA_DIR}/warrior.bm ${DATA_DIR}/countdown.bm ${DATA_DIR}/fight.bm
 	MASKS ${DATA_DIR}/warrior_mask.bm ${DATA_DIR}/countdown_mask.bm ${DATA_DIR}/fight_mask.bm
 )
-
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
 	PALETTE ${RES_DIR}/chaos_arena.pal
 	INTERLEAVED SOURCES ${RES_DIR}/tiles.png
 	DESTINATIONS ${DATA_DIR}/tiles.bm
+)
+convertBitmaps(
+	TARGET ${GAME_EXECUTABLE}
+	PALETTE ${RES_DIR}/sprite_export.gpl
+	INTERLEAVED SOURCES ${GEN_DIR}/thunder.png
+	DESTINATIONS ${DATA_DIR}/thunder.bm
 )
 
 convertPalette(

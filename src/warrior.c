@@ -4,6 +4,7 @@
 
 #include "warrior.h"
 #include <ace/managers/key.h>
+#include <ace/managers/sprite.h>
 #include "chaos_arena.h"
 #include "assets.h"
 #include "display.h"
@@ -24,6 +25,8 @@
 #define BOB_OFFSET_X (WARRIOR_FRAME_WIDTH / 2)
 #define BOB_OFFSET_Y (WARRIOR_FRAME_HEIGHT)
 #define WARRIOR_PUSH_DELTA 2
+#define THUNDER_COOLDOWN 100
+#define THUNDER_SHOWN_COOLDOWN 20
 
 // Must be power of 2!
 #define LOOKUP_TILE_SIZE 8
@@ -38,11 +41,18 @@ typedef struct tFrameOffsets {
 	UBYTE *pMask;
 } tFrameOffsets;
 
+typedef struct tThunder {
+	UBYTE ubCooldown;
+	UBYTE ubShownCooldown;
+	tSprite *pSprite;
+} tThunder;
+
 //----------------------------------------------------------------- PRIVATE VARS
 
 static tWarrior *s_pWarriors[WARRIOR_COUNT];
 static tWarrior *s_pWarriorLookup[LOOKUP_TILE_WIDTH][LOOKUP_TILE_HEIGHT];
 static tFrameOffsets s_pFrameOffsets[ANIM_DIRECTION_COUNT][ANIM_COUNT][MAX_ANIM_FRAMES];
+static tThunder s_sThunder;
 
 static const tAnimDirection s_pDirIdToAnimDir[] = {
 	[DIR_ID(-1, -1)] = ANIM_DIRECTION_NW,
@@ -491,12 +501,40 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 			warriorGetNearPos(s_pWarriors[i]->sPos.uwX, 0, s_pWarriors[i]->sPos.uwY, 0);
 		}
 	}
+
+	s_sThunder.pSprite = spriteAdd(0, g_pSpriteThunder, 0);
+	spriteEnable(s_sThunder.pSprite, 0);
+	s_sThunder.ubCooldown = 0;
+	s_sThunder.ubShownCooldown = 0;
 }
 
 void warriorsProcess(void) {
-	if(keyUse(KEY_U)) {
-		warriorAttackWithLightning(&s_pWarriors[0]->sPos);
+	if(s_sThunder.ubShownCooldown) {
+		if(--s_sThunder.ubShownCooldown == 0) {
+			spriteEnable(s_sThunder.pSprite, 0);
+		}
 	}
+	if(s_sThunder.ubCooldown) {
+		--s_sThunder.ubCooldown;
+	}
+
+	if(keyUse(KEY_U)) {
+		if(!s_sThunder.ubCooldown) {
+			UWORD uwMarginSize = (DISPLAY_TILE_MARGIN * MAP_TILE_SIZE);
+			tUwCoordYX sAttackPos = {
+				.uwX = randUwMinMax(&g_sRandManager, uwMarginSize, DISPLAY_WIDTH - 2 * uwMarginSize),
+				.uwY = randUwMinMax(&g_sRandManager, uwMarginSize, DISPLAY_HEIGHT - 2 * uwMarginSize)
+			};
+			spriteEnable(s_sThunder.pSprite, 1);
+			s_sThunder.pSprite->wX = sAttackPos.uwX - 8 - uwMarginSize;
+			s_sThunder.pSprite->wY = 0;
+			spriteSetHeight(s_sThunder.pSprite, sAttackPos.uwY - uwMarginSize);
+			s_sThunder.ubCooldown = THUNDER_COOLDOWN;
+			s_sThunder.ubShownCooldown = THUNDER_SHOWN_COOLDOWN;
+			warriorAttackWithLightning(sAttackPos);
+		}
+	}
+	spriteUpdate(s_sThunder.pSprite);
 
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		warriorProcess(s_pWarriors[i]);
@@ -517,6 +555,7 @@ void warriorsDestroy(void) {
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		memFree(s_pWarriors[i], sizeof(*s_pWarriors[i]));
 	}
+	spriteRemove(s_sThunder.pSprite);
 }
 
 UBYTE warriorsGetAliveCount(void) {
@@ -540,32 +579,32 @@ void warriorsEnableMove(UBYTE isEnabled) {
 	s_isMoveEnabled = isEnabled;
 }
 
-void warriorAttackWithLightning(const tUwCoordYX *pAttackPos) {
+void warriorAttackWithLightning(tUwCoordYX sAttackPos) {
 	tWarrior *pTarget;
 
-	pTarget = warriorGetNearPos(pAttackPos->uwX, 0, pAttackPos->uwY, 0);
-	if(pTarget && isPositionCollidingWithWarrior(*pAttackPos, pTarget)) {
+	pTarget = warriorGetNearPos(sAttackPos.uwX, 0, sAttackPos.uwY, 0);
+	if(pTarget && isPositionCollidingWithWarrior(sAttackPos, pTarget)) {
 		warriorSetAnim(pTarget, ANIM_HURT);
 		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
 		return;
 	}
 
-	pTarget = warriorGetNearPos(pAttackPos->uwX, 1, pAttackPos->uwY, 0);
-	if(pTarget && isPositionCollidingWithWarrior(*pAttackPos, pTarget)) {
+	pTarget = warriorGetNearPos(sAttackPos.uwX, 1, sAttackPos.uwY, 0);
+	if(pTarget && isPositionCollidingWithWarrior(sAttackPos, pTarget)) {
 		warriorSetAnim(pTarget, ANIM_HURT);
 		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
 		return;
 	}
 
-	pTarget = warriorGetNearPos(pAttackPos->uwX, 0, pAttackPos->uwY, 1);
-	if(pTarget && isPositionCollidingWithWarrior(*pAttackPos, pTarget)) {
+	pTarget = warriorGetNearPos(sAttackPos.uwX, 0, sAttackPos.uwY, 1);
+	if(pTarget && isPositionCollidingWithWarrior(sAttackPos, pTarget)) {
 		warriorSetAnim(pTarget, ANIM_HURT);
 		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
 		return;
 	}
 
-	pTarget = warriorGetNearPos(pAttackPos->uwX, 1, pAttackPos->uwY, 1);
-	if(pTarget && isPositionCollidingWithWarrior(*pAttackPos, pTarget)) {
+	pTarget = warriorGetNearPos(sAttackPos.uwX, 1, sAttackPos.uwY, 1);
+	if(pTarget && isPositionCollidingWithWarrior(sAttackPos, pTarget)) {
 		warriorSetAnim(pTarget, ANIM_HURT);
 		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
 		return;

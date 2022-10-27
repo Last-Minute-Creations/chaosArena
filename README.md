@@ -12,6 +12,8 @@ Controls:
 
 Credits:
 
+- Graphics: [Softiron](https://github.com/Softiron1)
+- Audio: [Luc3k](https://github.com/Luc3kLMC)
 - Code: [KaiN](https://github.com/tehKaiN)
 - Character sprites from [Shade's Puny Characters pack (CC0)](https://merchant-shade.itch.io/16x16-puny-characters)
 - Game mechanics based on Chaos Castle event from Mu Online game by Webzen corp.

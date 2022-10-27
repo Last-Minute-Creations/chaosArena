@@ -5,6 +5,8 @@
 #include "game.h"
 #include <ace/managers/key.h>
 #include <ace/managers/game.h>
+#include <ace/managers/sprite.h>
+#include <ace/managers/system.h>
 #include "bob_new.h"
 #include "display.h"
 #include "warrior.h"
@@ -64,6 +66,7 @@ static void gameGsCreate(void) {
 	warriorsEnableMove(0);
 	ptplayerLoadMod(g_pModCombat, g_pModSamples, 0);
 	ptplayerEnableMusic(1);
+	systemSetDmaBit(DMAB_SPRITE, 1);
 }
 
 static void countdownProcess(void) {
@@ -167,6 +170,7 @@ static void gameGsLoop(void) {
 }
 
 static void gameGsDestroy(void) {
+	systemSetDmaBit(DMAB_SPRITE, 0);
 	bobNewManagerDestroy();
 	warriorsDestroy();
 	ptplayerStop();

@@ -19,6 +19,7 @@ tBitMap *g_pCountdownMask;
 tBitMap *g_pCountdownFrames;
 tBitMap *g_pFightFrames;
 tBitMap *g_pFightMask;
+tBitMap *g_pSpriteThunder;
 
 tPtplayerSfx *g_pSfxNo;
 tPtplayerSfx *g_pSfxSwipes[2];
@@ -41,6 +42,7 @@ void assetsGlobalCreate(void) {
 	g_pFightMask = bitmapCreateFromFile("data/fight_mask.bm", 0);
 
 	g_pTileset = bitmapCreateFromFile("data/tiles.bm", 0);
+	g_pSpriteThunder = bitmapCreateFromFile("data/thunder.bm", 0);
 
 	g_pFontBig = fontCreate("data/menu.fnt");
 	g_pFontSmall = fontCreate("data/uni54.fnt");
@@ -75,6 +77,7 @@ void assetsGlobalDestroy(void) {
 	bitmapDestroy(g_pFightMask);
 
 	bitmapDestroy(g_pTileset);
+	bitmapDestroy(g_pSpriteThunder);
 
 	fontDestroy(g_pFontBig);
 	fontDestroy(g_pFontSmall);
