@@ -40,7 +40,10 @@ void displayCreate(void) {
 		TAG_SIMPLEBUFFER_COPLIST_OFFSET, uwSpriteCopperInstructions,
 	TAG_DONE);
 
-	cameraSetCoord(s_pVpManager->pCamera, DISPLAY_TILE_MARGIN * 16, DISPLAY_TILE_MARGIN * 16);
+	cameraSetCoord(
+		s_pVpManager->pCamera,
+		DISPLAY_TILE_MARGIN * MAP_TILE_SIZE, DISPLAY_TILE_MARGIN * MAP_TILE_SIZE
+	);
 
 	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
 	s_pVp->pPalette[16] = 0xF00;

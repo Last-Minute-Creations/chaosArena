@@ -19,6 +19,7 @@ Game:
 	✔ fix bobs/crumble flickering when going to menu @done(22-10-21 22:15)
 	✔ change to raw copperlist mode @done(22-10-27 14:19)
 	✔ global debug stuff @done(22-10-27 14:23)
+	✔ lower viewport margin to 1 tile, saves 20k chip @done(22-10-28 17:44)
 	☐ add thunder mechanics
 	☐ add initial sprites for showing who is who
 	☐ fade on launch/exit
