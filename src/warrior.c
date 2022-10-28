@@ -42,9 +42,11 @@ typedef struct tFrameOffsets {
 } tFrameOffsets;
 
 typedef struct tThunder {
+	tUwCoordYX sAttackPos; ///< In viewport coords
 	UBYTE ubCooldown;
 	UBYTE ubShownCooldown;
-	tSprite *pSprite;
+	tSprite *pSpriteThunder;
+	tSprite *pSpriteCross;
 } tThunder;
 
 //----------------------------------------------------------------- PRIVATE VARS
@@ -439,8 +441,41 @@ static void warriorProcessState(tWarrior *pWarrior) {
 	}
 }
 
+static void thunderProcessInput(tSteer *pSteer) {
+	steerProcess(pSteer);
+	BYTE bDx = 0, bDy = 0;
+	if(steerDirCheck(pSteer, DIRECTION_LEFT)) {
+		bDx -= 1;
+	}
+	if(steerDirCheck(pSteer, DIRECTION_RIGHT)) {
+		bDx += 1;
+	}
+	if(steerDirCheck(pSteer, DIRECTION_UP)) {
+		bDy -= 1;
+	}
+	if(steerDirCheck(pSteer, DIRECTION_DOWN)) {
+		bDy += 1;
+	}
+
+	if(bDx) {
+		s_sThunder.sAttackPos.uwX = CLAMP(
+			s_sThunder.sAttackPos.uwX + bDx,
+			DISPLAY_MARGIN_SIZE, DISPLAY_WIDTH - DISPLAY_MARGIN_SIZE
+		);
+	}
+	if(bDy) {
+		s_sThunder.sAttackPos.uwY = CLAMP(
+			s_sThunder.sAttackPos.uwY + bDy,
+			DISPLAY_MARGIN_SIZE, DISPLAY_HEIGHT - DISPLAY_MARGIN_SIZE
+		);
+	}
+}
+
 static void warriorProcess(tWarrior *pWarrior) {
 	if(pWarrior->isDead) {
+		if(steerIsPlayer(&pWarrior->sSteer)) {
+			thunderProcessInput(&pWarrior->sSteer);
+		}
 		return;
 	}
 
@@ -502,8 +537,12 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 		}
 	}
 
-	s_sThunder.pSprite = spriteAdd(0, g_pSpriteThunder, 0);
-	spriteEnable(s_sThunder.pSprite, 0);
+	s_sThunder.pSpriteThunder = spriteAdd(0, g_pFramesThunder, 0);
+	s_sThunder.pSpriteCross = spriteAdd(2, g_pFramesCross, 4);
+	spriteEnable(s_sThunder.pSpriteThunder, 0);
+	s_sThunder.sAttackPos.ulYX = (tUwCoordYX){
+		.uwX = DISPLAY_WIDTH / 2, .uwY = DISPLAY_HEIGHT / 2
+	}.ulYX;
 	s_sThunder.ubCooldown = 0;
 	s_sThunder.ubShownCooldown = 0;
 }
@@ -511,34 +550,32 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 void warriorsProcess(void) {
 	if(s_sThunder.ubShownCooldown) {
 		if(--s_sThunder.ubShownCooldown == 0) {
-			spriteEnable(s_sThunder.pSprite, 0);
+			spriteEnable(s_sThunder.pSpriteThunder, 0);
 		}
 	}
 	if(s_sThunder.ubCooldown) {
 		--s_sThunder.ubCooldown;
 	}
 
-	if(keyUse(KEY_U)) {
-		if(!s_sThunder.ubCooldown) {
-			UWORD uwMarginSize = (DISPLAY_TILE_MARGIN * MAP_TILE_SIZE);
-			tUwCoordYX sAttackPos = {
-				.uwX = randUwMinMax(&g_sRandManager, uwMarginSize, DISPLAY_WIDTH - 2 * uwMarginSize),
-				.uwY = randUwMinMax(&g_sRandManager, uwMarginSize, DISPLAY_HEIGHT - 2 * uwMarginSize)
-			};
-			spriteEnable(s_sThunder.pSprite, 1);
-			s_sThunder.pSprite->wX = sAttackPos.uwX - 8 - uwMarginSize;
-			s_sThunder.pSprite->wY = 0;
-			spriteSetHeight(s_sThunder.pSprite, sAttackPos.uwY - uwMarginSize);
-			s_sThunder.ubCooldown = THUNDER_COOLDOWN;
-			s_sThunder.ubShownCooldown = THUNDER_SHOWN_COOLDOWN;
-			warriorAttackWithLightning(sAttackPos);
-		}
-	}
-	spriteUpdate(s_sThunder.pSprite);
-
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		warriorProcess(s_pWarriors[i]);
 	}
+
+	if(!s_sThunder.ubCooldown) {
+		spriteEnable(s_sThunder.pSpriteThunder, 1);
+		s_sThunder.pSpriteThunder->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
+		s_sThunder.pSpriteThunder->wY = 0;
+		spriteSetHeight(s_sThunder.pSpriteThunder, s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE);
+		s_sThunder.ubCooldown = THUNDER_COOLDOWN;
+		s_sThunder.ubShownCooldown = THUNDER_SHOWN_COOLDOWN;
+		warriorAttackWithLightning(s_sThunder.sAttackPos);
+	}
+	spriteUpdate(s_sThunder.pSpriteThunder);
+
+	s_sThunder.pSpriteCross->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
+	s_sThunder.pSpriteCross->wY = s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE - 8;
+	spriteRequestHeaderUpdate(s_sThunder.pSpriteCross);
+	spriteUpdate(s_sThunder.pSpriteCross);
 
 	tWarrior **pPrev = &s_pWarriors[0];
 	for(UBYTE i = 1; i < WARRIOR_COUNT; ++i) {
@@ -555,7 +592,8 @@ void warriorsDestroy(void) {
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		memFree(s_pWarriors[i], sizeof(*s_pWarriors[i]));
 	}
-	spriteRemove(s_sThunder.pSprite);
+	spriteRemove(s_sThunder.pSpriteThunder);
+	spriteRemove(s_sThunder.pSpriteCross);
 }
 
 UBYTE warriorsGetAliveCount(void) {

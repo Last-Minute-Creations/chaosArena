@@ -41,15 +41,18 @@ void displayCreate(void) {
 	TAG_DONE);
 
 	cameraSetCoord(
-		s_pVpManager->pCamera,
-		DISPLAY_TILE_MARGIN * MAP_TILE_SIZE, DISPLAY_TILE_MARGIN * MAP_TILE_SIZE
+		s_pVpManager->pCamera, DISPLAY_MARGIN_SIZE, DISPLAY_MARGIN_SIZE
 	);
 
 	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
-	s_pVp->pPalette[16] = 0xF00;
+	s_pVp->pPalette[16] = 0xF0F; // transparent
 	s_pVp->pPalette[17] = 0x0F0;
-	s_pVp->pPalette[18] = 0xF0F;
+	s_pVp->pPalette[18] = 0x0F0;
 	s_pVp->pPalette[19] = 0x0F0;
+	s_pVp->pPalette[20] = 0xF0F; // transparent
+	s_pVp->pPalette[21] = 0x511;
+	s_pVp->pPalette[22] = 0xA00;
+	s_pVp->pPalette[23] = 0xF11;
 	tilesDrawAllOn(s_pVpManager->pBack);
 	tilesDrawAllOn(s_pVpManager->pFront);
 	debugInit(s_pVp->pPalette[0]);
