@@ -345,6 +345,7 @@ static void warriorKill(tWarrior *pWarrior) {
 	--s_ubAliveCount;
 	if (steerIsPlayer(&pWarrior->sSteer)) {
 		--s_ubAlivePlayerCount;
+		spriteEnable(s_sThunder.pSpriteCross, 1);
 	}
 }
 
@@ -540,41 +541,45 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 	s_sThunder.pSpriteThunder = spriteAdd(0, g_pFramesThunder, 0);
 	s_sThunder.pSpriteCross = spriteAdd(2, g_pFramesCross, 4);
 	spriteEnable(s_sThunder.pSpriteThunder, 0);
+	spriteEnable(s_sThunder.pSpriteCross, 0);
 	s_sThunder.sAttackPos.ulYX = (tUwCoordYX){
 		.uwX = DISPLAY_WIDTH / 2, .uwY = DISPLAY_HEIGHT / 2
 	}.ulYX;
-	s_sThunder.ubCooldown = 0;
+	s_sThunder.ubCooldown = THUNDER_COOLDOWN;
 	s_sThunder.ubShownCooldown = 0;
 }
 
 void warriorsProcess(void) {
-	if(s_sThunder.ubShownCooldown) {
-		if(--s_sThunder.ubShownCooldown == 0) {
-			spriteEnable(s_sThunder.pSpriteThunder, 0);
-		}
-	}
-	if(s_sThunder.ubCooldown) {
-		--s_sThunder.ubCooldown;
-	}
 
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		warriorProcess(s_pWarriors[i]);
 	}
 
-	if(!s_sThunder.ubCooldown) {
-		spriteEnable(s_sThunder.pSpriteThunder, 1);
-		s_sThunder.pSpriteThunder->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
-		s_sThunder.pSpriteThunder->wY = 0;
-		spriteSetHeight(s_sThunder.pSpriteThunder, s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE);
-		s_sThunder.ubCooldown = THUNDER_COOLDOWN;
-		s_sThunder.ubShownCooldown = THUNDER_SHOWN_COOLDOWN;
-		warriorAttackWithLightning(s_sThunder.sAttackPos);
-	}
-	spriteUpdate(s_sThunder.pSpriteThunder);
+	if(s_sThunder.pSpriteCross->isEnabled) {
+		if(s_sThunder.ubShownCooldown) {
+			if(--s_sThunder.ubShownCooldown == 0) {
+				spriteEnable(s_sThunder.pSpriteThunder, 0);
+			}
+		}
+		if(s_sThunder.ubCooldown) {
+			--s_sThunder.ubCooldown;
+		}
+		if(!s_sThunder.ubCooldown) {
+			spriteEnable(s_sThunder.pSpriteThunder, 1);
+			s_sThunder.pSpriteThunder->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
+			s_sThunder.pSpriteThunder->wY = 0;
+			spriteSetHeight(s_sThunder.pSpriteThunder, s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE);
+			s_sThunder.ubCooldown = THUNDER_COOLDOWN;
+			s_sThunder.ubShownCooldown = THUNDER_SHOWN_COOLDOWN;
+			warriorAttackWithLightning(s_sThunder.sAttackPos);
+		}
 
-	s_sThunder.pSpriteCross->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
-	s_sThunder.pSpriteCross->wY = s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE - 8;
-	spriteRequestHeaderUpdate(s_sThunder.pSpriteCross);
+		s_sThunder.pSpriteCross->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
+		s_sThunder.pSpriteCross->wY = s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE - 8;
+		spriteRequestHeaderUpdate(s_sThunder.pSpriteCross);
+	}
+
+	spriteUpdate(s_sThunder.pSpriteThunder);
 	spriteUpdate(s_sThunder.pSpriteCross);
 
 	tWarrior **pPrev = &s_pWarriors[0];

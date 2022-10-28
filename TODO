@@ -20,18 +20,22 @@ Game:
 	✔ change to raw copperlist mode @done(22-10-27 14:19)
 	✔ global debug stuff @done(22-10-27 14:23)
 	✔ lower viewport margin to 1 tile, saves 20k chip @done(22-10-28 17:44)
-	☐ add thunder mechanics
-	☐ add initial sprites for showing who is who
-	☐ fade on launch/exit
-	☐ different offsets of frames, move to 16x16 blits
-	☐ 8 player support
+	✔ add thunder mechanics @done(22-10-28 19:03)
+	☐ proper thunder colors
 	☐ proper crumble gfx
+	☐ different offsets of frames, move to 16x16 blits
+	☐ fade on launch/exit
+	☐ better player selection
+
+Optional:
+	☐ 8 player support
+	☐ add initial sprites for showing who is who
 
 Logo screens:
 	☐ ACE from germz
 	☐ LMC from germz
 
-	Menu:
+Menu:
 	✔ player selection (P1-P6, left-right switches config) @done(22-10-15 17:04)
 	✘ fire enables/disables player @cancelled(22-10-15 17:04)
 	✔ start game @done(22-10-15 20:47)
