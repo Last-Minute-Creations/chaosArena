@@ -4,19 +4,26 @@
 
 #include "display.h"
 #include <ace/managers/viewport/simplebuffer.h>
+#include <ace/managers/system.h>
+#include <ace/managers/sprite.h>
 #include <ace/utils/palette.h>
 #include "tile.h"
+#include "debug.h"
 
 #define GAME_COLORS (1 << DISPLAY_BPP)
 
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pVpManager;
+static UWORD s_pPaletteThunder[8];
 
 void displayCreate(void) {
+	UWORD uwDisplayCopperInstructions = simpleBufferGetRawCopperlistInstructionCount(DISPLAY_BPP);
+	UWORD uwSpriteCopperInstructions = 8 * 2;
 	s_pView = viewCreate(0,
-		TAG_VIEW_COPLIST_MODE, VIEW_COPLIST_MODE_BLOCK,
-		TAG_VIEW_GLOBAL_CLUT, 1,
+		TAG_VIEW_COPLIST_MODE, VIEW_COPLIST_MODE_RAW,
+		TAG_VIEW_COPLIST_RAW_COUNT, uwDisplayCopperInstructions + uwSpriteCopperInstructions + 2,
+		TAG_VIEW_GLOBAL_PALETTE, 1,
 	TAG_DONE);
 
 	s_pVp = vPortCreate(0,
@@ -31,23 +38,47 @@ void displayCreate(void) {
 		TAG_SIMPLEBUFFER_BOUND_WIDTH, DISPLAY_WIDTH,
 		TAG_SIMPLEBUFFER_BOUND_HEIGHT, DISPLAY_HEIGHT,
 		TAG_SIMPLEBUFFER_VPORT, s_pVp,
+		TAG_SIMPLEBUFFER_COPLIST_OFFSET, uwSpriteCopperInstructions,
 	TAG_DONE);
 
-	cameraSetCoord(s_pVpManager->pCamera, DISPLAY_TILE_MARGIN * 16, DISPLAY_TILE_MARGIN * 16);
+	cameraSetCoord(
+		s_pVpManager->pCamera, DISPLAY_MARGIN_SIZE, DISPLAY_MARGIN_SIZE
+	);
 
 	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
+	paletteLoad("data/thunder.plt", s_pPaletteThunder, ARRAY_SIZE(s_pPaletteThunder));
+	s_pVp->pPalette[16] = 0xF0F; // transparent
+	s_pVp->pPalette[17] = 0xFF0; // unused
+	s_pVp->pPalette[18] = 0xFF0; // unused
+	s_pVp->pPalette[19] = s_pPaletteThunder[0];
+	displaySetThunderColor(0);
+	s_pVp->pPalette[20] = 0xF0F; // transparent
+	s_pVp->pPalette[21] = 0x511;
+	s_pVp->pPalette[22] = 0xA00;
+	s_pVp->pPalette[23] = 0xF11;
 	tilesDrawAllOn(s_pVpManager->pBack);
 	tilesDrawAllOn(s_pVpManager->pFront);
+	debugInit(s_pVp->pPalette[0]);
+	spriteManagerCreate(s_pView);
+	copRawDisableSprites(
+		s_pView->pCopList,
+		SPRITE_0 | SPRITE_1 | SPRITE_2 | SPRITE_3 |
+		SPRITE_4 | SPRITE_5 | SPRITE_6 | SPRITE_7, 0
+	);
 }
 
 void displayDestroy(void) {
+	spriteManagerDestroy();
 	viewDestroy(s_pView);
 }
 
 void displayProcess(void) {
 	viewProcessManagers(s_pView);
 	copProcessBlocks();
+	debugReset();
+	systemIdleBegin();
 	vPortWaitForEnd(s_pVp);
+	systemIdleEnd();
 }
 
 void displayOn(void) {
@@ -56,6 +87,10 @@ void displayOn(void) {
 
 void displayOff(void) {
 	viewLoad(0);
+}
+
+void displaySetThunderColor(UBYTE ubColorIndex) {
+	g_pCustom->color[19] = s_pPaletteThunder[ubColorIndex];
 }
 
 tSimpleBufferManager *displayGetManager(void) {

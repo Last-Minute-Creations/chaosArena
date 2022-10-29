@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "warrior.h"
+#include <ace/managers/key.h>
+#include <ace/managers/sprite.h>
 #include "chaos_arena.h"
 #include "assets.h"
 #include "display.h"
@@ -23,6 +25,8 @@
 #define BOB_OFFSET_X (WARRIOR_FRAME_WIDTH / 2)
 #define BOB_OFFSET_Y (WARRIOR_FRAME_HEIGHT)
 #define WARRIOR_PUSH_DELTA 2
+#define THUNDER_ACTIVATE_COOLDOWN 100
+#define THUNDER_COLOR_COOLDOWN 3
 
 // Must be power of 2!
 #define LOOKUP_TILE_SIZE 8
@@ -37,11 +41,21 @@ typedef struct tFrameOffsets {
 	UBYTE *pMask;
 } tFrameOffsets;
 
+typedef struct tThunder {
+	tUwCoordYX sAttackPos; ///< In viewport coords
+	UBYTE ubActivateCooldown;
+	UBYTE ubCurrentColor;
+	UBYTE ubColorCooldown;
+	tSprite *pSpriteThunder;
+	tSprite *pSpriteCross;
+} tThunder;
+
 //----------------------------------------------------------------- PRIVATE VARS
 
 static tWarrior *s_pWarriors[WARRIOR_COUNT];
 static tWarrior *s_pWarriorLookup[LOOKUP_TILE_WIDTH][LOOKUP_TILE_HEIGHT];
 static tFrameOffsets s_pFrameOffsets[ANIM_DIRECTION_COUNT][ANIM_COUNT][MAX_ANIM_FRAMES];
+static tThunder s_sThunder;
 
 static const tAnimDirection s_pDirIdToAnimDir[] = {
 	[DIR_ID(-1, -1)] = ANIM_DIRECTION_NW,
@@ -332,6 +346,7 @@ static void warriorKill(tWarrior *pWarrior) {
 	--s_ubAliveCount;
 	if (steerIsPlayer(&pWarrior->sSteer)) {
 		--s_ubAlivePlayerCount;
+		spriteEnable(s_sThunder.pSpriteCross, 1);
 	}
 }
 
@@ -428,8 +443,41 @@ static void warriorProcessState(tWarrior *pWarrior) {
 	}
 }
 
+static void thunderProcessInput(tSteer *pSteer) {
+	steerProcess(pSteer);
+	BYTE bDx = 0, bDy = 0;
+	if(steerDirCheck(pSteer, DIRECTION_LEFT)) {
+		bDx -= 1;
+	}
+	if(steerDirCheck(pSteer, DIRECTION_RIGHT)) {
+		bDx += 1;
+	}
+	if(steerDirCheck(pSteer, DIRECTION_UP)) {
+		bDy -= 1;
+	}
+	if(steerDirCheck(pSteer, DIRECTION_DOWN)) {
+		bDy += 1;
+	}
+
+	if(bDx) {
+		s_sThunder.sAttackPos.uwX = CLAMP(
+			s_sThunder.sAttackPos.uwX + bDx,
+			DISPLAY_MARGIN_SIZE, DISPLAY_WIDTH - DISPLAY_MARGIN_SIZE
+		);
+	}
+	if(bDy) {
+		s_sThunder.sAttackPos.uwY = CLAMP(
+			s_sThunder.sAttackPos.uwY + bDy,
+			DISPLAY_MARGIN_SIZE, DISPLAY_HEIGHT - DISPLAY_MARGIN_SIZE
+		);
+	}
+}
+
 static void warriorProcess(tWarrior *pWarrior) {
 	if(pWarrior->isDead) {
+		if(steerIsPlayer(&pWarrior->sSteer)) {
+			thunderProcessInput(&pWarrior->sSteer);
+		}
 		return;
 	}
 
@@ -490,12 +538,56 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 			warriorGetNearPos(s_pWarriors[i]->sPos.uwX, 0, s_pWarriors[i]->sPos.uwY, 0);
 		}
 	}
+
+	s_sThunder.pSpriteThunder = spriteAdd(0, g_pFramesThunder, 0);
+	s_sThunder.pSpriteCross = spriteAdd(2, g_pFramesCross, 4);
+	spriteEnable(s_sThunder.pSpriteThunder, 0);
+	spriteEnable(s_sThunder.pSpriteCross, 0);
+	s_sThunder.sAttackPos.ulYX = (tUwCoordYX){
+		.uwX = DISPLAY_WIDTH / 2, .uwY = DISPLAY_HEIGHT / 2
+	}.ulYX;
+	s_sThunder.ubActivateCooldown = THUNDER_ACTIVATE_COOLDOWN;
+	s_sThunder.ubCurrentColor = 0;
+	s_sThunder.ubColorCooldown = 0;
 }
 
 void warriorsProcess(void) {
+
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		warriorProcess(s_pWarriors[i]);
 	}
+
+	if(s_sThunder.pSpriteCross->isEnabled) {
+		if(s_sThunder.ubColorCooldown) {
+			if(--s_sThunder.ubColorCooldown == 0) {
+				if(++s_sThunder.ubCurrentColor < 8) {
+					s_sThunder.ubColorCooldown = THUNDER_COLOR_COOLDOWN;
+					displaySetThunderColor(s_sThunder.ubCurrentColor);
+				}
+				else {
+					spriteEnable(s_sThunder.pSpriteThunder, 0);
+				}
+			}
+		}
+		if(--s_sThunder.ubActivateCooldown == 0) {
+			spriteEnable(s_sThunder.pSpriteThunder, 1);
+			s_sThunder.pSpriteThunder->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
+			s_sThunder.pSpriteThunder->wY = 0;
+			spriteSetHeight(s_sThunder.pSpriteThunder, s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE);
+			s_sThunder.ubActivateCooldown = THUNDER_ACTIVATE_COOLDOWN;
+			warriorAttackWithLightning(s_sThunder.sAttackPos);
+			s_sThunder.ubCurrentColor = 0;
+			displaySetThunderColor(0);
+			s_sThunder.ubColorCooldown = THUNDER_COLOR_COOLDOWN;
+		}
+
+		s_sThunder.pSpriteCross->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
+		s_sThunder.pSpriteCross->wY = s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE - 8;
+		spriteRequestHeaderUpdate(s_sThunder.pSpriteCross);
+	}
+
+	spriteUpdate(s_sThunder.pSpriteThunder);
+	spriteUpdate(s_sThunder.pSpriteCross);
 
 	tWarrior **pPrev = &s_pWarriors[0];
 	for(UBYTE i = 1; i < WARRIOR_COUNT; ++i) {
@@ -512,6 +604,8 @@ void warriorsDestroy(void) {
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		memFree(s_pWarriors[i], sizeof(*s_pWarriors[i]));
 	}
+	spriteRemove(s_sThunder.pSpriteThunder);
+	spriteRemove(s_sThunder.pSpriteCross);
 }
 
 UBYTE warriorsGetAliveCount(void) {
@@ -533,6 +627,38 @@ UBYTE warriorsGetLastAliveIndex(void) {
 
 void warriorsEnableMove(UBYTE isEnabled) {
 	s_isMoveEnabled = isEnabled;
+}
+
+void warriorAttackWithLightning(tUwCoordYX sAttackPos) {
+	tWarrior *pTarget;
+
+	pTarget = warriorGetNearPos(sAttackPos.uwX, 0, sAttackPos.uwY, 0);
+	if(pTarget && isPositionCollidingWithWarrior(sAttackPos, pTarget)) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
+		return;
+	}
+
+	pTarget = warriorGetNearPos(sAttackPos.uwX, 1, sAttackPos.uwY, 0);
+	if(pTarget && isPositionCollidingWithWarrior(sAttackPos, pTarget)) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
+		return;
+	}
+
+	pTarget = warriorGetNearPos(sAttackPos.uwX, 0, sAttackPos.uwY, 1);
+	if(pTarget && isPositionCollidingWithWarrior(sAttackPos, pTarget)) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
+		return;
+	}
+
+	pTarget = warriorGetNearPos(sAttackPos.uwX, 1, sAttackPos.uwY, 1);
+	if(pTarget && isPositionCollidingWithWarrior(sAttackPos, pTarget)) {
+		warriorSetAnim(pTarget, ANIM_HURT);
+		pTarget->sPushDelta = g_pAnimDirToPushDelta[randUw(&g_sRandManager) & 7];
+		return;
+	}
 }
 
 tWarrior *warriorGetStrikeTarget(

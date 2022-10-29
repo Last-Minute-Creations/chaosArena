@@ -22,6 +22,8 @@ extern tBitMap *g_pFightFrames;
 extern tBitMap *g_pFightMask;
 
 extern tBitMap *g_pTileset;
+extern tBitMap *g_pFramesThunder;
+extern tBitMap *g_pFramesCross;
 
 extern tFont *g_pFontBig;
 extern tFont *g_pFontSmall;

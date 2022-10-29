@@ -57,9 +57,10 @@ set(RES_DIR ${CMAKE_CURRENT_LIST_DIR}/res)
 set(DATA_DIR ${CMAKE_CURRENT_BINARY_DIR}/data)
 set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(WARRIOR_DIR ${GEN_DIR}/warrior)
-file(MAKE_DIRECTORY ${DATA_DIR} ${GEN_DIR} ${WARRIOR_DIR})
+set(THUNDER_DIR ${GEN_DIR}/thunder)
+file(MAKE_DIRECTORY ${DATA_DIR} ${GEN_DIR} ${WARRIOR_DIR} ${THUNDER_DIR})
 
-# Assets
+# Fonts
 convertFont(
 	TARGET ${GAME_EXECUTABLE} FIRST_CHAR 32
 	SOURCE ${RES_DIR}/font.png DESTINATION ${DATA_DIR}/menu.fnt
@@ -69,6 +70,7 @@ convertFont(
 	SOURCE ${RES_DIR}/font_uni54.png DESTINATION ${DATA_DIR}/uni54.fnt
 )
 
+# Warrior frames
 SET(X_SPACING 16)
 SET(Y_SPACING 13)
 SET(FRAME_WIDTH 16)
@@ -90,29 +92,54 @@ foreach(direction RANGE 7)
 	endforeach()
 endforeach()
 
+# Tiles
 convertTileset(
 	TARGET ${GAME_EXECUTABLE} SIZE 16 HEIGHT 19
 	SOURCE ${WARRIOR_DIR} DESTINATION ${GEN_DIR}/warrior.png
 	TILE_PATHS ${warriorFrames}
 )
+
+# Thunder
+extractBitmaps(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/thunder.png
+	DESTINATIONS
+		${THUNDER_DIR}/0.png 0 0 16 258
+		${THUNDER_DIR}/1.png 16 0 16 258
+	GENERATED_FILE_LIST thunderFrames
+)
+convertTileset(
+	TARGET ${GAME_EXECUTABLE} SIZE 16 HEIGHT 258
+	SOURCE ${THUNDER_DIR} DESTINATION ${GEN_DIR}/thunder.png
+	TILE_PATHS ${thunderFrames}
+)
+
+# Converting bimaps
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
-	PALETTE ${RES_DIR}/chaos_arena.gpl
+	PALETTE ${RES_DIR}/chaos_arena.pal
 	MASK_COLOR "#FF00FF"
 	INTERLEAVED SOURCES ${GEN_DIR}/warrior.png ${RES_DIR}/countdown.png ${RES_DIR}/fight.png
 	DESTINATIONS ${DATA_DIR}/warrior.bm ${DATA_DIR}/countdown.bm ${DATA_DIR}/fight.bm
 	MASKS ${DATA_DIR}/warrior_mask.bm ${DATA_DIR}/countdown_mask.bm ${DATA_DIR}/fight_mask.bm
 )
-
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
-	PALETTE ${RES_DIR}/chaos_arena.gpl
+	PALETTE ${RES_DIR}/chaos_arena.pal
 	INTERLEAVED SOURCES ${RES_DIR}/tiles.png
 	DESTINATIONS ${DATA_DIR}/tiles.bm
 )
+convertBitmaps(
+	TARGET ${GAME_EXECUTABLE}
+	PALETTE ${RES_DIR}/cross.gpl
+	INTERLEAVED SOURCES ${GEN_DIR}/thunder.png ${RES_DIR}/cross.png
+	DESTINATIONS ${DATA_DIR}/thunder.bm ${DATA_DIR}/cross.bm
+)
 
 convertPalette(
-	${GAME_EXECUTABLE} ${RES_DIR}/chaos_arena.gpl ${DATA_DIR}/palette.plt
+	${GAME_EXECUTABLE} ${RES_DIR}/chaos_arena.pal ${DATA_DIR}/palette.plt
+)
+convertPalette(
+	${GAME_EXECUTABLE} ${RES_DIR}/thunder.pal ${DATA_DIR}/thunder.plt
 )
 
 convertAudio(
@@ -157,15 +184,13 @@ mergeMods(
 	DESTINATIONS ${DATA_DIR}/charena_menu.mod ${DATA_DIR}/charena_game.mod
 	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
 )
-# FILE(COPY ${RES_DIR}/charena2.mod DESTINATION ${DATA_DIR})
-
 
 # Generating ZIP
-set(GAME_ZIP_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")
+set(GAME_PACKAGE_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")
 add_custom_target(generateZip COMMAND
-	${CMAKE_COMMAND} -E tar "cf" "${GAME_ZIP_NAME}.zip" --format=zip
+	${CMAKE_COMMAND} -E tar "cf" "${GAME_PACKAGE_NAME}.zip" --format=zip
 	"${CMAKE_CURRENT_BINARY_DIR}/${GAME_OUTPUT_EXECUTABLE}" "${DATA_DIR}"
-	COMMENT "Generating ${GAME_ZIP_NAME}.zip"
+	COMMENT "Generating ZIP file ${GAME_PACKAGE_NAME}.zip"
 )
 
 # Generating ADF
@@ -175,7 +200,7 @@ add_custom_target(generateAdf
 	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${GAME_OUTPUT_EXECUTABLE}" "${ADF_DIR}"
 	COMMAND ${CMAKE_COMMAND} -E copy_directory "${DATA_DIR}" "${ADF_DIR}/data"
 	COMMAND ${CMAKE_COMMAND} -E echo "${GAME_OUTPUT_EXECUTABLE}" > "${ADF_DIR}/s/startup-sequence"
-	COMMAND exe2adf -l ${CMAKE_PROJECT_NAME} -a "${CMAKE_PROJECT_NAME}.adf" -d ${ADF_DIR}
+	COMMAND exe2adf -l ${CMAKE_PROJECT_NAME} -a "${GAME_PACKAGE_NAME}.adf" -d ${ADF_DIR}
 	COMMAND ${CMAKE_COMMAND} -E rm -rf "${ADF_DIR}"
-	COMMENT "Generating ADF file"
+	COMMENT "Generating ADF file ${GAME_PACKAGE_NAME}.adf"
 )

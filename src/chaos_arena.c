@@ -11,6 +11,7 @@
 #include "assets.h"
 #include "menu.h"
 #include "tile.h"
+#include "debug.h"
 
 tStateManager *g_pStateMachineGame;
 tRandManager g_sRandManager;
@@ -33,10 +34,17 @@ void genericCreate(void) {
 }
 
 void genericProcess(void) {
+	debugSetColor(0x333);
 	ptplayerProcess();
 	keyProcess();
 	joyProcess();
+
+	if (keyUse(KEY_F1)) {
+		debugToggle();
+	}
+
 	stateProcess(g_pStateMachineGame);
+	debugSetColor(0xf00);
 	displayProcess();
 }
 
