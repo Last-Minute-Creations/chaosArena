@@ -122,7 +122,7 @@ static tMenuListOption s_pMenuMainOptions[] = {
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onCredits}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onExit}},
 };
-#define MENU_MAIN_OPTION_COUNT (sizeof(s_pMenuMainOptions) / sizeof(s_pMenuMainOptions[0]))
+#define MENU_MAIN_OPTION_COUNT ARRAY_SIZE(s_pMenuMainOptions)
 
 static const char *s_pMenuMainCaptions[MENU_MAIN_OPTION_COUNT] = {
 	"BEGIN CHAOS",
@@ -141,7 +141,7 @@ static tMenuListOption s_pMenuSummaryOptions[] = {
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onContinue}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onGoToMain}}
 };
-#define MENU_SUMMARY_OPTION_COUNT (sizeof(s_pMenuSummaryOptions) / sizeof(s_pMenuSummaryOptions[0]))
+#define MENU_SUMMARY_OPTION_COUNT ARRAY_SIZE(s_pMenuSummaryOptions)
 
 static const char *s_pMenuSummaryCaptions[MENU_SUMMARY_OPTION_COUNT] = {
 	"CONTINUE CHAOS",
@@ -166,7 +166,7 @@ static const char *s_pCreditsLines[] = {
 	"",
 	"Thanks for playing!"
 };
-#define MENU_CREDITS_LINE_COUNT (sizeof(s_pCreditsLines) / sizeof(s_pCreditsLines[0]))
+#define MENU_CREDITS_LINE_COUNT ARRAY_SIZE(s_pCreditsLines)
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -242,7 +242,8 @@ static void menuDrawPage(tMenuPage ePage) {
 			if(!stringIsEmpty(s_pCreditsLines[ubLine])) {
 				fontDrawStr(
 					g_pFontSmall, s_pMenuBitmap, 5, uwY, s_pCreditsLines[ubLine],
-					MENU_COLOR_ACTIVE, FONT_COOKIE | FONT_SHADOW, g_pTextBitmap
+					s_pCreditsLines[ubLine][0] == ' ' ? MENU_COLOR_INACTIVE : MENU_COLOR_TITLE,
+					FONT_COOKIE | FONT_SHADOW, g_pTextBitmap
 				);
 			}
 			uwY += ubLineHeight;
@@ -304,42 +305,52 @@ static void menuGsLoop(void) {
 		return;
 	}
 
-	if(keyUse(KEY_RETURN)) {
-		if(s_eCurrentPage == MENU_PAGE_CREDITS) {
-			menuNavigateToPage(MENU_PAGE_MAIN);
-		}
-		else {
-			menuListEnter();
-		}
-		return;
-	}
-
+	UBYTE isNavigatingUpDown = 0;
+	UBYTE isNavigatingToggle = 0;
 	for(UBYTE ubPlayer = 0; ubPlayer < PLAYER_MAX_COUNT; ++ubPlayer) {
 		tSteer *pSteer = &s_pMenuSteers[ubPlayer];
 		steerProcess(pSteer);
 		if(s_eCurrentPage == MENU_PAGE_CREDITS) {
-			if(steerDirUse(pSteer, DIRECTION_FIRE)) {
+			if(steerDirUse(pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
+				ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
 				menuNavigateToPage(MENU_PAGE_MAIN);
+				return;
 			}
 		}
 		else {
 			if(steerDirUse(pSteer, DIRECTION_UP)) {
-				menuListNavigate(-1);
+				isNavigatingUpDown |= menuListNavigate(-1);
 			}
 			else if(steerDirUse(pSteer, DIRECTION_DOWN)) {
-				menuListNavigate(+1);
+				isNavigatingUpDown |= menuListNavigate(+1);
 			}
 			else if(steerDirUse(pSteer, DIRECTION_LEFT)) {
-				menuListToggle(-1);
+				isNavigatingToggle |= menuListToggle(-1);
 			}
 			else if(steerDirUse(pSteer, DIRECTION_RIGHT)) {
-				menuListToggle(+1);
+				isNavigatingToggle |= menuListToggle(+1);
 			}
-			else if (steerDirUse(pSteer, DIRECTION_FIRE)) {
-				menuListEnter();
-				return;
+			else if (steerDirUse(pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
+				const tMenuListOption *pOption = &s_pMenuMainOptions[menuListGetActive()];
+				if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
+					if(pOption->sOptCb.cbSelect == onExit) {
+						ptplayerSfxPlay(g_pSfxNo, 3, PTPLAYER_VOLUME_MAX, 15);
+					}
+					else {
+						ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
+					}
+					menuListEnter();
+					return;
+				}
 			}
 		}
+	}
+
+	if(isNavigatingToggle) {
+		ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
+	}
+	else if(isNavigatingUpDown) {
+		ptplayerSfxPlay(g_pSfxSwipes[0], 3, PTPLAYER_VOLUME_MAX, 5);
 	}
 
 	if(s_eCurrentPage != MENU_PAGE_CREDITS) {
@@ -362,10 +373,12 @@ static void onStart(void) {
 	for(UBYTE i = 0; i < PLAYER_MAX_COUNT; ++i) {
 		s_pScores[i] = 0;
 	}
+	ptplayerWaitForSfx();
 	stateChange(g_pStateMachineGame, &g_sStateGame);
 }
 
 static void onExit(void) {
+	ptplayerWaitForSfx();
 	gameExit();
 }
 

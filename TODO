@@ -21,7 +21,7 @@ Game:
 	✔ global debug stuff @done(22-10-27 14:23)
 	✔ lower viewport margin to 1 tile, saves 20k chip @done(22-10-28 17:44)
 	✔ add thunder mechanics @done(22-10-28 19:03)
-	☐ proper thunder colors
+	✔ proper thunder colors @done(22-10-29 17:57)
 	☐ proper crumble gfx
 	☐ different offsets of frames, move to 16x16 blits
 	☐ fade on launch/exit
