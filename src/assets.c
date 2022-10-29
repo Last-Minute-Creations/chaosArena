@@ -37,8 +37,8 @@ static ULONG s_ulSampleSize;
 void assetsGlobalCreate(void) {
 	g_pWarriorFrames = bitmapCreateFromFile("data/warrior.bm", 0);
 	g_pWarriorMasks = bitmapCreateFromFile("data/warrior_mask.bm", 0);
-	g_pCountdownMask = bitmapCreateFromFile("data/countdown.bm", 0);
-	g_pCountdownFrames = bitmapCreateFromFile("data/countdown_mask.bm", 0);
+	g_pCountdownFrames = bitmapCreateFromFile("data/countdown.bm", 0);
+	g_pCountdownMask = bitmapCreateFromFile("data/countdown_mask.bm", 0);
 	g_pFightFrames = bitmapCreateFromFile("data/fight.bm", 0);
 	g_pFightMask = bitmapCreateFromFile("data/fight_mask.bm", 0);
 
