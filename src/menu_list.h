@@ -81,8 +81,10 @@ UBYTE menuListEnter(void);
 
 void menuListHidePos(UBYTE ubPos, UBYTE isHidden);
 
-UBYTE menuListGetActive(void);
+tMenuListOption *menuListGetActiveOption(void);
 
-void menuListSetActive(UBYTE ubNewPos);
+UBYTE menuListGetActiveIndex(void);
+
+void menuListSetActiveIndex(UBYTE ubNewPos);
 
 #endif // INCLUDE_MENU_LIST_H

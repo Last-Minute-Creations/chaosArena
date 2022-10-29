@@ -331,7 +331,7 @@ static void menuGsLoop(void) {
 				isNavigatingToggle |= menuListToggle(+1);
 			}
 			else if (steerDirUse(pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
-				const tMenuListOption *pOption = &s_pMenuMainOptions[menuListGetActive()];
+				const tMenuListOption *pOption = menuListGetActiveOption();
 				if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
 					if(pOption->sOptCb.cbSelect == onExit) {
 						ptplayerSfxPlay(g_pSfxNo, 3, PTPLAYER_VOLUME_MAX, 15);

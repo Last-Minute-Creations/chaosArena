@@ -101,7 +101,7 @@ UBYTE menuListNavigate(BYTE bDir) {
 	}
 
 	// Update active pos and mark as dirty
-	menuListSetActive(wNewPos);
+	menuListSetActiveIndex(wNewPos);
 	return 1;
 }
 
@@ -158,11 +158,15 @@ void menuListUndraw(void) {
 	}
 }
 
-UBYTE menuListGetActive(void) {
+tMenuListOption *menuListGetActiveOption(void) {
+	return &s_pOptions[s_ubActiveOption];
+}
+
+UBYTE menuListGetActiveIndex(void) {
 	return s_ubActiveOption;
 }
 
-void menuListSetActive(UBYTE ubNewPos) {
+void menuListSetActiveIndex(UBYTE ubNewPos) {
 	s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_SELECTION;
 	s_pOptions[ubNewPos].eDirty = MENU_LIST_DIRTY_SELECTION;
 	s_ubActiveOption = ubNewPos;
