@@ -181,15 +181,13 @@ mergeMods(
 	DESTINATIONS ${DATA_DIR}/charena_menu.mod ${DATA_DIR}/charena_game.mod
 	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
 )
-# FILE(COPY ${RES_DIR}/charena2.mod DESTINATION ${DATA_DIR})
-
 
 # Generating ZIP
-set(GAME_ZIP_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")
+set(GAME_PACKAGE_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")
 add_custom_target(generateZip COMMAND
-	${CMAKE_COMMAND} -E tar "cf" "${GAME_ZIP_NAME}.zip" --format=zip
+	${CMAKE_COMMAND} -E tar "cf" "${GAME_PACKAGE_NAME}.zip" --format=zip
 	"${CMAKE_CURRENT_BINARY_DIR}/${GAME_OUTPUT_EXECUTABLE}" "${DATA_DIR}"
-	COMMENT "Generating ${GAME_ZIP_NAME}.zip"
+	COMMENT "Generating ZIP file ${GAME_PACKAGE_NAME}.zip"
 )
 
 # Generating ADF
@@ -199,7 +197,7 @@ add_custom_target(generateAdf
 	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${GAME_OUTPUT_EXECUTABLE}" "${ADF_DIR}"
 	COMMAND ${CMAKE_COMMAND} -E copy_directory "${DATA_DIR}" "${ADF_DIR}/data"
 	COMMAND ${CMAKE_COMMAND} -E echo "${GAME_OUTPUT_EXECUTABLE}" > "${ADF_DIR}/s/startup-sequence"
-	COMMAND exe2adf -l ${CMAKE_PROJECT_NAME} -a "${CMAKE_PROJECT_NAME}.adf" -d ${ADF_DIR}
+	COMMAND exe2adf -l ${CMAKE_PROJECT_NAME} -a "${GAME_PACKAGE_NAME}.adf" -d ${ADF_DIR}
 	COMMAND ${CMAKE_COMMAND} -E rm -rf "${ADF_DIR}"
-	COMMENT "Generating ADF file"
+	COMMENT "Generating ADF file ${GAME_PACKAGE_NAME}.adf"
 )
