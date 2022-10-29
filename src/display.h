@@ -26,4 +26,6 @@ void displayOff(void);
 
 tSimpleBufferManager *displayGetManager(void);
 
+void displaySetThunderColor(UBYTE ubColorIndex);
+
 #endif // INCLUDE_DISPLAY_H

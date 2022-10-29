@@ -15,6 +15,7 @@
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pVpManager;
+static UWORD s_pPaletteThunder[8];
 
 void displayCreate(void) {
 	UWORD uwDisplayCopperInstructions = simpleBufferGetRawCopperlistInstructionCount(DISPLAY_BPP);
@@ -45,10 +46,12 @@ void displayCreate(void) {
 	);
 
 	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
+	paletteLoad("data/thunder.plt", s_pPaletteThunder, ARRAY_SIZE(s_pPaletteThunder));
 	s_pVp->pPalette[16] = 0xF0F; // transparent
-	s_pVp->pPalette[17] = 0x0F0;
-	s_pVp->pPalette[18] = 0x0F0;
-	s_pVp->pPalette[19] = 0x0F0;
+	s_pVp->pPalette[17] = 0xFF0; // unused
+	s_pVp->pPalette[18] = 0xFF0; // unused
+	s_pVp->pPalette[19] = s_pPaletteThunder[0];
+	displaySetThunderColor(0);
 	s_pVp->pPalette[20] = 0xF0F; // transparent
 	s_pVp->pPalette[21] = 0x511;
 	s_pVp->pPalette[22] = 0xA00;
@@ -84,6 +87,10 @@ void displayOn(void) {
 
 void displayOff(void) {
 	viewLoad(0);
+}
+
+void displaySetThunderColor(UBYTE ubColorIndex) {
+	g_pCustom->color[19] = s_pPaletteThunder[ubColorIndex];
 }
 
 tSimpleBufferManager *displayGetManager(void) {

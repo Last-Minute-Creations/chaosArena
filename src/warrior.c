@@ -25,8 +25,8 @@
 #define BOB_OFFSET_X (WARRIOR_FRAME_WIDTH / 2)
 #define BOB_OFFSET_Y (WARRIOR_FRAME_HEIGHT)
 #define WARRIOR_PUSH_DELTA 2
-#define THUNDER_COOLDOWN 100
-#define THUNDER_SHOWN_COOLDOWN 20
+#define THUNDER_ACTIVATE_COOLDOWN 100
+#define THUNDER_COLOR_COOLDOWN 3
 
 // Must be power of 2!
 #define LOOKUP_TILE_SIZE 8
@@ -43,8 +43,9 @@ typedef struct tFrameOffsets {
 
 typedef struct tThunder {
 	tUwCoordYX sAttackPos; ///< In viewport coords
-	UBYTE ubCooldown;
-	UBYTE ubShownCooldown;
+	UBYTE ubActivateCooldown;
+	UBYTE ubCurrentColor;
+	UBYTE ubColorCooldown;
 	tSprite *pSpriteThunder;
 	tSprite *pSpriteCross;
 } tThunder;
@@ -545,8 +546,9 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 	s_sThunder.sAttackPos.ulYX = (tUwCoordYX){
 		.uwX = DISPLAY_WIDTH / 2, .uwY = DISPLAY_HEIGHT / 2
 	}.ulYX;
-	s_sThunder.ubCooldown = THUNDER_COOLDOWN;
-	s_sThunder.ubShownCooldown = 0;
+	s_sThunder.ubActivateCooldown = THUNDER_ACTIVATE_COOLDOWN;
+	s_sThunder.ubCurrentColor = 0;
+	s_sThunder.ubColorCooldown = 0;
 }
 
 void warriorsProcess(void) {
@@ -556,22 +558,27 @@ void warriorsProcess(void) {
 	}
 
 	if(s_sThunder.pSpriteCross->isEnabled) {
-		if(s_sThunder.ubShownCooldown) {
-			if(--s_sThunder.ubShownCooldown == 0) {
-				spriteEnable(s_sThunder.pSpriteThunder, 0);
+		if(s_sThunder.ubColorCooldown) {
+			if(--s_sThunder.ubColorCooldown == 0) {
+				if(++s_sThunder.ubCurrentColor < 8) {
+					s_sThunder.ubColorCooldown = THUNDER_COLOR_COOLDOWN;
+					displaySetThunderColor(s_sThunder.ubCurrentColor);
+				}
+				else {
+					spriteEnable(s_sThunder.pSpriteThunder, 0);
+				}
 			}
 		}
-		if(s_sThunder.ubCooldown) {
-			--s_sThunder.ubCooldown;
-		}
-		if(!s_sThunder.ubCooldown) {
+		if(--s_sThunder.ubActivateCooldown == 0) {
 			spriteEnable(s_sThunder.pSpriteThunder, 1);
 			s_sThunder.pSpriteThunder->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
 			s_sThunder.pSpriteThunder->wY = 0;
 			spriteSetHeight(s_sThunder.pSpriteThunder, s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE);
-			s_sThunder.ubCooldown = THUNDER_COOLDOWN;
-			s_sThunder.ubShownCooldown = THUNDER_SHOWN_COOLDOWN;
+			s_sThunder.ubActivateCooldown = THUNDER_ACTIVATE_COOLDOWN;
 			warriorAttackWithLightning(s_sThunder.sAttackPos);
+			s_sThunder.ubCurrentColor = 0;
+			displaySetThunderColor(0);
+			s_sThunder.ubColorCooldown = THUNDER_COLOR_COOLDOWN;
 		}
 
 		s_sThunder.pSpriteCross->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;

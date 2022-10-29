@@ -138,6 +138,9 @@ convertBitmaps(
 convertPalette(
 	${GAME_EXECUTABLE} ${RES_DIR}/chaos_arena.pal ${DATA_DIR}/palette.plt
 )
+convertPalette(
+	${GAME_EXECUTABLE} ${RES_DIR}/thunder.pal ${DATA_DIR}/thunder.plt
+)
 
 convertAudio(
 	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/bricks.wav
