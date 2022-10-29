@@ -15,4 +15,6 @@ tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex);
 
 UBYTE menuIsExtraEnemiesEnabled(void);
 
+UBYTE menuAreThundersEnabled(void);
+
 #endif // INCLUDE_MENU_H

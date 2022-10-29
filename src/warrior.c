@@ -346,7 +346,9 @@ static void warriorKill(tWarrior *pWarrior) {
 	--s_ubAliveCount;
 	if (steerIsPlayer(&pWarrior->sSteer)) {
 		--s_ubAlivePlayerCount;
-		spriteEnable(s_sThunder.pSpriteCross, 1);
+		if(menuAreThundersEnabled()) {
+			spriteEnable(s_sThunder.pSpriteCross, 1);
+		}
 	}
 }
 

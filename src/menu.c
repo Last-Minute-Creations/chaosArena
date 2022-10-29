@@ -70,6 +70,7 @@ static UBYTE s_pPlayerSteerKinds[PLAYER_MAX_COUNT] = {
 	STEER_KIND_OFF, STEER_KIND_OFF, STEER_KIND_OFF
 };
 static UBYTE s_ubExtraEnemies = 0;
+static UBYTE s_ubThunders = 0;
 static tSteer s_pMenuSteers[PLAYER_MAX_COUNT];
 static UBYTE s_pScores[PLAYER_MAX_COUNT];
 static UBYTE s_ubLastDrawEnd[2];
@@ -119,6 +120,10 @@ static tMenuListOption s_pMenuMainOptions[] = {
 		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_ubExtraEnemies,
 		.ubMin = 0, .ubMax = 1
 	}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
+		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_ubThunders,
+		.ubMin = 0, .ubMax = 1
+	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onCredits}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onExit}},
 };
@@ -133,6 +138,7 @@ static const char *s_pMenuMainCaptions[MENU_MAIN_OPTION_COUNT] = {
 	"Player 5",
 	"Player 6",
 	"Extra enemies",
+	"Thunders",
 	"Credits",
 	"Exit",
 };
@@ -453,6 +459,10 @@ void menuSetupSummary(UBYTE ubWinnerIndex) {
 
 UBYTE menuIsExtraEnemiesEnabled(void) {
 	return s_ubExtraEnemies;
+}
+
+UBYTE menuAreThundersEnabled(void) {
+	return s_ubThunders;
 }
 
 //------------------------------------------------------------------ PUBLIC VARS
