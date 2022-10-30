@@ -84,7 +84,7 @@ static const UBYTE s_pFrameCountForAnim[ANIM_COUNT] = {
 	[ANIM_IDLE] = 2,
 	[ANIM_WALK] = 2,
 	[ANIM_ATTACK] = 4,
-	[ANIM_HURT] = 4,
+	[ANIM_HURT] = 3,
 	[ANIM_FALLING] = 1,
 };
 

@@ -23,9 +23,9 @@ Game:
 	✔ add thunder mechanics @done(22-10-28 19:03)
 	✔ proper thunder colors @done(22-10-29 17:57)
 	☐ proper crumble gfx
+	☐ better player selection
 	☐ different offsets of frames, move to 16x16 blits
 	☐ fade on launch/exit
-	☐ better player selection
 	☐ thunder sfx
 
 Optional:

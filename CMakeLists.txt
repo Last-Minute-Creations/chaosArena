@@ -78,10 +78,10 @@ SET(FRAME_HEIGHT 19)
 foreach(direction RANGE 7)
 	SET(warriorFrames "")
 	file(MAKE_DIRECTORY ${WARRIOR_DIR})
-	foreach(anim RANGE 11)
+	foreach(anim RANGE 10)
 		MATH(EXPR posX "8 + ${anim} * (${FRAME_WIDTH} + ${X_SPACING})")
 		MATH(EXPR posY "5 + ${direction} * (${FRAME_HEIGHT} + ${Y_SPACING})")
-		MATH(EXPR frameIndex "12 * ${direction} + ${anim}")
+		MATH(EXPR frameIndex "11 * ${direction} + ${anim}")
 		extractBitmaps(
 			TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/warrior.png
 			DESTINATIONS
