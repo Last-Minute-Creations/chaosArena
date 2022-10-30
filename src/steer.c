@@ -90,7 +90,7 @@ static void onAi(tSteer *pSteer) {
 	}
 
 	// Unpress the previous action
-	if(pSteer->ePrevDirection != DIRECTION_COUNT && pSteer->ePrevDirection != eDir) {
+	if(pSteer->ePrevDirection != eDir && pSteer->ePrevDirection != DIRECTION_COUNT) {
 		// logWrite("Releasing dir %hhu\n", pAi->ePrevDir);
 		pSteer->pDirectionStates[pSteer->ePrevDirection] = STEER_DIR_STATE_INACTIVE;
 	}

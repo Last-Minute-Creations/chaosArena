@@ -5,6 +5,8 @@
 #ifndef INCLUDE_GAME_H
 #define INCLUDE_GAME_H
 
-#include <ace/managers/state.h>
+#include <ace/types.h>
+
+UBYTE gameIsCountdownActive(void);
 
 #endif // INCLUDE_GAME_H

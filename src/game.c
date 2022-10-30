@@ -176,6 +176,10 @@ static void gameGsDestroy(void) {
 	ptplayerStop();
 }
 
+UBYTE gameIsCountdownActive(void) {
+	return s_eCountdownPhase != COUNTDOWN_PHASE_OFF;
+}
+
 tState g_sStateGame = {
 	.cbCreate = gameGsCreate, .cbLoop = gameGsLoop, .cbDestroy = gameGsDestroy
 };

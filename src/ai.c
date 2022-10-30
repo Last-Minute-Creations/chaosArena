@@ -2,6 +2,7 @@
 #include "tile.h"
 #include "chaos_arena.h"
 #include "warrior.h"
+#include "game.h"
 
 #define AI_MOVEMENT_COOLDOWN 50
 
@@ -44,6 +45,10 @@ UBYTE aiIsEnemyNearInCurrentScanDirection(tAi *pAi) {
 }
 
 tDirection aiProcess(tAi *pAi) {
+	if(gameIsCountdownActive()) {
+		return DIRECTION_COUNT;
+	}
+
 	// Don't do a thing if it's not idling/moving
 	if(pAi->pWarrior->isDead || pAi->pWarrior->eAnim > ANIM_WALK) {
 		return DIRECTION_COUNT;
