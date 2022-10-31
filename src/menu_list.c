@@ -167,7 +167,11 @@ UBYTE menuListGetActiveIndex(void) {
 }
 
 void menuListSetActiveIndex(UBYTE ubNewPos) {
-	s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_SELECTION;
-	s_pOptions[ubNewPos].eDirty = MENU_LIST_DIRTY_SELECTION;
+	if(s_ubActiveOption < s_ubOptionCount) {
+		s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_SELECTION;
+	}
 	s_ubActiveOption = ubNewPos;
+	if(s_ubActiveOption < s_ubOptionCount) {
+		s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_SELECTION;
+	}
 }

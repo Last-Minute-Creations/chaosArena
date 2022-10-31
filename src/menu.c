@@ -65,10 +65,7 @@ static void onDrawPos(
 
 static tSimpleBufferManager *s_pVpManager;
 static tBitMap *s_pMenuBitmap;
-static UBYTE s_pPlayerSteerKinds[PLAYER_MAX_COUNT] = {
-	STEER_KIND_JOY1, STEER_KIND_JOY2, STEER_KIND_OFF,
-	STEER_KIND_OFF, STEER_KIND_OFF, STEER_KIND_OFF
-};
+static UBYTE s_pPlayersEnabled[PLAYER_MAX_COUNT] = {0, 0, 0, 0, 0, 0};
 static UBYTE s_ubExtraEnemies = 0;
 static UBYTE s_ubThunders = 0;
 static tSteer s_pMenuSteers[PLAYER_MAX_COUNT];
@@ -78,43 +75,33 @@ static UBYTE s_isOdd;
 static tMenuPage s_eCurrentPage;
 static UBYTE s_ubLastWinner;
 
-static const char *s_pSteerEnumLabels[STEER_KIND_COUNT] = {
-	[STEER_KIND_JOY1] = "Joy 1",
-	[STEER_KIND_JOY2] = "Joy 2",
-	[STEER_KIND_JOY3] = "Joy 3",
-	[STEER_KIND_JOY4] = "Joy 4",
-	[STEER_KIND_WSAD] = "WSAD",
-	[STEER_KIND_ARROWS] = "Arrows",
-	[STEER_KIND_OFF] = "Off",
-};
-
 static const char *s_pBoolEnumLabels[2] = {"OFF", "ON"};
 
 static tMenuListOption s_pMenuMainOptions[] = {
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onStart}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
-		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteerKinds[0],
-		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1
+		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_pPlayersEnabled[0],
+		.ubMin = 0, .ubMax = 1
 	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
-		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteerKinds[1],
-		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1
+		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_pPlayersEnabled[1],
+		.ubMin = 0, .ubMax = 1
 	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
-		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteerKinds[2],
-		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1
+		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_pPlayersEnabled[2],
+		.ubMin = 0, .ubMax = 1
 	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
-		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteerKinds[3],
-		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1
+		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_pPlayersEnabled[3],
+		.ubMin = 0, .ubMax = 1
 	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
-		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteerKinds[4],
-		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1
+		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_pPlayersEnabled[4],
+		.ubMin = 0, .ubMax = 1
 	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
-		.isCyclic = 1, .pEnumLabels = s_pSteerEnumLabels, .pVar = &s_pPlayerSteerKinds[5],
-		.ubMin = 0, .ubMax = STEER_KIND_COUNT - 1
+		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_pPlayersEnabled[5],
+		.ubMin = 0, .ubMax = 1
 	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_UINT8, .sOptUb = {
 		.isCyclic = 1, .pEnumLabels = s_pBoolEnumLabels, .pVar = &s_ubExtraEnemies,
@@ -131,12 +118,12 @@ static tMenuListOption s_pMenuMainOptions[] = {
 
 static const char *s_pMenuMainCaptions[MENU_MAIN_OPTION_COUNT] = {
 	"BEGIN CHAOS",
-	"Player 1",
-	"Player 2",
-	"Player 3",
-	"Player 4",
-	"Player 5",
-	"Player 6",
+	"Player 1 (Joy 1)",
+	"Player 2 (Joy 2)",
+	"Player 3 (Joy 3)",
+	"Player 4 (Joy 4)",
+	"Player 5 (Arrows)",
+	"Player 6 (WSAD)",
 	"Extra enemies",
 	"Thunders",
 	"Credits",
@@ -176,6 +163,15 @@ static const char *s_pCreditsLines[] = {
 
 //------------------------------------------------------------------ PRIVATE FNS
 
+static UBYTE isAnyPlayerOn(void) {
+	for(UBYTE i = 0; i < PLAYER_MAX_COUNT; ++i) {
+		if(s_pPlayersEnabled[i]) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 static void menuDrawPage(tMenuPage ePage) {
 	blitRect(s_pMenuBitmap, 0, 0, MENU_WIDTH, MENU_HEIGHT, MENU_COLOR_BG);
 	UBYTE ubLineHeight = g_pFontSmall->uwHeight + 1;
@@ -185,6 +181,7 @@ static void menuDrawPage(tMenuPage ePage) {
 			s_pMenuMainOptions, s_pMenuMainCaptions, MENU_MAIN_OPTION_COUNT,
 			g_pFontSmall, 0, 40, onUndraw, onDrawPos
 		);
+		menuListSetActiveIndex(isAnyPlayerOn() ? 0 : 255);
 
 		fontDrawStr(
 			g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, "CHAOS ARENA",
@@ -206,10 +203,7 @@ static void menuDrawPage(tMenuPage ePage) {
 	}
 	else if(ePage == MENU_PAGE_SUMMARY) {
 		char szEntry[20];
-		if(
-			s_ubLastWinner < PLAYER_MAX_COUNT &&
-			s_pPlayerSteerKinds[s_ubLastWinner] != STEER_KIND_OFF
-		) {
+		if(s_ubLastWinner < PLAYER_MAX_COUNT && s_pPlayersEnabled[s_ubLastWinner]) {
 			sprintf(szEntry, "PLAYER %hhu WINS", s_ubLastWinner + 1);
 		}
 		else {
@@ -227,7 +221,7 @@ static void menuDrawPage(tMenuPage ePage) {
 		);
 		uwY += 15;
 		for(UBYTE i = 0; i < PLAYER_MAX_COUNT; ++i) {
-			if(s_pPlayerSteerKinds[i] != STEER_KIND_OFF) {
+			if(s_pPlayersEnabled[i]) {
 				sprintf(szEntry, "Player %hhu: %hhu", i + 1, s_pScores[i]);
 				fontDrawStr(
 					g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, szEntry,
@@ -274,12 +268,13 @@ static void menuGsCreate(void) {
 	s_pVpManager = displayGetManager();
 	UBYTE isParallel = joyIsParallelEnabled();
 
-	s_pMenuSteers[0] = steerInitFromMode(STEER_MODE_JOY_1, 0);
-	s_pMenuSteers[1] = steerInitFromMode(STEER_MODE_JOY_2, 0);
-	s_pMenuSteers[2] = steerInitFromMode(isParallel ? STEER_MODE_JOY_3 : STEER_MODE_IDLE, 0);
-	s_pMenuSteers[3] = steerInitFromMode(isParallel ? STEER_MODE_JOY_4 : STEER_MODE_IDLE, 0);
-	s_pMenuSteers[4] = steerInitFromMode(STEER_MODE_KEY_WSAD, 0);
-	s_pMenuSteers[5] = steerInitFromMode(STEER_MODE_KEY_ARROWS, 0);
+	UBYTE ubPlayer = 0;
+	s_pMenuSteers[ubPlayer++] = steerInitFromMode(STEER_MODE_JOY_1, 0);
+	s_pMenuSteers[ubPlayer++] = steerInitFromMode(STEER_MODE_JOY_2, 0);
+	s_pMenuSteers[ubPlayer++] = steerInitFromMode(isParallel ? STEER_MODE_JOY_3 : STEER_MODE_IDLE, 0);
+	s_pMenuSteers[ubPlayer++] = steerInitFromMode(isParallel ? STEER_MODE_JOY_4 : STEER_MODE_IDLE, 0);
+	s_pMenuSteers[ubPlayer++] = steerInitFromMode(STEER_MODE_KEY_ARROWS, 0);
+	s_pMenuSteers[ubPlayer++] = steerInitFromMode(STEER_MODE_KEY_WSAD, 0);
 
 	menuDrawPage(s_eCurrentPage);
 	s_ubLastDrawEnd[0] = 0;
@@ -316,6 +311,19 @@ static void menuGsLoop(void) {
 	for(UBYTE ubPlayer = 0; ubPlayer < PLAYER_MAX_COUNT; ++ubPlayer) {
 		tSteer *pSteer = &s_pMenuSteers[ubPlayer];
 		steerProcess(pSteer);
+
+		if(!s_pPlayersEnabled[ubPlayer]) {
+			if(steerDirUse(pSteer, DIRECTION_FIRE)) {
+				s_pPlayersEnabled[ubPlayer] = 1;
+				s_pMenuMainOptions[1 + ubPlayer].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+				ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
+				if(menuListGetActiveIndex() == 255) {
+					menuListSetActiveIndex(0);
+				}
+			}
+			continue;
+		}
+
 		if(s_eCurrentPage == MENU_PAGE_CREDITS) {
 			if(steerDirUse(pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
 				ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
@@ -420,25 +428,14 @@ static void onDrawPos(
 //------------------------------------------------------------------- PUBLIC FNS
 
 tSteerMode menuGetSteerModeForPlayer(UBYTE ubPlayerIndex) {
-	if(ubPlayerIndex >= PLAYER_MAX_COUNT) {
+	static const tSteerMode pSteersForPlayers[PLAYER_MAX_COUNT] = {
+		STEER_MODE_JOY_1, STEER_MODE_JOY_2, STEER_MODE_JOY_3, STEER_MODE_JOY_4,
+		STEER_MODE_KEY_ARROWS, STEER_MODE_KEY_WSAD
+	};
+	if(ubPlayerIndex >= PLAYER_MAX_COUNT || !s_pPlayersEnabled[ubPlayerIndex]) {
 		return STEER_MODE_AI;
 	}
-	switch(s_pPlayerSteerKinds[ubPlayerIndex]) {
-		case STEER_KIND_ARROWS:
-			return STEER_MODE_KEY_ARROWS;
-		case STEER_KIND_WSAD:
-			return STEER_MODE_KEY_WSAD;
-		case STEER_KIND_JOY1:
-			return STEER_MODE_JOY_1;
-		case STEER_KIND_JOY2:
-			return STEER_MODE_JOY_2;
-		case STEER_KIND_JOY3:
-			return STEER_MODE_JOY_3;
-		case STEER_KIND_JOY4:
-			return STEER_MODE_JOY_4;
-		default:
-			return STEER_MODE_AI;
-	}
+	return pSteersForPlayers[ubPlayerIndex];
 }
 
 void menuSetupMain(void) {
@@ -450,7 +447,7 @@ void menuSetupSummary(UBYTE ubWinnerIndex) {
 	s_ubLastWinner = ubWinnerIndex;
 	if(
 		ubWinnerIndex == WARRIOR_LAST_ALIVE_INDEX_INVALID ||
-		s_pPlayerSteerKinds[ubWinnerIndex] == STEER_KIND_OFF
+		!s_pPlayersEnabled[ubWinnerIndex]
 	) {
 		return;
 	}
