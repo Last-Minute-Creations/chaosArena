@@ -51,7 +51,7 @@
  * @brief The bob structure.
  * You can safely change sPos to set new position. Rest is read-only and should
  * only be changed by provided fns.
- */
+ */ 
 typedef struct tBobNew {
 	UBYTE *pFrameData;
 	UBYTE *pMaskData;
@@ -63,6 +63,7 @@ typedef struct tBobNew {
 	// Platform-dependent private fields. Don't rely on them externally.
 	UWORD _uwBlitSize;
 	WORD _wModuloUndrawSave;
+	UBYTE *_pOldDrawOffs[2];
 } tBobNew;
 
 /**
