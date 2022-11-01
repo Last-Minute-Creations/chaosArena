@@ -22,9 +22,9 @@ Game:
 	✔ lower viewport margin to 1 tile, saves 20k chip @done(22-10-28 17:44)
 	✔ add thunder mechanics @done(22-10-28 19:03)
 	✔ proper thunder colors @done(22-10-29 17:57)
+	✔ wait for game results a bit so that remaining player can fall @done(22-11-01 15:16)
 	☐ proper crumble gfx
 	☐ better player selection
-	☐ wait for game results a bit so that remaining player can fall
 	☐ different offsets of frames, move to 16x16 blits
 	☐ fade on launch/exit
 	☐ thunder sfx
@@ -47,5 +47,3 @@ Menu:
 	✔ summary after match @done(22-10-21 22:15)
 	✔ credits screen @done(22-10-21 22:15)
 	✔ bots off/on @done(22-10-21 22:15)
-
-

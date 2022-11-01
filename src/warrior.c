@@ -524,6 +524,18 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 	s_ubAlivePlayerCount = 0;
 	s_isMoveEnabled = 0;
 
+	UBYTE ubPlayers = 0;
+	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
+		tSteerMode eSteerMode = menuGetSteerModeForPlayer(i);
+		if(eSteerMode < STEER_MODE_AI) {
+			++ubPlayers;
+		}
+	}
+
+	if(ubPlayers < 2) {
+		isExtraEnemiesEnabled = 1;
+	}
+
 	for(UBYTE i = 0; i < WARRIOR_COUNT; ++i) {
 		s_pWarriors[i] = memAllocFast(sizeof(*s_pWarriors[i]));
 		const tUwCoordYX *pSpawn = tileGetSpawn(i);
