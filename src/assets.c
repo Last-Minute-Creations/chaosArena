@@ -17,8 +17,10 @@ tTextBitMap *g_pTextBitmap;
 
 tBitMap *g_pCountdownMask;
 tBitMap *g_pCountdownFrames;
-tBitMap *g_pFightFrames;
+tBitMap *g_pFightBitmap;
 tBitMap *g_pFightMask;
+tBitMap *g_pTitleBitmap;
+tBitMap *g_pTitleMask;
 tBitMap *g_pFramesThunder;
 tBitMap *g_pFramesCross;
 
@@ -39,8 +41,10 @@ void assetsGlobalCreate(void) {
 	g_pWarriorMasks = bitmapCreateFromFile("data/warrior_mask.bm", 0);
 	g_pCountdownFrames = bitmapCreateFromFile("data/countdown.bm", 0);
 	g_pCountdownMask = bitmapCreateFromFile("data/countdown_mask.bm", 0);
-	g_pFightFrames = bitmapCreateFromFile("data/fight.bm", 0);
+	g_pFightBitmap = bitmapCreateFromFile("data/fight.bm", 0);
 	g_pFightMask = bitmapCreateFromFile("data/fight_mask.bm", 0);
+	g_pTitleBitmap = bitmapCreateFromFile("data/title.bm", 0);
+	g_pTitleMask = bitmapCreateFromFile("data/title_mask.bm", 0);
 
 	g_pTileset = bitmapCreateFromFile("data/tiles.bm", 0);
 	g_pFramesThunder = bitmapCreateFromFile("data/thunder.bm", 0);
@@ -75,8 +79,10 @@ void assetsGlobalDestroy(void) {
 	bitmapDestroy(g_pWarriorMasks);
 	bitmapDestroy(g_pCountdownMask);
 	bitmapDestroy(g_pCountdownFrames);
-	bitmapDestroy(g_pFightFrames);
+	bitmapDestroy(g_pFightBitmap);
 	bitmapDestroy(g_pFightMask);
+	bitmapDestroy(g_pTitleBitmap);
+	bitmapDestroy(g_pTitleMask);
 
 	bitmapDestroy(g_pTileset);
 	bitmapDestroy(g_pFramesThunder);

@@ -183,9 +183,12 @@ static void menuDrawPage(tMenuPage ePage) {
 		);
 		menuListSetActiveIndex(isAnyPlayerOn() ? 0 : 255);
 
-		fontDrawStr(
-			g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, "CHAOS ARENA",
-			MENU_COLOR_TITLE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
+		UWORD uwTitleWidth = bitmapGetByteWidth(g_pTitleBitmap) * 8;
+		UWORD uwTitleHeight = g_pTitleBitmap->Rows;
+		blitCopyMask(
+			g_pTitleBitmap, 0, 0, s_pMenuBitmap,
+			(MENU_WIDTH - uwTitleWidth) / 2, 5,
+			uwTitleWidth, uwTitleHeight, (UWORD*)g_pTitleMask->Planes[0]
 		);
 
 		fontDrawStr(

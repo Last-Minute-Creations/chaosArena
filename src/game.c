@@ -43,15 +43,15 @@ static void gameGsCreate(void) {
 	warriorsCreate(menuIsExtraEnemiesEnabled());
 
 	UBYTE ubCountdownWidth = bitmapGetByteWidth(g_pCountdownFrames) * 8;
-	UBYTE ubFightWidth = bitmapGetByteWidth(g_pFightFrames) * 8;
+	UBYTE ubFightWidth = bitmapGetByteWidth(g_pFightBitmap) * 8;
 	bobNewInit(
 		&s_sBobCountdown, ubCountdownWidth, g_pCountdownFrames->Rows / 3, 1,
 		g_pCountdownFrames->Planes[0], g_pCountdownMask->Planes[0],
 		(DISPLAY_WIDTH - ubCountdownWidth) / 2, 100
 	);
 	bobNewInit(
-		&s_sBobFight, ubFightWidth, g_pFightFrames->Rows, 1,
-		g_pFightFrames->Planes[0], g_pFightMask->Planes[0],
+		&s_sBobFight, ubFightWidth, g_pFightBitmap->Rows, 1,
+		g_pFightBitmap->Planes[0], g_pFightMask->Planes[0],
 		(DISPLAY_WIDTH - ubFightWidth) / 2, 100
 	);
 
