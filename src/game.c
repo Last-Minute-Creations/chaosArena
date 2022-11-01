@@ -19,6 +19,7 @@
 
 #define GAME_CRUMBLE_COOLDOWN 1
 #define GAME_COUNTDOWN_COOLDOWN 50
+#define GAME_STOP_COOLDOWN 50
 
 typedef enum tCountdownPhase {
 	COUNTDOWN_PHASE_OFF,
@@ -35,6 +36,7 @@ static tBobNew s_sBobFight;
 static tCountdownPhase s_eCountdownPhase;
 static UBYTE s_ubCountdownCooldown;
 static UBYTE s_ubCrumbleCooldown;
+static UBYTE s_ubGameStopCooldown;
 
 static void gameGsCreate(void) {
 	tilesInit();
@@ -58,6 +60,7 @@ static void gameGsCreate(void) {
 	s_eCountdownPhase = COUNTDOWN_PHASE_COUNT;
 	s_ubCountdownCooldown = 1;
 	s_ubCrumbleCooldown = GAME_CRUMBLE_COOLDOWN;
+	s_ubGameStopCooldown = GAME_STOP_COOLDOWN;
 
 	bobNewReallocateBgBuffers();
 	tilesReload();
@@ -137,10 +140,10 @@ static void gameGsLoop(void) {
 	}
 
 	UBYTE ubAlivePlayers = warriorsGetAlivePlayerCount();
-	if(
-		(warriorsGetAliveCount() == 1 && ubAlivePlayers == 1) ||
-		ubAlivePlayers == 0
-	) {
+	if(ubAlivePlayers == 1 && warriorsGetAliveCount() == 1) {
+		--s_ubGameStopCooldown;
+	}
+	if(ubAlivePlayers == 0 || s_ubGameStopCooldown == 0) {
 		menuSetupSummary(warriorsGetLastAliveIndex());
 		gameTransitToMenu();
 		return;
