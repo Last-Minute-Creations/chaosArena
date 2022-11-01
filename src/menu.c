@@ -209,8 +209,11 @@ static void menuDrawPage(tMenuPage ePage) {
 		if(s_ubLastWinner < PLAYER_MAX_COUNT && s_pPlayersEnabled[s_ubLastWinner]) {
 			sprintf(szEntry, "PLAYER %hhu WINS", s_ubLastWinner + 1);
 		}
+		else if(s_ubLastWinner == WARRIOR_LAST_ALIVE_INDEX_INVALID) {
+			stringCopy("DRAW", szEntry);
+		}
 		else {
-			stringCopy("SUMMARY", szEntry);
+			stringCopy("DEFEATED", szEntry);
 		}
 		fontDrawStr(
 			g_pFontBig, s_pMenuBitmap, MENU_WIDTH / 2, 20, szEntry,
