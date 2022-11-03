@@ -20,6 +20,10 @@ void displayDestroy(void);
 
 void displayProcess(void);
 
+UBYTE displayFadeProcess(void);
+
+void displayFadeStart(UBYTE isIn, void (*cbOnFadeDone)(void));
+
 void displayOn(void);
 
 void displayOff(void);

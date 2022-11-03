@@ -9,13 +9,17 @@
 #include <ace/utils/palette.h>
 #include "tile.h"
 #include "debug.h"
+#include "fade.h"
 
 #define GAME_COLORS (1 << DISPLAY_BPP)
+#define FADE_SPEED 50
 
 static tView *s_pView;
 static tVPort *s_pVp;
 static tSimpleBufferManager *s_pVpManager;
 static UWORD s_pPaletteThunder[8];
+static tFade *s_pFade;
+static UWORD s_pPaletteRef[GAME_COLORS];
 
 void displayCreate(void) {
 	UWORD uwDisplayCopperInstructions = simpleBufferGetRawCopperlistInstructionCount(DISPLAY_BPP);
@@ -45,7 +49,7 @@ void displayCreate(void) {
 		s_pVpManager->pCamera, DISPLAY_MARGIN_SIZE, DISPLAY_MARGIN_SIZE
 	);
 
-	paletteLoad("data/palette.plt", s_pVp->pPalette, GAME_COLORS);
+	paletteLoad("data/palette.plt", s_pPaletteRef, GAME_COLORS);
 	paletteLoad("data/thunder.plt", s_pPaletteThunder, ARRAY_SIZE(s_pPaletteThunder));
 	s_pVp->pPalette[16] = 0xF0F; // transparent
 	s_pVp->pPalette[17] = 0xFF0; // unused
@@ -56,6 +60,10 @@ void displayCreate(void) {
 	s_pVp->pPalette[21] = 0x511;
 	s_pVp->pPalette[22] = 0xA00;
 	s_pVp->pPalette[23] = 0xF11;
+
+	s_pFade = fadeCreate(s_pView, s_pPaletteRef, GAME_COLORS);
+	fadeStart(s_pFade, FADE_STATE_IN, FADE_SPEED, 1, 0);
+
 	tilesDrawAllOn(s_pVpManager->pBack);
 	tilesDrawAllOn(s_pVpManager->pFront);
 	debugInit(s_pVp->pPalette[0]);
@@ -65,6 +73,15 @@ void displayCreate(void) {
 		SPRITE_0 | SPRITE_1 | SPRITE_2 | SPRITE_3 |
 		SPRITE_4 | SPRITE_5 | SPRITE_6 | SPRITE_7, 0
 	);
+}
+
+void displayFadeStart(UBYTE isIn, void (*cbOnFadeDone)(void)) {
+	fadeStart(s_pFade, isIn ? FADE_STATE_IN : FADE_STATE_OUT, FADE_SPEED, 1, cbOnFadeDone);
+}
+
+UBYTE displayFadeProcess(void) {
+	tFadeState eState = fadeProcess(s_pFade);
+	return eState == FADE_STATE_EVENT_FIRED;
 }
 
 void displayDestroy(void) {

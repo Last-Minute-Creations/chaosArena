@@ -51,7 +51,7 @@ typedef enum tSteerKind {
 //---------------------------------------------------------------- PRIVATE DECLS
 
 static void onStart(void);
-static void onExit(void);
+static void onExitSelected(void);
 static void onCredits(void);
 static void onContinue(void);
 static void onGoToMain(void);
@@ -112,7 +112,7 @@ static tMenuListOption s_pMenuMainOptions[] = {
 		.ubMin = 0, .ubMax = 1
 	}},
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onCredits}},
-	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onExit}},
+	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onExitSelected}},
 };
 #define MENU_MAIN_OPTION_COUNT ARRAY_SIZE(s_pMenuMainOptions)
 
@@ -289,6 +289,10 @@ static void menuGsCreate(void) {
 }
 
 static void menuGsLoop(void) {
+	if(displayFadeProcess()) {
+		return;
+	}
+
 	if(s_ubLastDrawEnd[s_isOdd] < MENU_HEIGHT) {
 		UBYTE ubStartRow = s_ubLastDrawEnd[s_isOdd];
 		UBYTE ubEndRow = MIN(s_ubLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED, MENU_HEIGHT);
@@ -304,7 +308,7 @@ static void menuGsLoop(void) {
 
 	if(keyUse(KEY_ESCAPE)) {
 		if(s_eCurrentPage == MENU_PAGE_MAIN) {
-			onExit();
+			onExitSelected();
 		}
 		else {
 			menuNavigateToPage(MENU_PAGE_MAIN);
@@ -353,7 +357,7 @@ static void menuGsLoop(void) {
 			else if (steerDirUse(pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
 				const tMenuListOption *pOption = menuListGetActiveOption();
 				if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
-					if(pOption->sOptCb.cbSelect == onExit) {
+					if(pOption->sOptCb.cbSelect == onExitSelected) {
 						ptplayerSfxPlay(g_pSfxNo, 3, PTPLAYER_VOLUME_MAX, 15);
 					}
 					else {
@@ -397,9 +401,12 @@ static void onStart(void) {
 	stateChange(g_pStateMachineGame, &g_sStateGame);
 }
 
-static void onExit(void) {
-	ptplayerWaitForSfx();
+static void onExitFadeoutCompleted(void) {
 	gameExit();
+}
+
+static void onExitSelected(void) {
+	displayFadeStart(0, onExitFadeoutCompleted);
 }
 
 static void onCredits(void) {

@@ -23,10 +23,10 @@ Game:
 	✔ add thunder mechanics @done(22-10-28 19:03)
 	✔ proper thunder colors @done(22-10-29 17:57)
 	✔ wait for game results a bit so that remaining player can fall @done(22-11-01 15:16)
-	☐ proper crumble gfx
+	✔ fade on launch/exit @done(22-11-03 19:02)
+	✘ proper crumble gfx @cancelled(22-11-03 19:02)
 	☐ better player selection
 	☐ different offsets of frames, move to 16x16 blits
-	☐ fade on launch/exit
 	☐ thunder sfx
 
 Optional:
