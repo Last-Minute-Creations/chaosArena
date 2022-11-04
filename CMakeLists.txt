@@ -178,6 +178,10 @@ convertAudio(
 	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/countdown_fight.wav
 	DESTINATION ${DATA_DIR}/cdfight.sfx
 )
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/sfx/thunder.wav
+	DESTINATION ${DATA_DIR}/thunder.sfx
+)
 mergeMods(
 	TARGET ${GAME_EXECUTABLE}
 	SOURCES ${RES_DIR}/charena_menu.mod ${RES_DIR}/charena_game.mod

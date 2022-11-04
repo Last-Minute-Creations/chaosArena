@@ -30,6 +30,7 @@ tPtplayerSfx *g_pSfxSwipeHit;
 tPtplayerSfx *g_pSfxCrumble;
 tPtplayerSfx *g_pSfxCountdown[3];
 tPtplayerSfx *g_pSfxCountdownFight;
+tPtplayerSfx *g_pSfxThunder;
 
 tPtplayerMod *g_pModCombat;
 tPtplayerMod *g_pModMenu;
@@ -63,6 +64,7 @@ void assetsGlobalCreate(void) {
 	g_pSfxCountdown[1] = ptplayerSfxCreateFromFile("data/cd2.sfx");
 	g_pSfxCountdown[0] = ptplayerSfxCreateFromFile("data/cd1.sfx");
 	g_pSfxCountdownFight = ptplayerSfxCreateFromFile("data/cdfight.sfx");
+	g_pSfxThunder = ptplayerSfxCreateFromFile("data/thunder.sfx");
 
 	g_pModCombat = ptplayerModCreate("data/charena_game.mod");
 	g_pModMenu = ptplayerModCreate("data/charena_menu.mod");
@@ -101,6 +103,7 @@ void assetsGlobalDestroy(void) {
 	ptplayerSfxDestroy(g_pSfxCountdown[1]);
 	ptplayerSfxDestroy(g_pSfxCountdown[0]);
 	ptplayerSfxDestroy(g_pSfxCountdownFight);
+	ptplayerSfxDestroy(g_pSfxThunder);
 
 	ptplayerModDestroy(g_pModCombat);
 	ptplayerModDestroy(g_pModMenu);

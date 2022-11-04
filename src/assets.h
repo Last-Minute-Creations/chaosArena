@@ -37,6 +37,7 @@ extern tPtplayerSfx *g_pSfxSwipeHit;
 extern tPtplayerSfx *g_pSfxCrumble;
 extern tPtplayerSfx *g_pSfxCountdown[3]; // [0] is "one", [2] is "three"
 extern tPtplayerSfx *g_pSfxCountdownFight;
+extern tPtplayerSfx *g_pSfxThunder;
 
 extern tPtplayerMod *g_pModCombat;
 extern tPtplayerMod *g_pModMenu;

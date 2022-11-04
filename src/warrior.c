@@ -593,6 +593,7 @@ void warriorsProcess(void) {
 			s_sThunder.ubCurrentColor = 0;
 			displaySetThunderColor(0);
 			s_sThunder.ubColorCooldown = THUNDER_COLOR_COOLDOWN;
+			ptplayerSfxPlay(g_pSfxThunder, 2, 64, SFX_PRIORITY_THUNDER);
 		}
 
 		s_sThunder.pSpriteCross->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
