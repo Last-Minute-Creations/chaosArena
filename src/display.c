@@ -22,6 +22,8 @@ static tFade *s_pFade;
 static UWORD s_pPaletteRef[GAME_COLORS];
 
 void displayCreate(void) {
+	// Dear reader - don't EVER do one global display manager, unless you're
+	// 500% sure you won't need different BPP or copperlist mode along the way.
 	UWORD uwDisplayCopperInstructions = simpleBufferGetRawCopperlistInstructionCount(DISPLAY_BPP);
 	UWORD uwSpriteCopperInstructions = 8 * 2;
 	s_pView = viewCreate(0,

@@ -7,30 +7,21 @@
 #include <ace/managers/key.h>
 #include <ace/managers/joy.h>
 #include <ace/managers/ptplayer.h>
-#include "display.h"
-#include "assets.h"
 #include "menu.h"
 #include "tile.h"
 #include "debug.h"
 
-tStateManager *g_pStateMachineGame;
+tStateManager *g_pStateMachineDisplay;
 tRandManager g_sRandManager;
 
 void genericCreate(void) {
-	g_pStateMachineGame = stateManagerCreate();
+	g_pStateMachineDisplay = stateManagerCreate();
 	keyCreate();
 	joyOpen();
 	joyEnableParallel();
 	ptplayerCreate(1);
 	randInit(&g_sRandManager, 0x2184, 0x1911);
-
-	assetsGlobalCreate();
-	displayCreate();
-	systemUnuse();
-
-	displayOn();
-	menuSetupMain();
-	statePush(g_pStateMachineGame, &g_sStateMenu);
+	statePush(g_pStateMachineDisplay, &g_sStateLogo);
 }
 
 void genericProcess(void) {
@@ -43,21 +34,14 @@ void genericProcess(void) {
 		debugToggle();
 	}
 
-	stateProcess(g_pStateMachineGame);
-	debugSetColor(0xf00);
-	displayProcess();
+	stateProcess(g_pStateMachineDisplay);
 }
 
 void genericDestroy(void) {
-	displayOff();
 	ptplayerStop();
-
-	systemUse();
-	displayDestroy();
-	assetsGlobalDestroy();
 
 	ptplayerDestroy();
 	keyDestroy();
 	joyClose();
-	stateManagerDestroy(g_pStateMachineGame);
+	stateManagerDestroy(g_pStateMachineDisplay);
 }

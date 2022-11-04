@@ -185,6 +185,27 @@ mergeMods(
 	SAMPLE_PACK ${DATA_DIR}/samples.samplepack
 )
 
+# Logo assets
+set(LMC_PLT_PATH ${DATA_DIR}/lmc.plt)
+convertPalette(${GAME_EXECUTABLE} ${RES_DIR}/logo/lmc.gpl ${LMC_PLT_PATH})
+convertBitmaps(
+	TARGET ${GAME_EXECUTABLE} PALETTE ${LMC_PLT_PATH}
+	INTERLEAVED SOURCES ${RES_DIR}/logo/lmc.png DESTINATIONS ${DATA_DIR}/lmc.bm
+)
+convertBitmaps(
+	TARGET ${GAME_EXECUTABLE} PALETTE ${RES_DIR}/logo/ace.gpl
+	INTERLEAVED SOURCES ${RES_DIR}/logo/ace.png DESTINATIONS ${DATA_DIR}/ace.bm
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/logo/ace.wav
+	DESTINATION ${DATA_DIR}/ace.sfx
+)
+convertAudio(
+	TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/logo/lmc.wav
+	STRICT DESTINATION ${DATA_DIR}/lmc.sfx
+)
+
+
 # Generating ZIP
 set(GAME_PACKAGE_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")
 add_custom_target(generateZip COMMAND

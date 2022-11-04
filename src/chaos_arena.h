@@ -10,9 +10,15 @@
 
 #define PLAYER_MAX_COUNT 6
 
+extern tStateManager *g_pStateMachineDisplay;
 extern tStateManager *g_pStateMachineGame;
 extern tRandManager g_sRandManager;
 
+// Display states
+extern tState g_sStateLogo;
+extern tState g_sStateMain;
+
+// Gameplay states
 extern tState g_sStateMenu;
 extern tState g_sStateGame;
 

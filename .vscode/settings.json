@@ -26,7 +26,8 @@
 		"tile.h": "c",
 		"system.h": "c",
 		"sprite.h": "c",
-		"warrior.h": "c"
+		"warrior.h": "c",
+		"state.h": "c"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
