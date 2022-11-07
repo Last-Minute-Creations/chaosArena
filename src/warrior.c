@@ -82,7 +82,7 @@ static const tBCoordYX s_pAnimDirToAttackDelta[ANIM_DIRECTION_COUNT] = {
 
 static const UBYTE s_pFrameCountForAnim[ANIM_COUNT] = {
 	[ANIM_IDLE] = 2,
-	[ANIM_WALK] = 2,
+	[ANIM_WALK] = 3,
 	[ANIM_ATTACK] = 4,
 	[ANIM_HURT] = 3,
 	[ANIM_FALLING] = 1,
@@ -121,6 +121,9 @@ static void initFrameOffsets(void) {
 
 			UBYTE ubFramesInAnim = getFrameCountForAnim(eAnim);
 			for(UBYTE ubFrame = 0; ubFrame < ubFramesInAnim; ++ubFrame) {
+				if(eAnim == ANIM_WALK && ubFrame == 2) {
+					continue;
+				}
 				s_pFrameOffsets[eDir][eAnim][ubFrame] = (tFrameOffsets) {
 					.pBitmap = &g_pWarriorFrames->Planes[0][ulByteOffs],
 					.pMask = &g_pWarriorMasks->Planes[0][ulByteOffs]
@@ -132,6 +135,8 @@ static void initFrameOffsets(void) {
 
 	for(tAnimDirection eDir = 0; eDir < ANIM_DIRECTION_COUNT; ++eDir) {
 		s_pFrameOffsets[eDir][ANIM_FALLING][0] = s_pFrameOffsets[eDir][ANIM_HURT][2];
+		s_pFrameOffsets[eDir][ANIM_WALK][2] = s_pFrameOffsets[eDir][ANIM_WALK][1];
+		s_pFrameOffsets[eDir][ANIM_WALK][1] = s_pFrameOffsets[eDir][ANIM_IDLE][1];
 	}
 }
 
