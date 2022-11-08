@@ -63,6 +63,8 @@ static void gameGsCreate(void) {
 	s_ubGameStopCooldown = GAME_STOP_COOLDOWN;
 
 	bobNewReallocateBgBuffers();
+	systemUnuse();
+
 	tilesReload();
 	tilesDrawAllOn(s_pVpManager->pBack);
 	tilesDrawAllOn(s_pVpManager->pFront);
@@ -173,10 +175,11 @@ static void gameGsLoop(void) {
 }
 
 static void gameGsDestroy(void) {
+	ptplayerStop();
 	systemSetDmaBit(DMAB_SPRITE, 0);
+	systemUse();
 	bobNewManagerDestroy();
 	warriorsDestroy();
-	ptplayerStop();
 }
 
 UBYTE gameIsCountdownActive(void) {

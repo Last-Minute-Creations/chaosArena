@@ -88,6 +88,7 @@ UBYTE displayFadeProcess(void) {
 
 void displayDestroy(void) {
 	spriteManagerDestroy();
+	fadeDestroy(s_pFade);
 	viewDestroy(s_pView);
 }
 

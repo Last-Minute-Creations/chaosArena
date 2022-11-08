@@ -40,8 +40,8 @@ void genericProcess(void) {
 void genericDestroy(void) {
 	ptplayerStop();
 
+	stateManagerDestroy(g_pStateMachineDisplay);
 	ptplayerDestroy();
 	keyDestroy();
 	joyClose();
-	stateManagerDestroy(g_pStateMachineDisplay);
 }

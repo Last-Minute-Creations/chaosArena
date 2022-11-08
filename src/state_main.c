@@ -14,6 +14,7 @@
 tStateManager *g_pStateMachineGame;
 
 static void stateMainCreate(void) {
+	logBlockBegin("stateMainCreate()");
 	g_pStateMachineGame = stateManagerCreate();
 	assetsGlobalCreate();
 	displayCreate();
@@ -23,6 +24,7 @@ static void stateMainCreate(void) {
 	menuSetupMain();
 	statePush(g_pStateMachineGame, &g_sStateMenu);
 	stateProcess(g_pStateMachineGame);
+	logBlockEnd("stateMainCreate()");
 }
 
 static void stateMainLoop(void) {
@@ -32,11 +34,13 @@ static void stateMainLoop(void) {
 }
 
 static void stateMainDestroy(void) {
+	logBlockBegin("stateMainDestroy()");
 	systemUse();
 	displayOff();
 	displayDestroy();
 	assetsGlobalDestroy();
 	stateManagerDestroy(g_pStateMachineGame);
+	logBlockEnd("stateMainDestroy()");
 }
 
 tState g_sStateMain = {

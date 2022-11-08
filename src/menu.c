@@ -6,6 +6,7 @@
 #include <ace/managers/blit.h>
 #include <ace/managers/game.h>
 #include <ace/managers/key.h>
+#include <ace/managers/system.h>
 #include <ace/utils/string.h>
 #include <mini_std/stdio.h>
 #include "display.h"
@@ -271,6 +272,7 @@ static void menuGsCreate(void) {
 	ptplayerEnableMusic(1);
 
 	s_pMenuBitmap = bitmapCreate(MENU_WIDTH, MENU_HEIGHT, DISPLAY_BPP, BMF_INTERLEAVED);
+	systemUnuse();
 	s_pVpManager = displayGetManager();
 	UBYTE isParallel = joyIsParallelEnabled();
 
@@ -389,6 +391,7 @@ static void menuGsLoop(void) {
 }
 
 static void menuGsDestroy(void) {
+	systemUse();
 	bitmapDestroy(s_pMenuBitmap);
 	ptplayerStop();
 }

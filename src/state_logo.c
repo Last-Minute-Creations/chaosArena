@@ -99,8 +99,8 @@ static void logoGsCreate(void) {
 	stateChange(s_pStateMachineLogo, &s_sStateLogoLmc);
 
 	logBlockEnd("logoGsCreate()");
-	systemUnuse();
 	viewLoad(s_pView);
+	systemUnuse();
 }
 
 static void logoGsLoop(void) {
@@ -194,6 +194,7 @@ static void logoLmcDestroy(void) {
 	);
 
 	ptplayerWaitForSfx();
+	systemUse();
 	ptplayerSfxDestroy(s_pSfxLmc);
 }
 
@@ -215,8 +216,6 @@ static UWORD blendColors(UWORD uwColorSrc, UWORD uwColorDst, UBYTE ubRatio)
 }
 
 static void logoAceCreate(void) {
-	systemUse();
-
 	tBitMap *pLogoAce = bitmapCreateFromFile("data/ace.bm", 0);
 	s_sLogoRect.uwWidth = bitmapGetByteWidth(pLogoAce) * 8;
 	s_sLogoRect.uwHeight = pLogoAce->Rows;
@@ -331,6 +330,7 @@ static void logoAceLoop(void) {
 
 static void logoAceDestroy(void) {
 	ptplayerWaitForSfx();
+	systemUse();
 	ptplayerSfxDestroy(s_pSfxAce);
 }
 
