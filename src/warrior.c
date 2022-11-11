@@ -352,7 +352,7 @@ static void warriorKill(tWarrior *pWarrior) {
 	if (steerIsPlayer(&pWarrior->sSteer)) {
 		--s_ubAlivePlayerCount;
 		if(menuAreThundersEnabled()) {
-			spriteEnable(s_sThunder.pSpriteCross, 1);
+			spriteSetEnabled(s_sThunder.pSpriteCross, 1);
 		}
 	}
 }
@@ -558,10 +558,10 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 		}
 	}
 
-	s_sThunder.pSpriteThunder = spriteAdd(0, g_pFramesThunder, 0);
-	s_sThunder.pSpriteCross = spriteAdd(2, g_pFramesCross, 4);
-	spriteEnable(s_sThunder.pSpriteThunder, 0);
-	spriteEnable(s_sThunder.pSpriteCross, 0);
+	s_sThunder.pSpriteThunder = spriteAdd(DISPLAY_SPRITE_CHANNEL_THUNDER, g_pFramesThunder);
+	s_sThunder.pSpriteCross = spriteAdd(DISPLAY_SPRITE_CHANNEL_CURSOR, g_pFramesCross);
+	spriteSetEnabled(s_sThunder.pSpriteThunder, 0);
+	spriteSetEnabled(s_sThunder.pSpriteCross, 0);
 	s_sThunder.sAttackPos.ulYX = (tUwCoordYX){
 		.uwX = DISPLAY_WIDTH / 2, .uwY = DISPLAY_HEIGHT / 2
 	}.ulYX;
@@ -584,12 +584,12 @@ void warriorsProcess(void) {
 					displaySetThunderColor(s_sThunder.ubCurrentColor);
 				}
 				else {
-					spriteEnable(s_sThunder.pSpriteThunder, 0);
+					spriteSetEnabled(s_sThunder.pSpriteThunder, 0);
 				}
 			}
 		}
 		if(--s_sThunder.ubActivateCooldown == 0) {
-			spriteEnable(s_sThunder.pSpriteThunder, 1);
+			spriteSetEnabled(s_sThunder.pSpriteThunder, 1);
 			s_sThunder.pSpriteThunder->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
 			s_sThunder.pSpriteThunder->wY = 0;
 			spriteSetHeight(s_sThunder.pSpriteThunder, s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE);
@@ -603,11 +603,11 @@ void warriorsProcess(void) {
 
 		s_sThunder.pSpriteCross->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
 		s_sThunder.pSpriteCross->wY = s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE - 8;
-		spriteRequestHeaderUpdate(s_sThunder.pSpriteCross);
+		spriteRequestMetadataUpdate(s_sThunder.pSpriteCross);
 	}
 
-	spriteUpdate(s_sThunder.pSpriteThunder);
-	spriteUpdate(s_sThunder.pSpriteCross);
+	spriteProcess(s_sThunder.pSpriteThunder);
+	spriteProcess(s_sThunder.pSpriteCross);
 
 	tWarrior **pPrev = &s_pWarriors[0];
 	for(UBYTE i = 1; i < WARRIOR_COUNT; ++i) {

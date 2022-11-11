@@ -71,7 +71,6 @@ static void gameGsCreate(void) {
 	warriorsEnableMove(0);
 	ptplayerLoadMod(g_pModCombat, g_pModSamples, 0);
 	ptplayerEnableMusic(1);
-	systemSetDmaBit(DMAB_SPRITE, 1);
 }
 
 static void countdownProcess(void) {
@@ -176,7 +175,6 @@ static void gameGsLoop(void) {
 
 static void gameGsDestroy(void) {
 	ptplayerStop();
-	systemSetDmaBit(DMAB_SPRITE, 0);
 	systemUse();
 	bobNewManagerDestroy();
 	warriorsDestroy();

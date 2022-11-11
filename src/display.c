@@ -69,12 +69,8 @@ void displayCreate(void) {
 	tilesDrawAllOn(s_pVpManager->pBack);
 	tilesDrawAllOn(s_pVpManager->pFront);
 	debugInit(s_pVp->pPalette[0]);
-	spriteManagerCreate(s_pView);
-	copRawDisableSprites(
-		s_pView->pCopList,
-		SPRITE_0 | SPRITE_1 | SPRITE_2 | SPRITE_3 |
-		SPRITE_4 | SPRITE_5 | SPRITE_6 | SPRITE_7, 0
-	);
+	spriteManagerCreate(s_pView, 0);
+	systemSetDmaBit(DMAB_SPRITE, 1);
 }
 
 void displayFadeStart(UBYTE isIn, void (*cbOnFadeDone)(void)) {
@@ -87,12 +83,15 @@ UBYTE displayFadeProcess(void) {
 }
 
 void displayDestroy(void) {
+	systemSetDmaBit(DMAB_SPRITE, 0);
 	spriteManagerDestroy();
 	fadeDestroy(s_pFade);
 	viewDestroy(s_pView);
 }
 
 void displayProcess(void) {
+	spriteProcessChannel(DISPLAY_SPRITE_CHANNEL_CURSOR);
+	spriteProcessChannel(DISPLAY_SPRITE_CHANNEL_THUNDER);
 	viewProcessManagers(s_pView);
 	copProcessBlocks();
 	debugReset();
