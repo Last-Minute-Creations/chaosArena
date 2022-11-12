@@ -21,7 +21,7 @@ tBitMap *g_pFightBitmap;
 tBitMap *g_pFightMask;
 tBitMap *g_pTitleBitmap;
 tBitMap *g_pTitleMask;
-tBitMap *g_pFramesThunder;
+tBitMap *g_pFramesThunder[2];
 tBitMap *g_pFramesCross;
 
 tPtplayerSfx *g_pSfxNo;
@@ -48,7 +48,8 @@ void assetsGlobalCreate(void) {
 	g_pTitleMask = bitmapCreateFromFile("data/title_mask.bm", 0);
 
 	g_pTileset = bitmapCreateFromFile("data/tiles.bm", 0);
-	g_pFramesThunder = bitmapCreateFromFile("data/thunder.bm", 0);
+	g_pFramesThunder[0] = bitmapCreateFromFile("data/thunder_0.bm", 0);
+	g_pFramesThunder[1] = bitmapCreateFromFile("data/thunder_1.bm", 0);
 	g_pFramesCross = bitmapCreateFromFile("data/cross.bm", 0);
 
 	g_pFontBig = fontCreate("data/menu.fnt");
@@ -87,7 +88,8 @@ void assetsGlobalDestroy(void) {
 	bitmapDestroy(g_pTitleMask);
 
 	bitmapDestroy(g_pTileset);
-	bitmapDestroy(g_pFramesThunder);
+	bitmapDestroy(g_pFramesThunder[0]);
+	bitmapDestroy(g_pFramesThunder[1]);
 	bitmapDestroy(g_pFramesCross);
 
 	fontDestroy(g_pFontBig);

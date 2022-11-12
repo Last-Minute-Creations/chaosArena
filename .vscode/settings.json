@@ -27,7 +27,9 @@
 		"system.h": "c",
 		"sprite.h": "c",
 		"warrior.h": "c",
-		"state.h": "c"
+		"state.h": "c",
+		"copper.h": "c",
+		"custom.h": "c"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

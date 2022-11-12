@@ -105,12 +105,6 @@ extractBitmaps(
 	DESTINATIONS
 		${THUNDER_DIR}/0.png 0 0 16 258
 		${THUNDER_DIR}/1.png 16 0 16 258
-	GENERATED_FILE_LIST thunderFrames
-)
-convertTileset(
-	TARGET ${GAME_EXECUTABLE} SIZE 16 HEIGHT 258
-	SOURCE ${THUNDER_DIR} DESTINATION ${GEN_DIR}/thunder.png
-	TILE_PATHS ${thunderFrames}
 )
 
 # Converting bimaps
@@ -131,8 +125,8 @@ convertBitmaps(
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
 	PALETTE ${RES_DIR}/cross.gpl
-	INTERLEAVED SOURCES ${GEN_DIR}/thunder.png ${RES_DIR}/cross.png
-	DESTINATIONS ${DATA_DIR}/thunder.bm ${DATA_DIR}/cross.bm
+	INTERLEAVED SOURCES ${THUNDER_DIR}/0.png ${THUNDER_DIR}/1.png ${RES_DIR}/cross.png
+	DESTINATIONS ${DATA_DIR}/thunder_0.bm ${DATA_DIR}/thunder_1.bm ${DATA_DIR}/cross.bm
 )
 
 convertPalette(

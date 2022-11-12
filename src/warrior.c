@@ -46,6 +46,7 @@ typedef struct tThunder {
 	UBYTE ubActivateCooldown;
 	UBYTE ubCurrentColor;
 	UBYTE ubColorCooldown;
+	UBYTE ubNextFrame;
 	tSprite *pSpriteThunder;
 	tSprite *pSpriteCross;
 } tThunder;
@@ -558,7 +559,7 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 		}
 	}
 
-	s_sThunder.pSpriteThunder = spriteAdd(DISPLAY_SPRITE_CHANNEL_THUNDER, g_pFramesThunder);
+	s_sThunder.pSpriteThunder = spriteAdd(DISPLAY_SPRITE_CHANNEL_THUNDER, g_pFramesThunder[0]);
 	s_sThunder.pSpriteCross = spriteAdd(DISPLAY_SPRITE_CHANNEL_CURSOR, g_pFramesCross);
 	spriteSetEnabled(s_sThunder.pSpriteThunder, 0);
 	spriteSetEnabled(s_sThunder.pSpriteCross, 0);
@@ -568,6 +569,7 @@ void warriorsCreate(UBYTE isExtraEnemiesEnabled) {
 	s_sThunder.ubActivateCooldown = THUNDER_ACTIVATE_COOLDOWN;
 	s_sThunder.ubCurrentColor = 0;
 	s_sThunder.ubColorCooldown = 0;
+	s_sThunder.ubNextFrame = 0;
 }
 
 void warriorsProcess(void) {
@@ -590,6 +592,8 @@ void warriorsProcess(void) {
 		}
 		if(--s_sThunder.ubActivateCooldown == 0) {
 			spriteSetEnabled(s_sThunder.pSpriteThunder, 1);
+			spriteSetBitmap(s_sThunder.pSpriteThunder, g_pFramesThunder[s_sThunder.ubNextFrame]);
+			s_sThunder.ubNextFrame = !s_sThunder.ubNextFrame;
 			s_sThunder.pSpriteThunder->wX = s_sThunder.sAttackPos.uwX - DISPLAY_MARGIN_SIZE - 8;
 			s_sThunder.pSpriteThunder->wY = 0;
 			spriteSetHeight(s_sThunder.pSpriteThunder, s_sThunder.sAttackPos.uwY - DISPLAY_MARGIN_SIZE);

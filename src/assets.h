@@ -24,7 +24,7 @@ extern tBitMap *g_pTitleBitmap;
 extern tBitMap *g_pTitleMask;
 
 extern tBitMap *g_pTileset;
-extern tBitMap *g_pFramesThunder;
+extern tBitMap *g_pFramesThunder[2];
 extern tBitMap *g_pFramesCross;
 
 extern tFont *g_pFontBig;
