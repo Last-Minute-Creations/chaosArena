@@ -35,11 +35,10 @@ static void stateMainLoop(void) {
 
 static void stateMainDestroy(void) {
 	logBlockBegin("stateMainDestroy()");
-	systemUse();
 	displayOff();
+	stateManagerDestroy(g_pStateMachineGame);
 	displayDestroy();
 	assetsGlobalDestroy();
-	stateManagerDestroy(g_pStateMachineGame);
 	logBlockEnd("stateMainDestroy()");
 }
 

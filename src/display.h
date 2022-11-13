@@ -7,6 +7,7 @@
 
 #include <ace/generic/screen.h>
 #include <ace/managers/viewport/simplebuffer.h>
+#include "fade.h"
 
 #define DISPLAY_BPP 4
 #define DISPLAY_TILE_MARGIN 1
@@ -23,7 +24,7 @@ void displayDestroy(void);
 
 void displayProcess(void);
 
-UBYTE displayFadeProcess(void);
+tFadeState displayFadeProcess(void);
 
 void displayFadeStart(UBYTE isIn, void (*cbOnFadeDone)(void));
 

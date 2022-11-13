@@ -29,7 +29,8 @@
 		"warrior.h": "c",
 		"state.h": "c",
 		"copper.h": "c",
-		"custom.h": "c"
+		"custom.h": "c",
+		"file.h": "c"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

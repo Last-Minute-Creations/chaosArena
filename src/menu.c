@@ -291,9 +291,12 @@ static void menuGsCreate(void) {
 }
 
 static void menuGsLoop(void) {
-	if(displayFadeProcess()) {
+	tFadeState eFadeState = displayFadeProcess();
+	if(eFadeState == FADE_STATE_EVENT_FIRED) {
 		return;
 	}
+
+	const UBYTE isInReplayMode = 0;
 
 	if(s_ubLastDrawEnd[s_isOdd] < MENU_HEIGHT) {
 		UBYTE ubStartRow = s_ubLastDrawEnd[s_isOdd];
@@ -308,7 +311,7 @@ static void menuGsLoop(void) {
 		return;
 	}
 
-	if(keyUse(KEY_ESCAPE)) {
+	if(!isInReplayMode && eFadeState == FADE_STATE_IDLE && keyUse(KEY_ESCAPE)) {
 		if(s_eCurrentPage == MENU_PAGE_MAIN) {
 			onExitSelected();
 		}
@@ -327,7 +330,7 @@ static void menuGsLoop(void) {
 		if(!s_pPlayersEnabled[ubPlayer]) {
 			if(steerDirUse(pSteer, DIRECTION_FIRE)) {
 				s_pPlayersEnabled[ubPlayer] = 1;
-				s_pMenuMainOptions[1 + ubPlayer].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+				s_pMenuMainOptions[1 + ubPlayer].eDirty |= MENU_LIST_DIRTY_VAL_CHANGE;
 				ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
 				if(menuListGetActiveIndex() == 255) {
 					menuListSetActiveIndex(0);
@@ -336,37 +339,45 @@ static void menuGsLoop(void) {
 			continue;
 		}
 
-		if(s_eCurrentPage == MENU_PAGE_CREDITS) {
-			if(steerDirUse(pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
-				ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
-				menuNavigateToPage(MENU_PAGE_MAIN);
-				return;
-			}
-		}
-		else {
-			if(steerDirUse(pSteer, DIRECTION_UP)) {
-				isNavigatingUpDown |= menuListNavigate(-1);
-			}
-			else if(steerDirUse(pSteer, DIRECTION_DOWN)) {
-				isNavigatingUpDown |= menuListNavigate(+1);
-			}
-			else if(steerDirUse(pSteer, DIRECTION_LEFT)) {
-				isNavigatingToggle |= menuListToggle(-1);
-			}
-			else if(steerDirUse(pSteer, DIRECTION_RIGHT)) {
-				isNavigatingToggle |= menuListToggle(+1);
-			}
-			else if (steerDirUse(pSteer, DIRECTION_FIRE) || keyUse(KEY_RETURN)) {
-				const tMenuListOption *pOption = menuListGetActiveOption();
-				if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
-					if(pOption->sOptCb.cbSelect == onExitSelected) {
-						ptplayerSfxPlay(g_pSfxNo, 3, PTPLAYER_VOLUME_MAX, 15);
-					}
-					else {
-						ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
-					}
-					menuListEnter();
+		if(eFadeState != FADE_STATE_OUT) {
+			if(s_eCurrentPage == MENU_PAGE_CREDITS) {
+				if(eFadeState == FADE_STATE_IDLE && (
+					steerDirUse(pSteer, DIRECTION_FIRE) ||
+					(!isInReplayMode && keyUse(KEY_RETURN))
+				)) {
+					ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
+					menuNavigateToPage(MENU_PAGE_MAIN);
 					return;
+				}
+			}
+			else {
+				if(steerDirUse(pSteer, DIRECTION_UP)) {
+					isNavigatingUpDown |= menuListNavigate(-1);
+				}
+				else if(steerDirUse(pSteer, DIRECTION_DOWN)) {
+					isNavigatingUpDown |= menuListNavigate(+1);
+				}
+				else if(steerDirUse(pSteer, DIRECTION_LEFT)) {
+					isNavigatingToggle |= menuListToggle(-1);
+				}
+				else if(steerDirUse(pSteer, DIRECTION_RIGHT)) {
+					isNavigatingToggle |= menuListToggle(+1);
+				}
+				else if (eFadeState == FADE_STATE_IDLE && (
+					steerDirUse(pSteer, DIRECTION_FIRE) ||
+					(!isInReplayMode && keyUse(KEY_RETURN))
+				)) {
+					const tMenuListOption *pOption = menuListGetActiveOption();
+					if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
+						if(pOption->sOptCb.cbSelect == onExitSelected) {
+							ptplayerSfxPlay(g_pSfxNo, 3, PTPLAYER_VOLUME_MAX, 15);
+						}
+						else {
+							ptplayerSfxPlay(g_pSfxSwipeHit, 3, PTPLAYER_VOLUME_MAX, 10);
+						}
+						menuListEnter();
+						return;
+					}
 				}
 			}
 		}

@@ -14,8 +14,8 @@ typedef enum tMenuListOptionType {
 
 typedef enum tMenuListDirty {
 	MENU_LIST_DIRTY_NONE = 0,
-	MENU_LIST_DIRTY_VAL_CHANGE = 1,
-	MENU_LIST_DIRTY_SELECTION = 2,
+	MENU_LIST_DIRTY_VAL_CHANGE = BV(0),
+	MENU_LIST_DIRTY_SELECTION = BV(1),
 } tMenuListDirty;
 
 typedef void (*tOptionSelectCb)(void);

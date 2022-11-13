@@ -29,7 +29,7 @@ void menuListInit(
 	s_cbDrawPos = cbDrawPos;
 
 	for(UBYTE ubMenuPos = 0; ubMenuPos < ubOptionCount; ++ubMenuPos) {
-		s_pOptions[ubMenuPos].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+		s_pOptions[ubMenuPos].eDirty |= MENU_LIST_DIRTY_VAL_CHANGE;
 	}
 }
 
@@ -73,7 +73,7 @@ void menuListDrawPos(UBYTE ubPos) {
 	else if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_CALLBACK) {
 		szText = szCaption;
 	}
-	if(pOption->eDirty == MENU_LIST_DIRTY_VAL_CHANGE && pOption->uwUndrawWidth) {
+	if((pOption->eDirty & MENU_LIST_DIRTY_VAL_CHANGE) && pOption->uwUndrawWidth) {
 		menuListUndrawPos(ubPos);
 	}
 	if(!pOption->isHidden && szText != 0) {
@@ -124,7 +124,7 @@ UBYTE menuListToggle(BYTE bDelta) {
 			}
 		}
 		*s_pOptions[s_ubActiveOption].sOptUb.pVar = wNewVal;
-		s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+		s_pOptions[s_ubActiveOption].eDirty |= MENU_LIST_DIRTY_VAL_CHANGE;
 		if(s_pOptions[s_ubActiveOption].sOptUb.cbOnValChange) {
 			s_pOptions[s_ubActiveOption].sOptUb.cbOnValChange();
 		}
@@ -148,7 +148,7 @@ void menuListHidePos(UBYTE ubPos, UBYTE isHidden) {
 	UBYTE wasHidden = s_pOptions[ubPos].isHidden;
 	s_pOptions[ubPos].isHidden = isHidden;
 	if(wasHidden != isHidden) {
-		s_pOptions[ubPos].eDirty = MENU_LIST_DIRTY_VAL_CHANGE;
+		s_pOptions[ubPos].eDirty |= MENU_LIST_DIRTY_VAL_CHANGE;
 	}
 }
 
@@ -168,10 +168,10 @@ UBYTE menuListGetActiveIndex(void) {
 
 void menuListSetActiveIndex(UBYTE ubNewPos) {
 	if(s_ubActiveOption < s_ubOptionCount) {
-		s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_SELECTION;
+		s_pOptions[s_ubActiveOption].eDirty |= MENU_LIST_DIRTY_SELECTION;
 	}
 	s_ubActiveOption = ubNewPos;
 	if(s_ubActiveOption < s_ubOptionCount) {
-		s_pOptions[s_ubActiveOption].eDirty = MENU_LIST_DIRTY_SELECTION;
+		s_pOptions[s_ubActiveOption].eDirty |= MENU_LIST_DIRTY_SELECTION;
 	}
 }

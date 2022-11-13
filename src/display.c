@@ -9,7 +9,6 @@
 #include <ace/utils/palette.h>
 #include "tile.h"
 #include "debug.h"
-#include "fade.h"
 
 #define GAME_COLORS (1 << DISPLAY_BPP)
 #define FADE_SPEED 50
@@ -77,9 +76,9 @@ void displayFadeStart(UBYTE isIn, void (*cbOnFadeDone)(void)) {
 	fadeStart(s_pFade, isIn ? FADE_STATE_IN : FADE_STATE_OUT, FADE_SPEED, 1, cbOnFadeDone);
 }
 
-UBYTE displayFadeProcess(void) {
+tFadeState displayFadeProcess(void) {
 	tFadeState eState = fadeProcess(s_pFade);
-	return eState == FADE_STATE_EVENT_FIRED;
+	return eState;
 }
 
 void displayDestroy(void) {
