@@ -7,6 +7,7 @@
 #include <ace/managers/key.h>
 #include <ace/managers/joy.h>
 #include <ace/managers/ptplayer.h>
+#include "steer.h"
 #include "menu.h"
 #include "tile.h"
 #include "debug.h"
@@ -21,6 +22,7 @@ void genericCreate(void) {
 	joyEnableParallel();
 	ptplayerCreate(1);
 	randInit(&g_sRandManager, 0x2184, 0x1911);
+	steerManagerCreate();
 	statePush(g_pStateMachineDisplay, &g_sStateLogo);
 }
 
@@ -38,6 +40,7 @@ void genericProcess(void) {
 }
 
 void genericDestroy(void) {
+	steerManagerDestroy();
 	ptplayerStop();
 
 	stateManagerDestroy(g_pStateMachineDisplay);

@@ -296,7 +296,11 @@ static void menuGsLoop(void) {
 		return;
 	}
 
+#if defined(STEER_RECORD_KEYPRESSES) || defined(STEER_REPLAY_KEYPRESSES)
+	const UBYTE isInReplayMode = 1;
+#else
 	const UBYTE isInReplayMode = 0;
+#endif
 
 	if(s_ubLastDrawEnd[s_isOdd] < MENU_HEIGHT) {
 		UBYTE ubStartRow = s_ubLastDrawEnd[s_isOdd];

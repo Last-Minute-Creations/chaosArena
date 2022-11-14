@@ -9,7 +9,8 @@
 			"program": "${workspaceFolder}/build/chaosArena",
 			"kickstart": "D:/usr/Documents/Amiga files/WinUAE/kick13.rom",
 			"internalConsoleOptions": "openOnSessionStart",
-			"chipmem": "2m"
+			"chipmem": "2m",
+			"fastmem": "8M"
 		},
 		{
 			"type": "amiga",

@@ -3,8 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "steer.h"
+#include <ace/managers/log.h>
 #include <ace/managers/joy.h>
 #include <ace/managers/key.h>
+
+#define STEER_RECORD_FILE "steers.bin"
+
+#if defined(STEER_RECORD_KEYPRESSES) || defined(STEER_REPLAY_KEYPRESSES)
+#include <ace/managers/system.h>
+#include <ace/utils/file.h>
+#define STEER_RECORD_MEMORY (4*1024*1024)
+#define STEER_RECORD_MAX_ENTRIES (STEER_RECORD_MEMORY / DIRECTION_COUNT)
+#define STEER_RECORD_MAX (STEER_RECORD_MAX_ENTRIES * DIRECTION_COUNT)
+
+static UBYTE *s_pRecordedInputs;
+static ULONG s_ulRecordLength;
+#endif
+
+#if defined(STEER_REPLAY_KEYPRESSES)
+static ULONG s_ulReplayPos;
+#endif
 
 //------------------------------------------------------------------ PRIVATE FNS
 
@@ -105,6 +123,42 @@ static void onIdle(UNUSED_ARG tSteer *pSteer) {
 
 //------------------------------------------------------------------- PUBLIC FNS
 
+void steerManagerCreate(void) {
+#if defined(STEER_RECORD_KEYPRESSES)
+	s_ulRecordLength = 0;
+	s_pRecordedInputs = memAllocFast(STEER_RECORD_MAX);
+#elif defined(STEER_REPLAY_KEYPRESSES)
+	systemUse();
+	tFile *pFileRecording = fileOpen(STEER_RECORD_FILE, "rb");
+	fileRead(pFileRecording, &s_ulRecordLength, sizeof(s_ulRecordLength));
+	s_pRecordedInputs = memAllocFast(s_ulRecordLength);
+	fileRead(pFileRecording, s_pRecordedInputs, s_ulRecordLength);
+	fileClose(pFileRecording);
+	s_ulReplayPos = 0;
+	logWrite("Replaying %lu inputs", s_ulRecordLength);
+	systemUnuse();
+#endif
+}
+
+void steerManagerDestroy(void) {
+#if defined(STEER_RECORD_KEYPRESSES)
+	systemUse();
+	tFile *pFileRecording = fileOpen(STEER_RECORD_FILE, "wb");
+	fileWrite(pFileRecording, &s_ulRecordLength, sizeof(s_ulRecordLength));
+	fileWrite(pFileRecording, s_pRecordedInputs, s_ulRecordLength);
+	fileClose(pFileRecording);
+	memFree(s_pRecordedInputs, STEER_RECORD_MAX);
+	logWrite(
+		"Recorded %lu/%d (%lu%%) inputs",
+		s_ulRecordLength, STEER_RECORD_MAX,
+		(s_ulRecordLength * 100) / STEER_RECORD_MAX
+	);
+	systemUnuse();
+#elif defined(STEER_REPLAY_KEYPRESSES)
+	memFree(s_pRecordedInputs, s_ulRecordLength);
+#endif
+}
+
 tSteer steerInitFromMode(tSteerMode eMode, struct tWarrior *pWarrior) {
 	switch(eMode) {
 		case STEER_MODE_JOY_1:
@@ -160,7 +214,28 @@ tSteer steerInitIdle(void) {
 
 void steerProcess(tSteer *pSteer) {
 	if(pSteer->cbProcess) {
+#if defined(STEER_REPLAY_KEYPRESSES)
+		if(s_ulReplayPos + DIRECTION_COUNT <= s_ulRecordLength) {
+			for(tDirection eDir = 0; eDir < DIRECTION_COUNT; ++eDir) {
+				pSteer->pDirectionStates[eDir] = s_pRecordedInputs[s_ulReplayPos++];
+			}
+		}
+		else {
+			logWrite("ERR: Replay time exceeded!\n");
+		}
+#elif defined(STEER_RECORD_KEYPRESSES)
 		pSteer->cbProcess(pSteer);
+		if(s_ulRecordLength + DIRECTION_COUNT <= STEER_RECORD_MAX) {
+			for(tDirection eDir = 0; eDir < DIRECTION_COUNT; ++eDir) {
+				s_pRecordedInputs[s_ulRecordLength++] = pSteer->pDirectionStates[eDir];
+			}
+		}
+		else {
+			logWrite("ERR: Recording time exceeded!\n");
+		}
+#else
+		pSteer->cbProcess(pSteer);
+#endif
 	}
 }
 

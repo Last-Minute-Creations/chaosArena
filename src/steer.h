@@ -50,6 +50,10 @@ typedef struct tSteer {
 	};
 } tSteer;
 
+void steerManagerCreate(void);
+
+void steerManagerDestroy(void);
+
 tSteer steerInitFromMode(tSteerMode eMode, struct tWarrior *pWarrior);
 
 tSteer steerInitJoy(UBYTE ubJoy);

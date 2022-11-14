@@ -133,12 +133,14 @@ static void gameTransitToMenu(void) {
 }
 
 static void gameGsLoop(void) {
+#if !defined(STEER_RECORD_KEYPRESSES) && !defined(STEER_REPLAY_KEYPRESSES)
 	if(keyUse(KEY_ESCAPE)) {
 		// Game canceled - go back to menu
 		menuSetupMain();
 		gameTransitToMenu();
 		return;
 	}
+#endif
 
 	UBYTE ubAlivePlayers = warriorsGetAlivePlayerCount();
 	if(ubAlivePlayers == 1 && warriorsGetAliveCount() == 1) {
