@@ -171,29 +171,51 @@ static void tileQueueProcess(tBitMap *pBuffer) {
 		return;
 	}
 
-	// Draw side part of the tile above masked with the tile
-	blitCopyAligned(
-		g_pTileset, 0,
-		pEntry->uwTileOffsetAbove + MAP_TILE_SIZE,
-		pBuffer, pEntry->uwX, pEntry->uwY, MAP_TILE_SIZE, MAP_TILE_SIDE_HEIGHT
-	);
-	blitCopyMask(
-		g_pTileset, 0, pEntry->uwTileOffset, pBuffer,
-		pEntry->uwX, pEntry->uwY, MAP_TILE_SIZE, MAP_TILE_SIDE_HEIGHT,
-		(UWORD*)g_pTilesetMask->Planes[0]
-	);
+	// Draw side part of the tile above masked with the tile: D=AB+!AC
+	// A - current tile mask
+	// B - current tile
+	// C - above tile
+	// D - destination buffer
+	UWORD uwWidthWords = 1;
+	ULONG ulCurrOffs = g_pTileset->BytesPerRow * pEntry->uwTileOffset;
+	ULONG ulAboveOffs = g_pTileset->BytesPerRow * (pEntry->uwTileOffsetAbove + MAP_TILE_SIZE);
+	ULONG ulDstOffs = pBuffer->BytesPerRow * pEntry->uwY + (pEntry->uwX >> 3);
+	WORD wTileModulo = 0;
+	WORD wDstModulo = bitmapGetByteWidth(pBuffer) - (uwWidthWords * 2);
+	WORD wHeight = MAP_TILE_SIDE_HEIGHT * DISPLAY_BPP;
+
+	blitWait(); // Don't modify registers when other blit is in progress
+	g_pCustom->bltcon0 = USEA|USEB|USEC|USED | MINTERM_COOKIE;
+	g_pCustom->bltcon1 = 0;
+	g_pCustom->bltafwm = 0xFFFF;
+	g_pCustom->bltalwm = 0xFFFF;
+
+	g_pCustom->bltamod = wTileModulo;
+	g_pCustom->bltbmod = wTileModulo;
+	g_pCustom->bltcmod = wTileModulo;
+	g_pCustom->bltdmod = wDstModulo;
+
+	g_pCustom->bltapt = (UBYTE*)((ULONG)g_pTilesetMask->Planes[0] + ulCurrOffs);
+	g_pCustom->bltbpt = (UBYTE*)((ULONG)g_pTileset->Planes[0] + ulCurrOffs);
+	g_pCustom->bltcpt = (UBYTE*)((ULONG)g_pTileset->Planes[0] + ulAboveOffs);
+	g_pCustom->bltdpt = (UBYTE*)((ULONG)pBuffer->Planes[0] + ulDstOffs);
+	g_pCustom->bltsize = (wHeight << 6) | uwWidthWords;
+
 	// Draw remaining part of current tile, without side part
-	blitCopyAligned(
-		g_pTileset, 0, pEntry->uwTileOffset + MAP_TILE_SIDE_HEIGHT, pBuffer,
-		pEntry->uwX, pEntry->uwY + MAP_TILE_SIDE_HEIGHT, MAP_TILE_SIZE, MAP_TILE_SIZE
-	);
+	wHeight = (MAP_TILE_SIZE - MAP_TILE_SIDE_HEIGHT) * DISPLAY_BPP;
+	blitWait(); // Don't modify registers when other blit is in progress
+	g_pCustom->bltcon0 = USEB|USED | MINTERM_B;
+	g_pCustom->bltsize = (wHeight << 6) | uwWidthWords;
+
 	// Draw side part of current tile masked with tile below
-	blitCopyMask(
-		g_pTileset, 0, pEntry->uwTileOffsetBelow,
-		pBuffer, pEntry->uwX, pEntry->uwY + MAP_TILE_SIZE,
-		MAP_TILE_SIZE, MAP_TILE_SIDE_HEIGHT,
-		(UWORD*)g_pTilesetMask->Planes[0]
-	);
+	// Mask is for below-tile (C), so minterm is reversed: D=AC+!AB
+	wHeight = MAP_TILE_SIDE_HEIGHT * DISPLAY_BPP;
+	ULONG ulBelowOffs = g_pTileset->BytesPerRow * pEntry->uwTileOffsetBelow;
+	blitWait(); // Don't modify registers when other blit is in progress
+	g_pCustom->bltcon0 = USEA|USEB|USEC|USED | MINTERM_REVERSE_COOKIE;
+	g_pCustom->bltapt = (UBYTE*)((ULONG)g_pTilesetMask->Planes[0] + ulBelowOffs);
+	g_pCustom->bltcpt = (UBYTE*)((ULONG)g_pTileset->Planes[0] + ulBelowOffs);
+	g_pCustom->bltsize = (wHeight << 6) | uwWidthWords;
 
 	if(--pEntry->ubDrawCount == 0) {
 		if(++s_ubRedrawPopPos == TILE_QUEUE_SIZE) {
