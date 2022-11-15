@@ -10,6 +10,7 @@ tBitMap *g_pWarriorFrames;
 tBitMap *g_pWarriorMasks;
 
 tBitMap *g_pTileset;
+tBitMap *g_pTilesetMask;
 
 tFont *g_pFontBig;
 tFont *g_pFontSmall;
@@ -48,6 +49,7 @@ void assetsGlobalCreate(void) {
 	g_pTitleMask = bitmapCreateFromFile("data/title_mask.bm", 0);
 
 	g_pTileset = bitmapCreateFromFile("data/tiles.bm", 0);
+	g_pTilesetMask = bitmapCreateFromFile("data/tiles_mask.bm", 0);
 	g_pFramesThunder[0] = bitmapCreateFromFile("data/thunder_0.bm", 0);
 	g_pFramesThunder[1] = bitmapCreateFromFile("data/thunder_1.bm", 0);
 	g_pFramesCross = bitmapCreateFromFile("data/cross.bm", 0);
@@ -88,6 +90,7 @@ void assetsGlobalDestroy(void) {
 	bitmapDestroy(g_pTitleMask);
 
 	bitmapDestroy(g_pTileset);
+	bitmapDestroy(g_pTilesetMask);
 	bitmapDestroy(g_pFramesThunder[0]);
 	bitmapDestroy(g_pFramesThunder[1]);
 	bitmapDestroy(g_pFramesCross);
