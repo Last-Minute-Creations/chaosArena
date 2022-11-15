@@ -92,7 +92,7 @@ foreach(direction RANGE 7)
 	endforeach()
 endforeach()
 
-# Tiles
+# Convert warrior frames to linear tile-like format
 convertTileset(
 	TARGET ${GAME_EXECUTABLE} SIZE 16 HEIGHT 19
 	SOURCE ${WARRIOR_DIR} DESTINATION ${GEN_DIR}/warrior.png
@@ -112,15 +112,9 @@ convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
 	PALETTE ${RES_DIR}/chaos_arena.pal
 	MASK_COLOR "#FF00FF"
-	INTERLEAVED SOURCES ${GEN_DIR}/warrior.png ${RES_DIR}/countdown.png ${RES_DIR}/fight.png ${RES_DIR}/title.png
-	DESTINATIONS ${DATA_DIR}/warrior.bm ${DATA_DIR}/countdown.bm ${DATA_DIR}/fight.bm ${DATA_DIR}/title.bm
-	MASKS ${DATA_DIR}/warrior_mask.bm ${DATA_DIR}/countdown_mask.bm ${DATA_DIR}/fight_mask.bm ${DATA_DIR}/title_mask.bm
-)
-convertBitmaps(
-	TARGET ${GAME_EXECUTABLE}
-	PALETTE ${RES_DIR}/chaos_arena.pal
-	INTERLEAVED SOURCES ${RES_DIR}/tiles.png
-	DESTINATIONS ${DATA_DIR}/tiles.bm
+	INTERLEAVED SOURCES ${GEN_DIR}/warrior.png ${RES_DIR}/countdown.png ${RES_DIR}/fight.png ${RES_DIR}/title.png ${RES_DIR}/tiles.png
+	DESTINATIONS ${DATA_DIR}/warrior.bm ${DATA_DIR}/countdown.bm ${DATA_DIR}/fight.bm ${DATA_DIR}/title.bm ${DATA_DIR}/tiles.bm
+	MASKS ${DATA_DIR}/warrior_mask.bm ${DATA_DIR}/countdown_mask.bm ${DATA_DIR}/fight_mask.bm ${DATA_DIR}/title_mask.bm ${DATA_DIR}/tiles_mask.bm
 )
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}

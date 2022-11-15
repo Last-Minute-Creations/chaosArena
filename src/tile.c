@@ -23,16 +23,15 @@
 
 typedef enum tTile {
 	TILE_VOID,
-	TILE_WALL1,
-	TILE_FLOOR1,
-	TILE_FLOOR1_C1, // crumble state
-	TILE_FLOOR1_C2,
-	TILE_FLOOR1_C3,
-	TILE_FLOOR1_C4,
-	TILE_FLOOR1_C5,
-	TILE_FLOOR1_C6,
+	TILE_FLOOR1_C8, // crumble state, 8: max crumble, 1: min
 	TILE_FLOOR1_C7,
-	TILE_FLOOR1_C8,
+	TILE_FLOOR1_C6,
+	TILE_FLOOR1_C5,
+	TILE_FLOOR1_C4,
+	TILE_FLOOR1_C3,
+	TILE_FLOOR1_C2,
+	TILE_FLOOR1_C1,
+	TILE_FLOOR1,
 	TILE_COUNT
 } tTile;
 
@@ -47,6 +46,8 @@ typedef struct tTileDrawQueueEntry {
 	UWORD uwX;
 	UWORD uwY;
 	UWORD uwTileOffset;
+	UWORD uwTileOffsetAbove;
+	UWORD uwTileOffsetBelow;
 	UBYTE ubDrawCount;
 } tTileDrawQueueEntry;
 
@@ -149,7 +150,9 @@ static void tileQueueReset(void) {
 static void tileQueueAddEntry(UBYTE ubTileX, UBYTE ubTileY, tTile eTile) {
 	s_pTilesXy[ubTileX][ubTileY] = eTile;
 	tTileDrawQueueEntry *pEntry = &s_pTileRedrawQueue[s_ubRedrawPushPos];
-	pEntry->uwTileOffset = eTile * MAP_TILE_SIZE;
+	pEntry->uwTileOffset = eTile * MAP_FULL_TILE_HEIGHT;
+	pEntry->uwTileOffsetAbove = s_pTilesXy[ubTileX][ubTileY - 1] * MAP_FULL_TILE_HEIGHT;
+	pEntry->uwTileOffsetBelow = s_pTilesXy[ubTileX][ubTileY + 1] * MAP_FULL_TILE_HEIGHT;
 	pEntry->uwX = ubTileX * MAP_TILE_SIZE;
 	pEntry->uwY = ubTileY * MAP_TILE_SIZE;
 	pEntry->ubDrawCount = 2;
@@ -168,9 +171,28 @@ static void tileQueueProcess(tBitMap *pBuffer) {
 		return;
 	}
 
+	// Draw side part of the tile above masked with the tile
 	blitCopyAligned(
-		g_pTileset, 0, pEntry->uwTileOffset,
-		pBuffer, pEntry->uwX, pEntry->uwY, MAP_TILE_SIZE, MAP_TILE_SIZE
+		g_pTileset, 0,
+		pEntry->uwTileOffsetAbove + MAP_TILE_SIZE,
+		pBuffer, pEntry->uwX, pEntry->uwY, MAP_TILE_SIZE, MAP_TILE_SIDE_HEIGHT
+	);
+	blitCopyMask(
+		g_pTileset, 0, pEntry->uwTileOffset, pBuffer,
+		pEntry->uwX, pEntry->uwY, MAP_TILE_SIZE, MAP_TILE_SIDE_HEIGHT,
+		(UWORD*)g_pTilesetMask->Planes[0]
+	);
+	// Draw remaining part of current tile, without side part
+	blitCopyAligned(
+		g_pTileset, 0, pEntry->uwTileOffset + MAP_TILE_SIDE_HEIGHT, pBuffer,
+		pEntry->uwX, pEntry->uwY + MAP_TILE_SIDE_HEIGHT, MAP_TILE_SIZE, MAP_TILE_SIZE
+	);
+	// Draw side part of current tile masked with tile below
+	blitCopyMask(
+		g_pTileset, 0, pEntry->uwTileOffsetBelow,
+		pBuffer, pEntry->uwX, pEntry->uwY + MAP_TILE_SIZE,
+		MAP_TILE_SIZE, MAP_TILE_SIDE_HEIGHT,
+		(UWORD*)g_pTilesetMask->Planes[0]
 	);
 
 	if(--pEntry->ubDrawCount == 0) {
@@ -251,14 +273,6 @@ void tilesInit(void) {
 					)
 				};
 			}
-
-			// 3d effect
-			if (
-				ubY > 0 && s_pTilesSourceXy[ubX][ubY] == TILE_VOID &&
-				s_pTilesSourceXy[ubX][ubY - 1] == TILE_FLOOR1
-			) {
-				s_pTilesSourceXy[ubX][ubY] = TILE_WALL1;
-			}
 		}
 	}
 
@@ -308,24 +322,15 @@ void tileCrumbleProcess(tBitMap *pBuffer) {
 			continue;
 		}
 		if(--pCrumble->ubCooldown == 0) {
-			tTile eNewTile;
-			if(*pCrumble->pTile == TILE_FLOOR1_C8) {
-				eNewTile = (
-					tileIsSolid(pCrumble->ubTileX, pCrumble->ubTileY - 1) ?
-					TILE_WALL1 : TILE_VOID
-				);
+			--*pCrumble->pTile;
 
-				if(s_pTilesXy[pCrumble->ubTileX][pCrumble->ubTileY + 1] == TILE_WALL1) {
-					tileQueueAddEntry(pCrumble->ubTileX, pCrumble->ubTileY + 1, TILE_VOID);
-				}
+			if(!*pCrumble->pTile) {
 				pCrumble->pTile = 0;
 				ptplayerSfxPlay(g_pSfxCrumble, 2, 64, SFX_PRIORITY_CRUMBLE);
 			}
-			else {
-				eNewTile = *pCrumble->pTile + 1;
-			}
+
 			pCrumble->ubCooldown = CRUMBLE_COOLDOWN;
-			tileQueueAddEntry(pCrumble->ubTileX, pCrumble->ubTileY, eNewTile);
+			tileQueueAddEntry(pCrumble->ubTileX, pCrumble->ubTileY, *pCrumble->pTile);
 		}
 	}
 }
@@ -351,11 +356,20 @@ const tUwCoordYX *tileGetSpawn(UBYTE ubIndex) {
 
 void tilesDrawAllOn(tBitMap *pDestination) {
 	for(UBYTE ubX = 0; ubX < TILE_WIDTH; ++ubX) {
-		for(UBYTE ubY = 0; ubY < TILE_HEIGHT; ++ubY) {
+		for(UBYTE ubY = 1; ubY < TILE_HEIGHT - 1; ++ubY) {
+			// Draw side part of the tile above without mask
 			blitCopyAligned(
-				g_pTileset, 0, s_pTilesXy[ubX][ubY] * 16,
-				pDestination, ubX * 16, ubY * 16, 16, 16
+				g_pTileset, 0, s_pTilesXy[ubX][ubY - 1] * MAP_FULL_TILE_HEIGHT + MAP_TILE_SIZE,
+				pDestination, ubX * MAP_TILE_SIZE, ubY * MAP_TILE_SIZE, MAP_TILE_SIZE,
+				MAP_TILE_SIDE_HEIGHT
 			);
+			// Draw current tile and its side part with mask
+			blitCopyMask(
+				g_pTileset, 0, s_pTilesXy[ubX][ubY] * MAP_FULL_TILE_HEIGHT, pDestination,
+				ubX * MAP_TILE_SIZE, ubY * MAP_TILE_SIZE, MAP_TILE_SIZE,
+				MAP_FULL_TILE_HEIGHT, (UWORD*)g_pTilesetMask->Planes[0]
+			);
+			// Drawing tile beneath isn't needed here since all tiles are drawn in top to bottom order.
 		}
 	}
 }
