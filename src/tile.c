@@ -151,7 +151,7 @@ static void tileQueueAddEntry(UBYTE ubTileX, UBYTE ubTileY, tTile eTile) {
 	s_pTilesXy[ubTileX][ubTileY] = eTile;
 	tTileDrawQueueEntry *pEntry = &s_pTileRedrawQueue[s_ubRedrawPushPos];
 	pEntry->uwTileOffset = eTile * MAP_FULL_TILE_HEIGHT;
-	pEntry->uwTileOffsetAbove = s_pTilesXy[ubTileX][ubTileY - 1] * MAP_FULL_TILE_HEIGHT;
+	pEntry->uwTileOffsetAbove = s_pTilesXy[ubTileX][ubTileY - 1] * MAP_FULL_TILE_HEIGHT + MAP_TILE_SIZE;
 	pEntry->uwTileOffsetBelow = s_pTilesXy[ubTileX][ubTileY + 1] * MAP_FULL_TILE_HEIGHT;
 	pEntry->uwX = ubTileX * MAP_TILE_SIZE;
 	pEntry->uwY = ubTileY * MAP_TILE_SIZE;
@@ -178,10 +178,10 @@ static void tileQueueProcess(tBitMap *pBuffer) {
 	// D - destination buffer
 	UWORD uwWidthWords = 1;
 	ULONG ulCurrOffs = g_pTileset->BytesPerRow * pEntry->uwTileOffset;
-	ULONG ulAboveOffs = g_pTileset->BytesPerRow * (pEntry->uwTileOffsetAbove + MAP_TILE_SIZE);
-	ULONG ulDstOffs = pBuffer->BytesPerRow * pEntry->uwY + (pEntry->uwX >> 3);
+	ULONG ulAboveOffs = g_pTileset->BytesPerRow * (pEntry->uwTileOffsetAbove);
+	ULONG ulDstOffs = pBuffer->BytesPerRow * pEntry->uwY + (pEntry->uwX / 8);
 	WORD wTileModulo = 0;
-	WORD wDstModulo = bitmapGetByteWidth(pBuffer) - (uwWidthWords * 2);
+	WORD wDstModulo = (DISPLAY_WIDTH / 8) - (uwWidthWords * 2);
 	WORD wHeight = MAP_TILE_SIDE_HEIGHT * DISPLAY_BPP;
 
 	blitWait(); // Don't modify registers when other blit is in progress
