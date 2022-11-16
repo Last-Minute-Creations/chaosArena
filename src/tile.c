@@ -397,5 +397,5 @@ void tilesDrawAllOn(tBitMap *pDestination) {
 }
 
 UBYTE tileIsSolid(UBYTE ubTileX, UBYTE ubTileY) {
-	return s_pTilesXy[ubTileX][ubTileY] >= TILE_FLOOR1;
+	return s_pTilesXy[ubTileX][ubTileY] != TILE_VOID;
 }
