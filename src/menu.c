@@ -146,7 +146,7 @@ static const char *s_pMenuSummaryCaptions[MENU_SUMMARY_OPTION_COUNT] = {
 
 static const char *s_pCreditsLines[] = {
 	"Chaos Arena by Last Minute Creations",
-	"lastminutecreations.itch.io/chaos_arena",
+	"lastminutecreations.itch.io/chaos-arena",
 	"  Graphics: Softiron",
 	"  Sounds and music: Luc3k",
 	"  Code: KaiN",
