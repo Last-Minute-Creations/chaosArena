@@ -71,16 +71,16 @@ convertFont(
 )
 
 # Warrior frames
-SET(X_SPACING 16)
-SET(Y_SPACING 13)
+SET(X_SPACING 0)
+SET(Y_SPACING 0)
 SET(FRAME_WIDTH 16)
-SET(FRAME_HEIGHT 19)
+SET(FRAME_HEIGHT 16)
 foreach(direction RANGE 7)
 	SET(warriorFrames "")
 	file(MAKE_DIRECTORY ${WARRIOR_DIR})
 	foreach(anim RANGE 10)
-		MATH(EXPR posX "8 + ${anim} * (${FRAME_WIDTH} + ${X_SPACING})")
-		MATH(EXPR posY "5 + ${direction} * (${FRAME_HEIGHT} + ${Y_SPACING})")
+		MATH(EXPR posX "${anim} * (${FRAME_WIDTH} + ${X_SPACING})")
+		MATH(EXPR posY "${direction} * (${FRAME_HEIGHT} + ${Y_SPACING})")
 		MATH(EXPR frameIndex "11 * ${direction} + ${anim}")
 		extractBitmaps(
 			TARGET ${GAME_EXECUTABLE} SOURCE ${RES_DIR}/warrior.png
@@ -94,7 +94,7 @@ endforeach()
 
 # Convert warrior frames to linear tile-like format
 convertTileset(
-	TARGET ${GAME_EXECUTABLE} SIZE 16 HEIGHT 19
+	TARGET ${GAME_EXECUTABLE} SIZE 16
 	SOURCE ${WARRIOR_DIR} DESTINATION ${GEN_DIR}/warrior.png
 	TILE_PATHS ${warriorFrames}
 )
