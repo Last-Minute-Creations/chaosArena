@@ -23,7 +23,6 @@ static void stateMainCreate(void) {
 	displayOn();
 	menuSetupMain();
 	statePush(g_pStateMachineGame, &g_sStateMenu);
-	stateProcess(g_pStateMachineGame);
 	logBlockEnd("stateMainCreate()");
 }
 

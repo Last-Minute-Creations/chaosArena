@@ -118,6 +118,12 @@ convertBitmaps(
 )
 convertBitmaps(
 	TARGET ${GAME_EXECUTABLE}
+	PALETTE ${RES_DIR}/chaos_arena_short.gpl
+	SOURCES ${RES_DIR}/chaos.png
+	DESTINATIONS ${DATA_DIR}/chaos.bm
+)
+convertBitmaps(
+	TARGET ${GAME_EXECUTABLE}
 	PALETTE ${RES_DIR}/cross.gpl
 	INTERLEAVED SOURCES ${THUNDER_DIR}/0.png ${THUNDER_DIR}/1.png ${RES_DIR}/cross.png
 	DESTINATIONS ${DATA_DIR}/thunder_0.bm ${DATA_DIR}/thunder_1.bm ${DATA_DIR}/cross.bm

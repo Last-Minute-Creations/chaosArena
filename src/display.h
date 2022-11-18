@@ -8,6 +8,7 @@
 #include <ace/generic/screen.h>
 #include <ace/managers/viewport/simplebuffer.h>
 #include "fade.h"
+#include "tile.h"
 
 #define DISPLAY_BPP 4
 #define DISPLAY_TILE_MARGIN 1

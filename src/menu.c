@@ -23,12 +23,14 @@
 #define MENU_DISPLAY_START_X ((DISPLAY_WIDTH - MENU_WIDTH) / 2)
 #define MENU_DISPLAY_START_Y ((DISPLAY_HEIGHT - MENU_HEIGHT) / 2)
 #define MENU_DISPLAY_END_Y (MENU_DISPLAY_START_Y + MENU_HEIGHT)
-#define MENU_COLOR_BG 2
-#define MENU_COLOR_INACTIVE 3
+#define MENU_COLOR_BG 0
+#define MENU_COLOR_INACTIVE 10
 #define MENU_COLOR_ACTIVE 12
 #define MENU_COLOR_TITLE 11
 #define MENU_COLOR_FOOTER 3
-#define APPEAR_ANIM_SPEED 4
+#define APPEAR_ANIM_SPEED 6
+#define CHAOS_MARGIN_X ((MENU_WIDTH - 160) / 2)
+#define CHAOS_MARGIN_Y ((MENU_HEIGHT - 160) / 2)
 
 //-------------------------------------------------------------------------TYPES
 
@@ -71,7 +73,7 @@ static UBYTE s_ubExtraEnemies = 0;
 static UBYTE s_ubThunders = 0;
 static tSteer s_pMenuSteers[PLAYER_MAX_COUNT];
 static UBYTE s_pScores[PLAYER_MAX_COUNT];
-static UBYTE s_ubLastDrawEnd[2];
+static UWORD s_pLastDrawEnd[2];
 static UBYTE s_isOdd;
 static tMenuPage s_eCurrentPage;
 static UBYTE s_ubLastWinner;
@@ -175,6 +177,7 @@ static UBYTE isAnyPlayerOn(void) {
 
 static void menuDrawPage(tMenuPage ePage) {
 	blitRect(s_pMenuBitmap, 0, 0, MENU_WIDTH, MENU_HEIGHT, MENU_COLOR_BG);
+	blitCopy(g_pChaos, 0, 0, s_pMenuBitmap, CHAOS_MARGIN_X, CHAOS_MARGIN_Y, 160, 160, MINTERM_COPY);
 	UBYTE ubLineHeight = g_pFontSmall->uwHeight + 1;
 
 	if(ePage == MENU_PAGE_MAIN) {
@@ -195,7 +198,7 @@ static void menuDrawPage(tMenuPage ePage) {
 		fontDrawStr(
 			g_pFontSmall, s_pMenuBitmap, MENU_WIDTH - 5, 5,
 			"v." GAME_VERSION,
-			MENU_COLOR_INACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_RIGHT, g_pTextBitmap
+			MENU_COLOR_FOOTER, FONT_COOKIE | FONT_SHADOW | FONT_RIGHT, g_pTextBitmap
 		);
 
 		UWORD uwY = MENU_HEIGHT - ubLineHeight - 5;
@@ -267,6 +270,51 @@ static void menuNavigateToPage(tMenuPage ePage) {
 	menuDrawPage(ePage);
 }
 
+static UBYTE menuProcessDrawIn(void) {
+	if(s_pLastDrawEnd[s_isOdd] >= DISPLAY_HEIGHT - DISPLAY_MARGIN_SIZE) {
+		return 0;
+	}
+
+	UWORD uwStartRow = s_pLastDrawEnd[s_isOdd];
+	UWORD uwEndRow;
+
+	if(s_pLastDrawEnd[s_isOdd] < MENU_DISPLAY_START_Y) {
+		uwEndRow = MIN(s_pLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED, MENU_DISPLAY_START_Y);
+		blitRect(
+			s_pVpManager->pBack, DISPLAY_MARGIN_SIZE, uwStartRow,
+			DISPLAY_WIDTH - 2 * DISPLAY_MARGIN_SIZE, uwEndRow - uwStartRow, MENU_COLOR_BG
+		);
+	}
+	else if(
+		MENU_DISPLAY_START_Y <= s_pLastDrawEnd[s_isOdd] &&
+		s_pLastDrawEnd[s_isOdd] < MENU_DISPLAY_END_Y
+	) {
+		uwEndRow = MIN(s_pLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED, MENU_DISPLAY_END_Y);
+		blitRect(
+			s_pVpManager->pBack, DISPLAY_MARGIN_SIZE, uwStartRow,
+			DISPLAY_WIDTH - 2 * DISPLAY_MARGIN_SIZE, uwEndRow - uwStartRow, MENU_COLOR_BG
+		);
+		blitCopyAligned(
+			s_pMenuBitmap, 0, uwStartRow - MENU_DISPLAY_START_Y, s_pVpManager->pBack,
+			MENU_DISPLAY_START_X, uwStartRow, MENU_WIDTH, uwEndRow - uwStartRow
+		);
+	}
+	else {
+		uwEndRow = MIN(
+			s_pLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED,
+			DISPLAY_HEIGHT - DISPLAY_MARGIN_SIZE
+		);
+		blitRect(
+			s_pVpManager->pBack, DISPLAY_MARGIN_SIZE, uwStartRow,
+			DISPLAY_WIDTH - 2 * DISPLAY_MARGIN_SIZE, uwEndRow - uwStartRow, MENU_COLOR_BG
+		);
+	}
+
+	s_pLastDrawEnd[s_isOdd] = uwEndRow;
+	s_isOdd = !s_isOdd;
+	return 1;
+}
+
 static void menuGsCreate(void) {
 	ptplayerLoadMod(g_pModMenu, g_pModSamples, 0);
 	ptplayerEnableMusic(1);
@@ -285,8 +333,8 @@ static void menuGsCreate(void) {
 	s_pMenuSteers[ubPlayer++] = steerInitFromMode(STEER_MODE_KEY_WSAD, 0);
 
 	menuDrawPage(s_eCurrentPage);
-	s_ubLastDrawEnd[0] = 0;
-	s_ubLastDrawEnd[1] = 0;
+	s_pLastDrawEnd[0] = DISPLAY_MARGIN_SIZE;
+	s_pLastDrawEnd[1] = DISPLAY_MARGIN_SIZE;
 	s_isOdd = 0;
 }
 
@@ -297,17 +345,7 @@ static void menuGsLoop(void) {
 	}
 
 	const UBYTE isInReplayMode = 0;
-
-	if(s_ubLastDrawEnd[s_isOdd] < MENU_HEIGHT) {
-		UBYTE ubStartRow = s_ubLastDrawEnd[s_isOdd];
-		UBYTE ubEndRow = MIN(s_ubLastDrawEnd[!s_isOdd] + APPEAR_ANIM_SPEED, MENU_HEIGHT);
-		blitCopyAligned(
-			s_pMenuBitmap, 0, ubStartRow, s_pVpManager->pBack,
-			MENU_DISPLAY_START_X, MENU_DISPLAY_START_Y + ubStartRow,
-			MENU_WIDTH, ubEndRow - ubStartRow
-		);
-		s_ubLastDrawEnd[s_isOdd] = ubEndRow;
-		s_isOdd = !s_isOdd;
+	if(menuProcessDrawIn()) {
 		return;
 	}
 
@@ -436,7 +474,10 @@ static void onGoToMain(void) {
 }
 
 static void onUndraw(UWORD uwX, UWORD uwY, UWORD uwWidth, UWORD uwHeight) {
-	blitRect(s_pMenuBitmap, uwX, uwY, uwWidth, uwHeight + 1, MENU_COLOR_BG);
+	// Add 1 to height for font shadow
+	++uwHeight;
+	blitRect(s_pMenuBitmap, uwX, uwY, uwWidth, uwHeight, MENU_COLOR_BG);
+	blitCopy(g_pChaos, 0, uwY - CHAOS_MARGIN_Y, s_pMenuBitmap, CHAOS_MARGIN_X, uwY, 160, uwHeight, MINTERM_COPY);
 }
 
 static void onDrawPos(

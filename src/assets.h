@@ -23,6 +23,7 @@ extern tBitMap *g_pFightMask;
 extern tBitMap *g_pTitleBitmap;
 extern tBitMap *g_pTitleMask;
 
+extern tBitMap *g_pChaos;
 extern tBitMap *g_pTileset;
 extern tBitMap *g_pTilesetMask;
 extern tBitMap *g_pFramesThunder[2];
