@@ -3,20 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "menu_list.h"
+#include <ace/utils/string.h>
 
 static UBYTE s_ubActiveOption;
 static UBYTE s_ubOptionCount;
 static tMenuListOption *s_pOptions;
-static const char **s_pOptionCaptions;
+static const char * const * s_pOptionCaptions;
 static tFont *s_pFont;
 static UWORD s_uwX, s_uwY;
 static tCbMenuListUndraw s_cbUndraw;
 static tCbMenuListDrawPos s_cbDrawPos;
 
 void menuListInit(
-	tMenuListOption *pOptions, const char **pOptionCaptions, UBYTE ubOptionCount,
-	tFont *pFont, UWORD uwX, UWORD uwY, const tCbMenuListUndraw cbUndraw,
-	const tCbMenuListDrawPos cbDrawPos
+	tMenuListOption *pOptions, const char * const * pOptionCaptions,
+	UBYTE ubOptionCount, tFont *pFont, UWORD uwX, UWORD uwY,
+	const tCbMenuListUndraw cbUndraw, const tCbMenuListDrawPos cbDrawPos
 ) {
 	s_pOptions = pOptions;
 	s_ubOptionCount = ubOptionCount;
@@ -59,14 +60,16 @@ void menuListDrawPos(UBYTE ubPos) {
 	const char *szCaption = s_pOptionCaptions[ubPos];
 	tMenuListOption *pOption = &s_pOptions[ubPos];
 	if(pOption->eOptionType == MENU_LIST_OPTION_TYPE_UINT8) {
+		char *pEnd = szBfr;
 		if(pOption->sOptUb.pEnumLabels) {
-			sprintf(
-				szBfr, "%s: %s", szCaption,
-				pOption->sOptUb.pEnumLabels[*pOption->sOptUb.pVar]
-			);
+			pEnd = stringCopy(szCaption, pEnd);
+			pEnd = stringCopy(": ", pEnd);
+			pEnd = stringCopy(pOption->sOptUb.pEnumLabels[*pOption->sOptUb.pVar], pEnd);
 		}
 		else {
-			sprintf(szBfr, "%s: %hhu", szCaption, *pOption->sOptUb.pVar);
+			pEnd = stringCopy(szCaption, pEnd);
+			pEnd = stringCopy(": ", pEnd);
+			pEnd = stringDecimalFromULong(*pOption->sOptUb.pVar, pEnd);
 		}
 		szText = szBfr;
 	}

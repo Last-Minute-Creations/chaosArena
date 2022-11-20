@@ -203,7 +203,6 @@ convertAudio(
 	STRICT DESTINATION ${DATA_DIR}/lmc.sfx
 )
 
-
 # Generating ZIP
 set(GAME_PACKAGE_NAME "${CMAKE_PROJECT_NAME} ${VER_MAJOR}_${VER_MINOR}_${VER_FIX}")
 add_custom_target(generateZip COMMAND

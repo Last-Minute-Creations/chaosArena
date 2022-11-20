@@ -43,7 +43,7 @@ typedef struct tMenuListOption {
 			UBYTE ubMin;
 			UBYTE ubMax;
 			UBYTE isCyclic;
-			const char **pEnumLabels;
+			const char * const * pEnumLabels;
 			tOptionValChangeCb cbOnValChange;
 			tOptionValDrawCb cbOnValDraw;
 		} sOptUb; ///< Params for uint8-based option
@@ -54,9 +54,9 @@ typedef struct tMenuListOption {
 } tMenuListOption;
 
 void menuListInit(
-	tMenuListOption *pOptions, const char **pOptionCaptions, UBYTE ubOptionCount,
-	tFont *pFont, UWORD uwX, UWORD uwY, const tCbMenuListUndraw cbUndraw,
-	const tCbMenuListDrawPos cbDrawPos
+	tMenuListOption *pOptions, const char * const * pOptionCaptions,
+	UBYTE ubOptionCount, tFont *pFont, UWORD uwX, UWORD uwY,
+	const tCbMenuListUndraw cbUndraw, const tCbMenuListDrawPos cbDrawPos
 );
 
 void menuListDraw(void);

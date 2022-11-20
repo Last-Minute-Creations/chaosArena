@@ -78,7 +78,7 @@ static UBYTE s_isOdd;
 static tMenuPage s_eCurrentPage;
 static UBYTE s_ubLastWinner;
 
-static const char *s_pBoolEnumLabels[2] = {"OFF", "ON"};
+static const char * const s_pBoolEnumLabels[2] = {"OFF", "ON"};
 
 static tMenuListOption s_pMenuMainOptions[] = {
 	{.eOptionType = MENU_LIST_OPTION_TYPE_CALLBACK, .sOptCb = {.cbSelect = onStart}},
@@ -119,7 +119,7 @@ static tMenuListOption s_pMenuMainOptions[] = {
 };
 #define MENU_MAIN_OPTION_COUNT ARRAY_SIZE(s_pMenuMainOptions)
 
-static const char *s_pMenuMainCaptions[MENU_MAIN_OPTION_COUNT] = {
+static const char * const s_pMenuMainCaptions[MENU_MAIN_OPTION_COUNT] = {
 	"BEGIN CHAOS",
 	"Player 1 (Joy 1)",
 	"Player 2 (Joy 2)",
@@ -139,7 +139,7 @@ static tMenuListOption s_pMenuSummaryOptions[] = {
 };
 #define MENU_SUMMARY_OPTION_COUNT ARRAY_SIZE(s_pMenuSummaryOptions)
 
-static const char *s_pMenuSummaryCaptions[MENU_SUMMARY_OPTION_COUNT] = {
+static const char * const s_pMenuSummaryCaptions[MENU_SUMMARY_OPTION_COUNT] = {
 	"CONTINUE CHAOS",
 	"End game",
 };
@@ -211,7 +211,10 @@ static void menuDrawPage(tMenuPage ePage) {
 	else if(ePage == MENU_PAGE_SUMMARY) {
 		char szEntry[20];
 		if(s_ubLastWinner < PLAYER_MAX_COUNT && s_pPlayersEnabled[s_ubLastWinner]) {
-			sprintf(szEntry, "PLAYER %hhu WINS", s_ubLastWinner + 1);
+			char *pEnd = szEntry;
+			pEnd = stringCopy("PLAYER ", pEnd);
+			pEnd = stringDecimalFromULong(s_ubLastWinner + 1, pEnd);
+			pEnd = stringCopy(" WINS", pEnd);
 		}
 		else if(s_ubLastWinner == WARRIOR_LAST_ALIVE_INDEX_INVALID) {
 			stringCopy("DRAW", szEntry);
@@ -232,7 +235,11 @@ static void menuDrawPage(tMenuPage ePage) {
 		uwY += 15;
 		for(UBYTE i = 0; i < PLAYER_MAX_COUNT; ++i) {
 			if(s_pPlayersEnabled[i]) {
-				sprintf(szEntry, "Player %hhu: %hhu", i + 1, s_pScores[i]);
+				char *pEnd = szEntry;
+				pEnd = stringCopy("Player ", pEnd);
+				pEnd = stringDecimalFromULong(i + 1, pEnd);
+				pEnd = stringCopy(": ", pEnd);
+				pEnd = stringDecimalFromULong(s_pScores[i], pEnd);
 				fontDrawStr(
 					g_pFontSmall, s_pMenuBitmap, MENU_WIDTH / 2, uwY, szEntry,
 					MENU_COLOR_INACTIVE, FONT_COOKIE | FONT_SHADOW | FONT_HCENTER, g_pTextBitmap
