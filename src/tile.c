@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "tile.h"
-#include <mini_std/stdlib.h>
+#include <stdlib.h>
 #include <ace/types.h>
 #include <ace/generic/screen.h>
 #include <ace/managers/blit.h>
@@ -171,6 +171,7 @@ static void tileQueueProcess(tBitMap *pBuffer) {
 		return;
 	}
 
+#if defined(AMIGA)
 	// Draw side part of the tile above masked with the tile: D=AB+!AC
 	// A - current tile mask
 	// B - current tile
@@ -216,6 +217,7 @@ static void tileQueueProcess(tBitMap *pBuffer) {
 	g_pCustom->bltapt = (UBYTE*)((ULONG)g_pTilesetMask->Planes[0] + ulBelowOffs);
 	g_pCustom->bltcpt = (UBYTE*)((ULONG)g_pTileset->Planes[0] + ulBelowOffs);
 	g_pCustom->bltsize = (wHeight << 6) | uwWidthWords;
+#endif
 
 	if(--pEntry->ubDrawCount == 0) {
 		if(++s_ubRedrawPopPos == TILE_QUEUE_SIZE) {
@@ -389,7 +391,7 @@ void tilesDrawAllOn(tBitMap *pDestination) {
 			blitCopyMask(
 				g_pTileset, 0, s_pTilesXy[ubX][ubY] * MAP_FULL_TILE_HEIGHT, pDestination,
 				ubX * MAP_TILE_SIZE, ubY * MAP_TILE_SIZE, MAP_TILE_SIZE,
-				MAP_FULL_TILE_HEIGHT, (UWORD*)g_pTilesetMask->Planes[0]
+				MAP_FULL_TILE_HEIGHT, g_pTilesetMask->Planes[0]
 			);
 			// Drawing tile beneath isn't needed here since all tiles are drawn in top to bottom order.
 		}

@@ -22,12 +22,16 @@ void debugEnable(UBYTE isEnabled) {
 }
 
 void debugReset(void) {
+#if defined(AMIGA)
 	g_pCustom->color[0] = s_uwBaseColor;
+#endif
 }
 
 void debugSetColor(UWORD uwColor) {
 	if (s_isDebug) {
+#if defined(AMIGA)
 		g_pCustom->color[0] = uwColor;
+#endif
 	}
 }
 

@@ -7,7 +7,7 @@
 #include <ace/managers/game.h>
 #include <ace/managers/sprite.h>
 #include <ace/managers/system.h>
-#include "bob_new.h"
+#include <ace/managers/bob.h>
 #include "display.h"
 #include "warrior.h"
 #include "assets.h"
@@ -31,8 +31,8 @@ typedef enum tCountdownPhase {
 } tCountdownPhase;
 
 static tSimpleBufferManager *s_pVpManager;
-static tBobNew s_sBobCountdown;
-static tBobNew s_sBobFight;
+static tBob s_sBobCountdown;
+static tBob s_sBobFight;
 static tCountdownPhase s_eCountdownPhase;
 static UBYTE s_ubCountdownCooldown;
 static UBYTE s_ubCrumbleCooldown;
@@ -41,17 +41,17 @@ static UBYTE s_ubGameStopCooldown;
 static void gameGsCreate(void) {
 	tilesInit();
 	s_pVpManager = displayGetManager();
-	bobNewManagerCreate(s_pVpManager->pBack, s_pVpManager->pFront, 512);
+	bobManagerCreate(s_pVpManager->pBack, s_pVpManager->pFront, 512);
 	warriorsCreate(menuIsExtraEnemiesEnabled());
 
 	UBYTE ubCountdownWidth = bitmapGetByteWidth(g_pCountdownFrames) * 8;
 	UBYTE ubFightWidth = bitmapGetByteWidth(g_pFightBitmap) * 8;
-	bobNewInit(
+	bobInit(
 		&s_sBobCountdown, ubCountdownWidth, g_pCountdownFrames->Rows / 3, 1,
 		g_pCountdownFrames->Planes[0], g_pCountdownMask->Planes[0],
 		(DISPLAY_WIDTH - ubCountdownWidth) / 2, 100
 	);
-	bobNewInit(
+	bobInit(
 		&s_sBobFight, ubFightWidth, g_pFightBitmap->Rows, 1,
 		g_pFightBitmap->Planes[0], g_pFightMask->Planes[0],
 		(DISPLAY_WIDTH - ubFightWidth) / 2, 100
@@ -62,7 +62,7 @@ static void gameGsCreate(void) {
 	s_ubCrumbleCooldown = GAME_CRUMBLE_COOLDOWN;
 	s_ubGameStopCooldown = GAME_STOP_COOLDOWN;
 
-	bobNewReallocateBgBuffers();
+	bobReallocateBgBuffers();
 	systemUnuse();
 
 	tilesReload();
@@ -84,7 +84,7 @@ static void countdownProcess(void) {
 		if(s_eCountdownPhase > COUNTDOWN_PHASE_FIGHT) {
 			UWORD uwBytesPerFrame = g_pCountdownFrames->BytesPerRow * s_sBobCountdown.uwHeight;
 			ULONG ulFrameOffset = uwBytesPerFrame * (4 - s_eCountdownPhase);
-			bobNewSetFrame(
+			bobSetFrame(
 				&s_sBobCountdown, &g_pCountdownFrames->Planes[0][ulFrameOffset],
 				&g_pCountdownMask->Planes[0][ulFrameOffset]
 			);
@@ -105,10 +105,10 @@ static void countdownProcess(void) {
 		case COUNTDOWN_PHASE_3:
 		case COUNTDOWN_PHASE_2:
 		case COUNTDOWN_PHASE_1:
-			bobNewPush(&s_sBobCountdown);
+			bobPush(&s_sBobCountdown);
 			break;
 		case COUNTDOWN_PHASE_FIGHT:
-			bobNewPush(&s_sBobFight);
+			bobPush(&s_sBobFight);
 			break;
 		default:
 			break;
@@ -151,7 +151,7 @@ static void gameGsLoop(void) {
 	}
 
 	debugSetColor(0x008);
-	bobNewBegin(s_pVpManager->pBack);
+	bobBegin(s_pVpManager->pBack);
 
 	debugSetColor(0x0ff);
 	if(!s_eCountdownPhase) {
@@ -168,15 +168,15 @@ static void gameGsLoop(void) {
 	countdownProcess();
 
 	debugSetColor(0x00f);
-	bobNewPushingDone();
-	bobNewEnd();
+	bobPushingDone();
+	bobEnd();
 	// warriorsDrawLookup(s_pVpManager->pBack);
 }
 
 static void gameGsDestroy(void) {
 	ptplayerStop();
 	systemUse();
-	bobNewManagerDestroy();
+	bobManagerDestroy();
 	warriorsDestroy();
 }
 

@@ -30,7 +30,9 @@
 		"state.h": "c",
 		"copper.h": "c",
 		"custom.h": "c",
-		"file.h": "c"
+		"file.h": "c",
+		"ptplayer_private.h": "c",
+		"simplebuffer_private.h": "c"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

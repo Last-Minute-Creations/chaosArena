@@ -1,24 +1,49 @@
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"type": "amiga",
-			"request": "launch",
-			"name": "Amiga 500",
-			"config": "A500",
-			"program": "${workspaceFolder}/build/chaosArena",
-			"kickstart": "D:/usr/Documents/Amiga files/WinUAE/kick13.rom",
-			"internalConsoleOptions": "openOnSessionStart",
-			"chipmem": "2m"
-		},
-		{
-			"type": "amiga",
-			"request": "launch",
-			"name": "Amiga 1200",
-			"config": "A1200",
-			"program": "${workspaceFolder}/build/chaosArena",
-			"kickstart": "D:/usr/Documents/Amiga files/WinUAE/kick31.rom",
-			"internalConsoleOptions": "openOnSessionStart"
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "amiga",
+      "request": "launch",
+      "name": "Amiga 500",
+      "config": "A500",
+      "program": "${workspaceFolder}/build/chaosArena",
+      "kickstart": "D:/usr/Documents/Amiga files/WinUAE/kick13.rom",
+      "internalConsoleOptions": "openOnSessionStart",
+      "chipmem": "2m"
+    },
+    {
+      "type": "amiga",
+      "request": "launch",
+      "name": "Amiga 1200",
+      "config": "A1200",
+      "program": "${workspaceFolder}/build/chaosArena",
+      "kickstart": "D:/usr/Documents/Amiga files/WinUAE/kick31.rom",
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "name": "gdb windows Launch",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/chaosArena.exe",
+      "args": [],
+      "stopAtEntry": true,
+      "cwd": "${workspaceFolder}/build",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb.exe",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
 }

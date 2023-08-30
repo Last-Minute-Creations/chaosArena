@@ -48,7 +48,9 @@ static tStateManager *s_pStateMachineLogo;
 static tFade *s_pFade;
 static tStateAce s_eStateAce;
 
+#if defined(AMIGA)
 static tCopBlock *s_pAceBlocks[30];
+#endif
 
 static const UWORD s_pAceColors[] = {
   0xA00, 0xA00,
@@ -137,7 +139,7 @@ static void logoLmcCreate(void) {
 	UWORD pPaletteRef[32];
 	paletteLoad("data/lmc.plt", pPaletteRef, 1 << s_pVp->ubBPP);
 	tBitMap *pLogo = bitmapCreateFromFile("data/lmc.bm", 0);
-	s_pSfxLmc = ptplayerSfxCreateFromFile("data/lmc.sfx");
+	s_pSfxLmc = ptplayerSfxCreateFromFile("data/lmc.sfx", 0);
 	systemUnuse();
 
 	s_sLogoRect.uwWidth = bitmapGetByteWidth(pLogo) * 8;
@@ -221,12 +223,14 @@ static void logoAceCreate(void) {
 	s_sLogoRect.uwHeight = pLogoAce->Rows;
 	UWORD uwLogoOffsY = (256 - s_sLogoRect.uwHeight) / 2;
 
+#if defined(AMIGA)
 	for(UBYTE i = 0; i < 30; ++i) {
     s_pAceBlocks[i] = copBlockCreate(s_pView->pCopList, 3, 0, s_pView->ubPosY + uwLogoOffsY + i * 2);
     copMove(s_pView->pCopList, s_pAceBlocks[i], &g_pCustom->color[1], 0x000);
     copMove(s_pView->pCopList, s_pAceBlocks[i], &g_pCustom->color[2], 0x000);
     copMove(s_pView->pCopList, s_pAceBlocks[i], &g_pCustom->color[3], 0x000);
   }
+#endif
 
 	s_uwFlashFrame = 1;
 	s_bRatioFlashA = FLASH_RATIO_INACTIVE;
@@ -234,7 +238,7 @@ static void logoAceCreate(void) {
 	s_bRatioFlashE = FLASH_RATIO_INACTIVE;
 	s_bRatioFlashPwr = FLASH_RATIO_INACTIVE;
 
-	s_pSfxAce = ptplayerSfxCreateFromFile("data/ace.sfx");
+	s_pSfxAce = ptplayerSfxCreateFromFile("data/ace.sfx", 0);
 	systemUnuse();
 
 	blitCopy(
@@ -271,6 +275,7 @@ static void logoAceLoop(void) {
 			s_eStateAce = STATE_ACE_FADE_OUT;
 		}
 
+#if defined(AMIGA)
 		for(UBYTE i = 0; i < 30; ++i) {
 			if(s_bRatioFlashA != FLASH_RATIO_INACTIVE && s_bRatioFlashA < 16) {
 				s_pAceBlocks[i]->pCmds[0].sMove.bfValue = blendColors(0xFFF, s_pAceColors[i], s_bRatioFlashA);
@@ -293,12 +298,13 @@ static void logoAceLoop(void) {
 					s_pAceBlocks[i]->pCmds[2].sMove.bfValue = blendColors(0xFFF, s_pAceColors[i], s_bRatioFlashE);
 				}
 			}
-
 			s_pAceBlocks[i]->ubUpdated = 2;
 			s_pView->pCopList->ubStatus |= STATUS_UPDATE;
 		}
+#endif
 	}
 	else if(s_eStateAce == STATE_ACE_FADE_OUT) {
+#if defined(AMIGA)
 		for(UBYTE i = 0; i < 30; ++i) {
 			s_pAceBlocks[i]->uwCurrCount = 0;
 			copMove(
@@ -314,11 +320,14 @@ static void logoAceLoop(void) {
 				blendColors(0x000, i < 9 ? s_uwColorPowered : s_pAceColors[i], s_bAceFadeoutRatio)
 			);
 		}
+#endif
 
 		--s_bAceFadeoutRatio;
 	}
 
+#if defined(AMIGA)
 	copProcessBlocks();
+#endif
 	vPortWaitForEnd(s_pVp);
 
 	if (s_bAceFadeoutRatio <= 0)

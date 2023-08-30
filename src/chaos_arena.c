@@ -19,7 +19,7 @@ void genericCreate(void) {
 	keyCreate();
 	joyOpen();
 	joyEnableParallel();
-	ptplayerCreate(1);
+	ptplayerCreate();
 	randInit(&g_sRandManager, 0x2184, 0x1911);
 	statePush(g_pStateMachineDisplay, &g_sStateLogo);
 }

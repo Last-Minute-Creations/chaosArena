@@ -69,7 +69,9 @@ void displayCreate(void) {
 	tilesDrawAllOn(s_pVpManager->pFront);
 	debugInit(s_pVp->pPalette[0]);
 	spriteManagerCreate(s_pView, 0);
+#if defined(AMIGA)
 	systemSetDmaBit(DMAB_SPRITE, 1);
+#endif
 }
 
 void displayFadeStart(UBYTE isIn, void (*cbOnFadeDone)(void)) {
@@ -82,7 +84,9 @@ tFadeState displayFadeProcess(void) {
 }
 
 void displayDestroy(void) {
+#if defined(AMIGA)
 	systemSetDmaBit(DMAB_SPRITE, 0);
+#endif
 	spriteManagerDestroy();
 	fadeDestroy(s_pFade);
 	viewDestroy(s_pView);
@@ -92,7 +96,9 @@ void displayProcess(void) {
 	spriteProcessChannel(DISPLAY_SPRITE_CHANNEL_CURSOR);
 	spriteProcessChannel(DISPLAY_SPRITE_CHANNEL_THUNDER);
 	viewProcessManagers(s_pView);
+#if defined(AMIGA)
 	copProcessBlocks();
+#endif
 	debugReset();
 	systemIdleBegin();
 	vPortWaitForEnd(s_pVp);
@@ -108,7 +114,9 @@ void displayOff(void) {
 }
 
 void displaySetThunderColor(UBYTE ubColorIndex) {
+#if defined(AMIGA)
 	g_pCustom->color[19] = s_pPaletteThunder[ubColorIndex];
+#endif
 }
 
 tSimpleBufferManager *displayGetManager(void) {

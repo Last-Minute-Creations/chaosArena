@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.14.0)
 project(chaosArena LANGUAGES C)
 
-if(NOT AMIGA)
-	message(SEND_ERROR "This project only compiles for Amiga")
-endif()
-
 # ACE
 add_subdirectory(deps/ace ace)
 

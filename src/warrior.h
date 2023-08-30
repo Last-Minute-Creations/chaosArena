@@ -5,7 +5,7 @@
 #ifndef INCLUDE_WARRIOR_H
 #define INCLUDE_WARRIOR_H
 
-#include "bob_new.h"
+#include <ace/managers/bob.h>
 #include "steer.h"
 #include "anim.h"
 
@@ -13,7 +13,7 @@
 
 typedef struct tWarrior {
 	tUwCoordYX sPos;
-	tBobNew sBob;
+	tBob sBob;
 	UBYTE ubAnimFrame;
 	UBYTE ubFrameCooldown;
 	UBYTE ubStunCooldown;

@@ -43,6 +43,6 @@ extern tPtplayerSfx *g_pSfxThunder;
 
 extern tPtplayerMod *g_pModCombat;
 extern tPtplayerMod *g_pModMenu;
-extern UWORD *g_pModSamples;
+extern tPtplayerSamplePack *g_pModSamples;
 
 #endif // INCLUDE_ASSETS_H
