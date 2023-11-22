@@ -348,13 +348,13 @@ void tileCrumbleProcess(tBitMap *pBuffer) {
 		if(--pCrumble->ubCooldown == 0) {
 			--*pCrumble->pTile;
 
+			pCrumble->ubCooldown = CRUMBLE_COOLDOWN;
+			tileQueueAddEntry(pCrumble->ubTileX, pCrumble->ubTileY, *pCrumble->pTile);
+
 			if(!*pCrumble->pTile) {
 				pCrumble->pTile = 0;
 				ptplayerSfxPlay(g_pSfxCrumble, 2, 64, SFX_PRIORITY_CRUMBLE);
 			}
-
-			pCrumble->ubCooldown = CRUMBLE_COOLDOWN;
-			tileQueueAddEntry(pCrumble->ubTileX, pCrumble->ubTileY, *pCrumble->pTile);
 		}
 	}
 }
