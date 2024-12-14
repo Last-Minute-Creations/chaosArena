@@ -36,49 +36,45 @@ tPtplayerSfx *g_pSfxThunder;
 
 tPtplayerMod *g_pModCombat;
 tPtplayerMod *g_pModMenu;
-UWORD *g_pModSamples = 0;
+tPtplayerSamplePack *g_pModSamples = 0;
 static ULONG s_ulSampleSize;
 
 void assetsGlobalCreate(void) {
-	g_pWarriorFrames = bitmapCreateFromFile("data/warrior.bm", 0);
-	g_pWarriorMasks = bitmapCreateFromFile("data/warrior_mask.bm", 0);
-	g_pCountdownFrames = bitmapCreateFromFile("data/countdown.bm", 0);
-	g_pCountdownMask = bitmapCreateFromFile("data/countdown_mask.bm", 0);
-	g_pFightBitmap = bitmapCreateFromFile("data/fight.bm", 0);
-	g_pFightMask = bitmapCreateFromFile("data/fight_mask.bm", 0);
-	g_pTitleBitmap = bitmapCreateFromFile("data/title.bm", 0);
-	g_pTitleMask = bitmapCreateFromFile("data/title_mask.bm", 0);
+	g_pWarriorFrames = bitmapCreateFromPath("data/warrior.bm", 0);
+	g_pWarriorMasks = bitmapCreateFromPath("data/warrior_mask.bm", 0);
+	g_pCountdownFrames = bitmapCreateFromPath("data/countdown.bm", 0);
+	g_pCountdownMask = bitmapCreateFromPath("data/countdown_mask.bm", 0);
+	g_pFightBitmap = bitmapCreateFromPath("data/fight.bm", 0);
+	g_pFightMask = bitmapCreateFromPath("data/fight_mask.bm", 0);
+	g_pTitleBitmap = bitmapCreateFromPath("data/title.bm", 0);
+	g_pTitleMask = bitmapCreateFromPath("data/title_mask.bm", 0);
 
-	g_pChaos = bitmapCreateFromFile("data/chaos.bm", 0);
-	g_pTileset = bitmapCreateFromFile("data/tiles.bm", 0);
-	g_pTilesetMask = bitmapCreateFromFile("data/tiles_mask.bm", 0);
-	g_pFramesThunder[0] = bitmapCreateFromFile("data/thunder_0.bm", 0);
-	g_pFramesThunder[1] = bitmapCreateFromFile("data/thunder_1.bm", 0);
-	g_pFramesCross = bitmapCreateFromFile("data/cross.bm", 0);
+	g_pChaos = bitmapCreateFromPath("data/chaos.bm", 0);
+	g_pTileset = bitmapCreateFromPath("data/tiles.bm", 0);
+	g_pTilesetMask = bitmapCreateFromPath("data/tiles_mask.bm", 0);
+	g_pFramesThunder[0] = bitmapCreateFromPath("data/thunder_0.bm", 0);
+	g_pFramesThunder[1] = bitmapCreateFromPath("data/thunder_1.bm", 0);
+	g_pFramesCross = bitmapCreateFromPath("data/cross.bm", 0);
 
-	g_pFontBig = fontCreate("data/menu.fnt");
-	g_pFontSmall = fontCreate("data/uni54.fnt");
+	g_pFontBig = fontCreateFromPath("data/menu.fnt");
+	g_pFontSmall = fontCreateFromPath("data/uni54.fnt");
 	g_pTextBitmap = fontCreateTextBitMap(320, g_pFontBig->uwHeight);
 
-	g_pSfxCrumble = ptplayerSfxCreateFromFile("data/crumble.sfx");
-	g_pSfxNo = ptplayerSfxCreateFromFile("data/noo.sfx");
-	g_pSfxSwipes[0] = ptplayerSfxCreateFromFile("data/swipe1.sfx");
-	g_pSfxSwipes[1] = ptplayerSfxCreateFromFile("data/swipe2.sfx");
-	g_pSfxSwipeHit = ptplayerSfxCreateFromFile("data/swipeHit.sfx");
-	g_pSfxCountdown[2] = ptplayerSfxCreateFromFile("data/cd3.sfx");
-	g_pSfxCountdown[1] = ptplayerSfxCreateFromFile("data/cd2.sfx");
-	g_pSfxCountdown[0] = ptplayerSfxCreateFromFile("data/cd1.sfx");
-	g_pSfxCountdownFight = ptplayerSfxCreateFromFile("data/cdfight.sfx");
-	g_pSfxThunder = ptplayerSfxCreateFromFile("data/thunder.sfx");
+	g_pSfxCrumble = ptplayerSfxCreateFromPath("data/crumble.sfx", 0);
+	g_pSfxNo = ptplayerSfxCreateFromPath("data/noo.sfx", 0);
+	g_pSfxSwipes[0] = ptplayerSfxCreateFromPath("data/swipe1.sfx", 0);
+	g_pSfxSwipes[1] = ptplayerSfxCreateFromPath("data/swipe2.sfx", 0);
+	g_pSfxSwipeHit = ptplayerSfxCreateFromPath("data/swipeHit.sfx", 0);
+	g_pSfxCountdown[2] = ptplayerSfxCreateFromPath("data/cd3.sfx", 0);
+	g_pSfxCountdown[1] = ptplayerSfxCreateFromPath("data/cd2.sfx", 0);
+	g_pSfxCountdown[0] = ptplayerSfxCreateFromPath("data/cd1.sfx", 0);
+	g_pSfxCountdownFight = ptplayerSfxCreateFromPath("data/cdfight.sfx", 0);
+	g_pSfxThunder = ptplayerSfxCreateFromPath("data/thunder.sfx", 0);
 
-	g_pModCombat = ptplayerModCreate("data/charena_game.mod");
-	g_pModMenu = ptplayerModCreate("data/charena_menu.mod");
+	g_pModCombat = ptplayerModCreateFromPath("data/charena_game.mod");
+	g_pModMenu = ptplayerModCreateFromPath("data/charena_menu.mod");
 
-	s_ulSampleSize = fileGetSize("data/samples.samplepack");
-	g_pModSamples = memAllocChip(s_ulSampleSize);
-	tFile *pFileSamples = fileOpen("data/samples.samplepack", "rb");
-	fileRead(pFileSamples, g_pModSamples, s_ulSampleSize);
-	fileClose(pFileSamples);
+	g_pModSamples = ptplayerSampleDataCreateFromPath("data/samples.samplepack");
 }
 
 void assetsGlobalDestroy(void) {

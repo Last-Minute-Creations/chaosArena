@@ -135,9 +135,9 @@ static void onLmcFadeOut(void)
 static void logoLmcCreate(void) {
 	systemUse();
 	UWORD pPaletteRef[32];
-	paletteLoad("data/lmc.plt", pPaletteRef, 1 << s_pVp->ubBPP);
-	tBitMap *pLogo = bitmapCreateFromFile("data/lmc.bm", 0);
-	s_pSfxLmc = ptplayerSfxCreateFromFile("data/lmc.sfx");
+	paletteLoadFromPath("data/lmc.plt", pPaletteRef, 1 << s_pVp->ubBpp);
+	tBitMap *pLogo = bitmapCreateFromPath("data/lmc.bm", 0);
+	s_pSfxLmc = ptplayerSfxCreateFromPath("data/lmc.sfx", 0);
 	systemUnuse();
 
 	s_sLogoRect.uwWidth = bitmapGetByteWidth(pLogo) * 8;
@@ -152,7 +152,7 @@ static void logoLmcCreate(void) {
 	systemUse();
 	bitmapDestroy(pLogo);
 	systemUnuse();
-	fadeChangeRefPalette(s_pFade, pPaletteRef, 1 << s_pVp->ubBPP);
+	fadeChangeRefPalette(s_pFade, pPaletteRef, 1 << s_pVp->ubBpp);
 	fadeStart(s_pFade, FADE_STATE_IN, 50, 0, 0);
 }
 
@@ -216,7 +216,7 @@ static UWORD blendColors(UWORD uwColorSrc, UWORD uwColorDst, UBYTE ubRatio)
 }
 
 static void logoAceCreate(void) {
-	tBitMap *pLogoAce = bitmapCreateFromFile("data/ace.bm", 0);
+	tBitMap *pLogoAce = bitmapCreateFromPath("data/ace.bm", 0);
 	s_sLogoRect.uwWidth = bitmapGetByteWidth(pLogoAce) * 8;
 	s_sLogoRect.uwHeight = pLogoAce->Rows;
 	UWORD uwLogoOffsY = (256 - s_sLogoRect.uwHeight) / 2;
@@ -234,7 +234,7 @@ static void logoAceCreate(void) {
 	s_bRatioFlashE = FLASH_RATIO_INACTIVE;
 	s_bRatioFlashPwr = FLASH_RATIO_INACTIVE;
 
-	s_pSfxAce = ptplayerSfxCreateFromFile("data/ace.sfx");
+	s_pSfxAce = ptplayerSfxCreateFromPath("data/ace.sfx", 0);
 	systemUnuse();
 
 	blitCopy(

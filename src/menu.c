@@ -192,7 +192,7 @@ static void menuDrawPage(tMenuPage ePage) {
 		blitCopyMask(
 			g_pTitleBitmap, 0, 0, s_pMenuBitmap,
 			(MENU_WIDTH - uwTitleWidth) / 2, 5,
-			uwTitleWidth, uwTitleHeight, (UWORD*)g_pTitleMask->Planes[0]
+			uwTitleWidth, uwTitleHeight, g_pTitleMask->Planes[0]
 		);
 
 		fontDrawStr(

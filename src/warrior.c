@@ -288,7 +288,7 @@ static void warriorAdd(
 	UBYTE ubIndex
 ) {
 	pWarrior->sPos = (tUwCoordYX){.uwX = uwSpawnX, .uwY = uwSpawnY};
-	bobNewInit(
+	bobInit(
 		&pWarrior->sBob, WARRIOR_FRAME_WIDTH, WARRIOR_FRAME_HEIGHT, 1,
 		g_pWarriorFrames->Planes[0], g_pWarriorMasks->Planes[0],
 		pWarrior->sPos.uwX - BOB_OFFSET_X, pWarrior->sPos.uwY - BOB_OFFSET_Y
@@ -499,11 +499,11 @@ static void warriorProcess(tWarrior *pWarrior) {
 		}
 		pWarrior->ubFrameCooldown = FRAME_COOLDOWN;
 		tFrameOffsets *pOffsets = &s_pFrameOffsets[pWarrior->eDirection][pWarrior->eAnim][pWarrior->ubAnimFrame];
-		bobNewSetFrame(&pWarrior->sBob, pOffsets->pBitmap, pOffsets->pMask);
+		bobSetFrame(&pWarrior->sBob, pOffsets->pBitmap, pOffsets->pMask);
 	}
 
 	if(!pWarrior->isDead) {
-		bobNewPush(&pWarrior->sBob);
+		bobPush(&pWarrior->sBob);
 	}
 }
 

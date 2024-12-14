@@ -6,6 +6,8 @@ if(NOT AMIGA)
 endif()
 
 # ACE
+set(ACE_BOB_WRAP_Y OFF)
+set(ACE_BOB_PRISTINE_BUFFER OFF)
 add_subdirectory(deps/ace ace)
 
 set(CMAKE_C_STANDARD 11)

@@ -50,8 +50,8 @@ void displayCreate(void) {
 		s_pVpManager->pCamera, DISPLAY_MARGIN_SIZE, DISPLAY_MARGIN_SIZE
 	);
 
-	paletteLoad("data/palette.plt", s_pPaletteRef, GAME_COLORS);
-	paletteLoad("data/thunder.plt", s_pPaletteThunder, ARRAY_SIZE(s_pPaletteThunder));
+	paletteLoadFromPath("data/palette.plt", s_pPaletteRef, GAME_COLORS);
+	paletteLoadFromPath("data/thunder.plt", s_pPaletteThunder, ARRAY_SIZE(s_pPaletteThunder));
 	s_pVp->pPalette[16] = 0xF0F; // transparent
 	s_pVp->pPalette[17] = 0xFF0; // unused
 	s_pVp->pPalette[18] = 0xFF0; // unused

@@ -155,7 +155,11 @@ static void tileQueueAddEntry(UBYTE ubTileX, UBYTE ubTileY, tTile eTile) {
 	pEntry->uwTileOffsetBelow = s_pTilesXy[ubTileX][ubTileY + 1] * MAP_FULL_TILE_HEIGHT;
 	pEntry->uwX = ubTileX * MAP_TILE_SIZE;
 	pEntry->uwY = ubTileY * MAP_TILE_SIZE;
+#if defined(ACE_BOB_PRISTINE_BUFFER)
+	pEntry->ubDrawCount = 4; // + 2x pristine buffer
+#else
 	pEntry->ubDrawCount = 2;
+#endif
 
 	if(++s_ubRedrawPushPos == TILE_QUEUE_SIZE) {
 		s_ubRedrawPushPos = 0;
@@ -389,7 +393,7 @@ void tilesDrawAllOn(tBitMap *pDestination) {
 			blitCopyMask(
 				g_pTileset, 0, s_pTilesXy[ubX][ubY] * MAP_FULL_TILE_HEIGHT, pDestination,
 				ubX * MAP_TILE_SIZE, ubY * MAP_TILE_SIZE, MAP_TILE_SIZE,
-				MAP_FULL_TILE_HEIGHT, (UWORD*)g_pTilesetMask->Planes[0]
+				MAP_FULL_TILE_HEIGHT, g_pTilesetMask->Planes[0]
 			);
 			// Drawing tile beneath isn't needed here since all tiles are drawn in top to bottom order.
 		}
